@@ -42,7 +42,8 @@ class Wahlkreis {
 }
 
 class Stimme {
-    boolean gueltig
+    boolean erststimmeGueltig
+    boolean zweitstimmeGueltig
 }
 
 class Direktkandidatur {
