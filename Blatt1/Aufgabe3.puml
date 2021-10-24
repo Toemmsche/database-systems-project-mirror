@@ -45,7 +45,7 @@ class Direktkandidatur {
 }
 
 Landesliste "1..*" --* "1" Bundesland : < hat
-Landesliste "*" --* "1" Partei : < hat
+Landesliste "*" --* "1" Partei : < reicht ein
 Landesliste "*" --> "1" Bundestagswahl: zur >
 
 Landesliste "1" *-- "1..*" Listenplatz : enthaelt >
