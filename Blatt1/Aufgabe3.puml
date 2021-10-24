@@ -3,7 +3,7 @@ class Kandidat {
     String vorname
     String nachname
     char geschlecht
-    int alter
+    Date geburtsdatum
     String beruf
 }
 
@@ -48,24 +48,24 @@ class Stimme {
 class Direktkandidatur {
 }
 
-Landesliste "*" --* "1" Bundesland : in >
-Landesliste "*" --* "1" Partei : < reicht ein
-Landesliste "*" --* "1" Bundestagswahl: zur >
+Landesliste "*" -- "1" Bundesland : in >
+Landesliste "*" -- "1" Partei : < reicht ein
+Landesliste "*" -- "1" Bundestagswahl: zur >
 
 Landesliste "1" *-- "1..*" Listenplatz : enthaelt >
-Listenplatz "*" --> "1" Kandidat : enthaelt >
+Listenplatz "*" -- "1" Kandidat : enthaelt >
 
 Wahlkreis "1..*" --* "1" Bundesland : besteht aus <
 
 Wahlkreisinformation "*" --* "1" Wahlkreis : < hat
-Wahlkreisinformation "299" --* "1" Bundestagswahl: gueltig fuer >
+Wahlkreisinformation "299" -- "1" Bundestagswahl: gueltig fuer >
 
-Direktkandidatur "*" --> "1" Kandidat : von >
-Direktkandidatur "*" --* "1" Wahlkreis : < hat
-Direktkandidatur "*" --> "0..1" Partei : von >
-Direktkandidatur "*" --* "1" Bundestagswahl: zur >
+Direktkandidatur "*" -- "1" Kandidat : von >
+Direktkandidatur "*" -- "1" Wahlkreis : < hat
+Direktkandidatur "*" -- "0..1" Partei : von >
+Direktkandidatur "*" -- "1" Bundestagswahl: zur >
 
-Stimme "*" --* "1" Direktkandidatur : Erststimme >
-Stimme "*" --* "1" Landesliste : Zweitstimme >
-Stimme "*" -up-* "1" Wahlkreis : stammt aus >
+Stimme "*" -- "1" Direktkandidatur : Erststimme >
+Stimme "*" -- "1" Landesliste : Zweitstimme >
+Stimme "*" -up- "1" Wahlkreis : stammt aus >
 @enduml
