@@ -44,9 +44,9 @@ class Stimme {
 class Direktkandidatur {
 }
 
-Landesliste "1..*" --* "1" Bundesland : < hat
+Landesliste "*" --* "1" Bundesland : in >
 Landesliste "*" --* "1" Partei : < reicht ein
-Landesliste "*" --> "1" Bundestagswahl: zur >
+Landesliste "*" --* "1" Bundestagswahl: zur >
 
 Landesliste "1" *-- "1..*" Listenplatz : enthaelt >
 Listenplatz "*" --> "1" Kandidat : enthaelt >
@@ -54,13 +54,13 @@ Listenplatz "*" --> "1" Kandidat : enthaelt >
 Wahlkreis "1..*" --* "1" Bundesland : besteht aus <
 
 Bevoelkerung "*" --* "1" Wahlkreis : < hat
-Bevoelkerung "299" --> "1" Bundestagswahl: gueltig fuer >
+Bevoelkerung "299" --* "1" Bundestagswahl: gueltig fuer >
 
 Direktkandidatur "*" --> "1" Kandidat : von >
 Direktkandidatur "*" --* "1" Wahlkreis : < hat
 Direktkandidatur "*" --> "0..1" Partei : von >
-Direktkandidatur "*" --> "1" Bundestagswahl: zur >
+Direktkandidatur "*" --* "1" Bundestagswahl: zur >
 
-Stimme "*" --> "1" Direktkandidatur : Erststimme >
-Stimme "*" --> "1" Landesliste : Zweitstimme >
+Stimme "*" --* "1" Direktkandidatur : Erststimme >
+Stimme "*" --* "1" Landesliste : Zweitstimme >
 @enduml
