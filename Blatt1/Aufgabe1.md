@@ -4,7 +4,7 @@ Informieren Sie sich über das Wahlsystem der deutschen Bundestagswahl. Analysie
 ## Wie wird gewählt?
 - jeder/jede Wahlberechtigte mit Stimmabgabe in genau einem **Wahlkreis**
 - **Stimmzettel** bestehend aus **Erst**- und **Zweitstimme**
-- Stimmen können potentiell ungültig sein
+- Erst- und/**oder** Zweitstimme können potentiell ungültig sein
 
 ## Wer darf wählen?
 - wahlberichtigte deutsche Staatsbürger/innen
