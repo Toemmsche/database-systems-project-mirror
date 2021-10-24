@@ -1,5 +1,4 @@
 @startuml
-
 class Kandidat {
     String vorname
     String nachname
@@ -17,7 +16,7 @@ class Partei {
     int gruendungsjahr
 }
 
-class Wahl {
+class Bundestagswahl{
    int jahr
 }
 
@@ -33,7 +32,6 @@ class Listenplatz {
     int position
 }
 
-
 class Wahlkreis {
     int nummer
     String name
@@ -46,11 +44,9 @@ class Stimme {
 class Direktkandidatur {
 }
 
-
 Landesliste "1..*" --* "1" Bundesland : < hat
-Landesliste "*" --> "1" Partei : ist von >
-Landesliste "*" --> "1" Wahl : zur >
-
+Landesliste "*" --* "1" Partei : < hat
+Landesliste "*" --> "1" Bundestagswahl: zur >
 
 Landesliste "1" *-- "1..*" Listenplatz : enthaelt >
 Listenplatz "*" --> "1" Kandidat : enthaelt >
@@ -58,13 +54,12 @@ Listenplatz "*" --> "1" Kandidat : enthaelt >
 Wahlkreis "1..*" --* "1" Bundesland : besteht aus <
 
 Bevoelkerung "*" --* "1" Wahlkreis : < hat
-Bevoelkerung "299" --> "1" Wahl : gueltig fuer >
-
+Bevoelkerung "299" --> "1" Bundestagswahl: gueltig fuer >
 
 Direktkandidatur "*" --> "1" Kandidat : von >
 Direktkandidatur "*" --* "1" Wahlkreis : < hat
 Direktkandidatur "*" --> "0..1" Partei : von >
-Direktkandidatur "*" --> "1" Wahl : in >
+Direktkandidatur "*" --> "1" Bundestagswahl: zur >
 
 Stimme "*" --> "1" Direktkandidatur : Erststimme >
 Stimme "*" --> "1" Landesliste : Zweitstimme >
