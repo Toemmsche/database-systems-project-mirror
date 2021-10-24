@@ -9,24 +9,28 @@ class Kandidat {
 
 class Bundesland {
     String name
+    boolean osten
 }
 
 class Partei {
     String name
     int gruendungsjahr
+    String farbe
 }
 
 class Bundestagswahl{
    int jahr
 }
 
-class Bevoelkerung {
-    long anzahl
+class Wahlkreisinformation {
+    int anzahlMenschen
+    int anzahlGemeinden
+    int flaeche
+    int altersDurchschnitt
 }
 
 class Landesliste {
 }
-
 
 class Listenplatz {
     int position
@@ -53,8 +57,8 @@ Listenplatz "*" --> "1" Kandidat : enthaelt >
 
 Wahlkreis "1..*" --* "1" Bundesland : besteht aus <
 
-Bevoelkerung "*" --* "1" Wahlkreis : < hat
-Bevoelkerung "299" --* "1" Bundestagswahl: gueltig fuer >
+Wahlkreisinformation "*" --* "1" Wahlkreis : < hat
+Wahlkreisinformation "299" --* "1" Bundestagswahl: gueltig fuer >
 
 Direktkandidatur "*" --> "1" Kandidat : von >
 Direktkandidatur "*" --* "1" Wahlkreis : < hat
@@ -63,4 +67,5 @@ Direktkandidatur "*" --* "1" Bundestagswahl: zur >
 
 Stimme "*" --* "1" Direktkandidatur : Erststimme >
 Stimme "*" --* "1" Landesliste : Zweitstimme >
+Stimme "*" -up-* "1" Wahlkreis : stammt aus >
 @enduml
