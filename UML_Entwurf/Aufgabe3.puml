@@ -1,0 +1,71 @@
+@startuml
+
+class Kandidat {
+    String vorname
+    String nachname
+    char geschlecht
+    int alter
+    String beruf
+}
+
+class Bundesland {
+    String name
+}
+
+class Partei {
+    String name
+    int gruendungsjahr
+}
+
+class Wahl {
+   int jahr
+}
+
+class Bevoelkerung {
+    long anzahl
+}
+
+class Landesliste {
+}
+
+
+class Listenplatz {
+    int position
+}
+
+
+class Wahlkreis {
+    int nummer
+    String name
+}
+
+class Stimme {
+    boolean gueltig
+}
+
+class Direktkandidatur {
+}
+
+
+Landesliste "*" --* "1" Bundesland : < hat
+Landesliste "*" --> "1" Partei : ist von >
+Landesliste "*" --> "1" "Wahl" : zur >
+
+
+Landesliste "1" *-- "1..*" Listenplatz : enthaelt >
+Listenplatz "*" --> "1" Kandidat : enthaelt >
+
+Wahlkreis "1..*" --* "1" Bundesland : besteht aus <
+
+Bevoelkerung "1" --* "1" Wahlkreis : < hat
+Bevoelkerung "299" --> "1" Wahl : gueltig fuer >
+
+
+Direktkandidatur "*" --> "1" Kandidat : von >
+Direktkandidatur "*" --* "1" Wahlkreis : < hat
+Direktkandidatur "*" --> "0..1" Partei : von >
+Direktkandidatur "*" --> "1" Wahl : in >
+
+Stimme "*" --> "1" Direktkandidatur : Erststimme >
+Stimme "*" --> "1" Landesliste : Zweitstimme >
+@enduml
