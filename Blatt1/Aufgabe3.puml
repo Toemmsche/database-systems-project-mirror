@@ -41,13 +41,22 @@ class Wahlkreis {
     String name
 }
 
+class ZweitstimmenErgebnis {
+    int anzahl
+}
 class Stimme {
-    boolean erststimmeGueltig
-    boolean zweitstimmeGueltig
+    boolean gueltig
     boolean briefwahl
 }
 
+class Zweitstimme extends Stimme {
+}
+
+class Erststimme extends Stimme {
+}
+
 class Direktkandidatur {
+    int anzahlStimmen
 }
 
 Landesliste "*" -- "1" Bundesland : in >
@@ -67,7 +76,9 @@ Direktkandidatur "*" -- "1" Wahlkreis : < hat
 Direktkandidatur "*" -- "0..1" Partei : von >
 Direktkandidatur "*" -- "1" Bundestagswahl: zur >
 
-Stimme "*" -- "0..1" Direktkandidatur : Erststimme >
-Stimme "*" -- "0..1" Landesliste : Zweitstimme >
+Erststimme "*" -- "0..1" Direktkandidatur : für >
+Zweitstimme "*" -- "0..1" Landesliste : für >
 Stimme "*" -up- "1" Wahlkreis : stammt aus >
+ZweitstimmenErgebnis "*" -- "1" Wahlkreis : stammt aus >
+ZweitstimmenErgebnis "*" -- "1" Landesliste : für >
 @enduml
