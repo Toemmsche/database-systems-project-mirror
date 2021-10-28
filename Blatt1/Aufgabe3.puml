@@ -16,14 +16,16 @@ class Partei {
     String name
     int gruendungsjahr
     String farbe
+    boolean nationaleMinderheit
 }
 
 class Bundestagswahl{
-   int jahr
+   Date tag
+   int nummer
 }
 
 class Wahlkreisinformation {
-    int anzahlMenschen
+    int deutscheBevoelkerung
     int anzahlGemeinden
     int flaeche
     int altersDurchschnitt
