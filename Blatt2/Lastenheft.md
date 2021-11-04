@@ -1,35 +1,39 @@
 # Lastenheft
-## Benutzerschnittstelle
-- REST-API
-- Interaktive Map
-
+## Benutzerschnittstelle(n)
+- (REST-)API mit Zugriff auf Kernfunktionen 
+- Webseite mit interaktiver Deutschlandkarte, unterteilt in (Bundes-)Länder und Wahlkreise
+    
 ## Funktionale Anforderungen
-- identische Funktionalität für Wahl 2017 und 2021
+Grundsätzlich wird identische Funktionalität für die BTW 2017 (und älter) wie für die BTW 2021 (und neuer) gefordert.
+### Kernfunktionen
 - Sitzverteilung des Bundestags berechnen, ausgeben und visualisieren
 - Erst- und Zweitstimmenergebnis pro Bundesland/Wahlkreis ausgeben und visualisieren (Kreisdiagramm)
 - Vergleich der Wahlergebnisse ggü. 2017 auf Bundes-, Landes-, und Wahlkreisebene
-- Heatmap für jede Partei anzeigen
-- Interessante Statistiken berechnen und visualisieren:
-  - Knappester/Deutlichster Erststimmensieg
-  - Anteil Briefwahl
-  - Anteil ungültiger Stimmen
-  - Wählerumzug
-  - Größter Gewinner/Verliere
-  - Frauenanteil im Bundestag
-  - ...
-- Stimmabgabe analog zum Wahllokal
+- Stimmabgabe möglich
+### Weitere Anforderungen
+- Heatmaps für jede Partei, die zeigen, in welchen Gebieten ein Partei am stärksten abgeschnitten hat
 - Ausgaben der Kandidaten- und Landeslisten
 - Ausgabe der Wahlkreisdaten pro Bundesland
-- Übersicht über Funktionen auf Landing Page
-
+- Interessante Statistiken berechnen und visualisieren:
+	- Knappester/Deutlichster Erststimmensieg
+	- Anteil Briefwahl
+	- Anteil ungültiger Stimmen
+	- Wählerumzug (nur innerhalb von Wahlkreisen)
+	- Größter Gewinner/Verlierer
+	- Frauenanteil im Bundestag
+	- ...
 ## Nichtfunktionale Anforderungen
-- Ca. 50 Mio. Wähler
-- Durchsatz 100 Mio. Erst- und Zweitstimmen (INSERTS) über 15h (9 bis 18 Uhr Lokal, 18  bis 24 Uhr Briefwähler) verteilt
-- Neuberechnung der Bundestagssitze in max. 2s
-- Hohe Benutzbarkeit: Wenig Klicks zum Ergebnis
-- Keine custom Nutzeranfragen
-- Robust gegenüber fehlerhaften Eingaben oder fehlenden Berichtigungen
-- Läuft auf gängigen Webbrowsern
+- **Usability**:
+	- Wenig Klicks zum Ergebnis
+- **Reliability**
+	- Robust gegenüber fehlerhaften Eingaben oder fehlenden Berichtigungen
+	- Keine Anfragen durch Endnutzer
+- **Performance**:
+	- Geeignet für knapp 2*60Mio. Stimmeingaben innerhalb des Wahlzeitfensters.
+	- (Neu-)Berechnung der genauen Sizverteilung im Bundestag innerhalb von 2s (Speichermedium: SSD)
+- **Supportability**:
+	- Bedienbar auf allen gängigen Webbrowsern
+
 ## Constraints
 - Nutzen eines relationalen DBMS
 - DSGVO-Konformität
@@ -39,5 +43,5 @@
   - 5% Hürde
   - Überhangsmandate (außer die ersten drei)
   - nationale Minderheiten
-- Stimmeingabe funktioniert und identifiziert Fehlerfälle rechtzeitig
-- Ausführliche Versionierung und Artefakte
+- Stimmeingabe funktioniert und identifiziert mögliche Fehlerfälle
+- Ausführliche Versionierung und Artefakte sind vorhanden
