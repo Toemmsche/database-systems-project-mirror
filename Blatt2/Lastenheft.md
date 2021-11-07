@@ -50,4 +50,5 @@ Grundsätzlich wird identische Funktionalität für die BTW 2017 (und älter) wi
   - Überhangsmandate (außer die ersten drei)
   - nationale Minderheiten
 - Stimmeingabe funktioniert und identifiziert mögliche Fehlerfälle
+- Direkter Vergleich mit der BTW 2017 ist möglich
 - Ausführliche Versionierung und Artefakte sind vorhanden
