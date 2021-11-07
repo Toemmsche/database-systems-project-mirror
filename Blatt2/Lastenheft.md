@@ -10,7 +10,6 @@ Es soll ein Informationssystem für die deutsche Bundestagswahl entwickelt werde
 Grundsätzlich wird identische Funktionalität für die BTW 2017 (und älter) wie für die BTW 2021 (und neuer) gefordert.
 ### Kernfunktionen
 - Sitzverteilung des Bundestags berechnen, ausgeben und visualisieren
-- Einzelstimmen abspeichern (nur von BTW 2021), wobei Erst- und Zweitstimmen getrennt voneinander abgespeichert werden
 - Erst- und Zweitstimmenergebnis pro Bundesland/Wahlkreis ausgeben und visualisieren (Kreisdiagramm)
 - Vergleich der Wahlergebnisse ggü. 2017 auf Bundes-, Landes-, und Wahlkreisebene
 - Stimmabgabe möglich
@@ -18,7 +17,7 @@ Grundsätzlich wird identische Funktionalität für die BTW 2017 (und älter) wi
 - Heatmaps für jede Partei, die zeigen, in welchen Gebieten ein Partei am stärksten abgeschnitten hat
 - Ausgaben der Kandidaten- und Landeslisten
 - Ausgabe der Wahlkreisdaten pro Bundesland
-- Möglichkeit pro Wahlkreis Einzelstimmen zu Wahlkreisergebnissen vorzuaggregieren
+- Suchfunktion für Wahlkreise, Kandidaten, und Parteien
 - Interessante Statistiken berechnen und visualisieren:
 	- Knappster/Deutlichster Erststimmensieg
 	- Anteil Briefwahl
@@ -37,6 +36,7 @@ Grundsätzlich wird identische Funktionalität für die BTW 2017 (und älter) wi
 	- Geeignet für knapp 2*60Mio. Stimmeingaben innerhalb des Wahlzeitfensters.
 	- (Neu-)Berechnung der genauen Sizverteilung im Bundestag innerhalb von 2s (Speichermedium: SSD)
 	- effiziente Analysen auf universellen Datenbanksystemen und Consumer-Hardware ermöglichen
+    - Möglichkeit pro Wahlkreis Einzelstimmen zu Wahlkreisergebnissen vorzuaggregieren
 - **Supportability**:
 	- Bedienbar auf allen gängigen Webbrowsern
 
