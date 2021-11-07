@@ -46,6 +46,7 @@ class Wahlkreis {
 class ZweitstimmenErgebnis {
     int anzahl
 }
+
 class Stimme {
     boolean gueltig
     boolean briefwahl
@@ -78,9 +79,9 @@ Direktkandidatur "*" -- "1" Wahlkreis : < hat
 Direktkandidatur "*" -- "0..1" Partei : von >
 Direktkandidatur "*" -- "1" Bundestagswahl: zur >
 
-Erststimme "*" -- "0..1" Direktkandidatur : für >
-Zweitstimme "*" -- "0..1" Landesliste : für >
+Erststimme "*" -- "0..1" Direktkandidatur : fuer >
+Zweitstimme "*" -- "0..1" Landesliste : fuer >
 Stimme "*" -up- "1" Wahlkreis : stammt aus >
 ZweitstimmenErgebnis "*" -- "1" Wahlkreis : stammt aus >
-ZweitstimmenErgebnis "*" -- "1" Landesliste : für >
+ZweitstimmenErgebnis "*" -- "1" Landesliste : fuer >
 @enduml
