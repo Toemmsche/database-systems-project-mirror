@@ -9,36 +9,41 @@ Es soll ein Informationssystem für die deutsche Bundestagswahl entwickelt werde
 ## Funktionale Anforderungen
 Grundsätzlich wird identische Funktionalität für die BTW 2017 (und älter) wie für die BTW 2021 (und neuer) gefordert.
 ### Kernfunktionen
+- Speichern aller relevanten Daten für die BTW
 - Sitzverteilung des Bundestags berechnen, ausgeben und visualisieren
+- Besetzung und Typen der Sitze (Überhangsmandat, Direktmandat, etc.) bestimmen und ausgeben
 - Erst- und Zweitstimmenergebnis pro Bundesland/Wahlkreis ausgeben und visualisieren (Kreisdiagramm)
 - Vergleich der Wahlergebnisse ggü. 2017 auf Bundes-, Landes-, und Wahlkreisebene
 - Stimmabgabe möglich
+
 ### Weitere Anforderungen
 - Heatmaps für jede Partei, die zeigen, in welchen Gebieten ein Partei am stärksten abgeschnitten hat
 - Ausgaben der Kandidaten- und Landeslisten
-- Ausgabe der Wahlkreisdaten pro Bundesland
+- Ausgabe der Wahlkreise, inklusive Daten
 - Suchfunktion für Wahlkreise, Kandidaten, und Parteien
-- Interessante Statistiken berechnen und visualisieren:
-	- Knappster/Deutlichster Erststimmensieg
+- interessante Statistiken berechnen und visualisieren:
+	- knappster/Deutlichster Erststimmensieg
 	- Anteil Briefwahl
 	- Anteil ungültiger Stimmen
 	- Wählerumzug (nur innerhalb von Wahlkreisen)
-	- Größter Gewinner/Verlierer
+	- größter Gewinner/Verlierer
 	- Frauenanteil im Bundestag
 	- ...
+- Ausführliche Dokumentation
+- Batch-Loading von Stimmen
 ## Nichtfunktionale Anforderungen
 - **Usability**:
-	- Wenige Klicks zum Ergebnis
+	- wenige Klicks zum Ergebnis
 - **Reliability**
-	- Robust gegenüber fehlerhaften Eingaben oder fehlenden Berichtigungen
-	- Keine Anfragen durch Endnutzer
+	- robust gegenüber fehlerhaften Eingaben oder fehlenden Berichtigungen
+	- keine Anfragen durch Endnutzer
 - **Performance**:
-	- Geeignet für knapp 2*60Mio. Stimmeingaben innerhalb des Wahlzeitfensters.
+	- geeignet für knapp 2*60Mio. Stimmeingaben innerhalb des Wahlzeitfensters
 	- (Neu-)Berechnung der genauen Sizverteilung im Bundestag innerhalb von 2s (Speichermedium: SSD)
 	- effiziente Analysen auf universellen Datenbanksystemen und Consumer-Hardware ermöglichen
     - Möglichkeit pro Wahlkreis Einzelstimmen zu Wahlkreisergebnissen vorzuaggregieren
 - **Supportability**:
-	- Bedienbar auf allen gängigen Webbrowsern
+	- bedienbar auf allen gängigen Webbrowsern
 
 ## Constraints
 - Nutzen eines relationalen DBMS
