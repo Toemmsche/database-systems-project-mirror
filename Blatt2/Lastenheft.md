@@ -3,7 +3,10 @@
 Es soll ein Informationssystem für die deutsche Bundestagswahl entwickelt werden. Das System soll Analysen des Wahlergebnisses (z.B. Sitzverteilung im Bundestag, Vergleiche mit vergangenen Bundestagswahlen) ermöglichen und insbesondere auch die Zusammensetzung des Bundestags berechnen können.
 
 ## Benutzerschnittstelle(n)
-- Webseite mit interaktiver Deutschlandkarte, unterteilt in (Bundes-)Länder und Wahlkreise
+- Webseite
+  - Sitzverteilung im Bundestag als Diagramm
+  - interaktive Deutschlandkarte, unterteilt in (Bundes-)Länder und Wahlkreise
+  - Listen von Kandidaten-, Wahlkreis-, und Parteidaten
 - (REST-)API als Schnittstelle zwischen Datenbank und Webseite mit Zugriff auf Kernfunktionen 
     
 ## Funktionale Anforderungen

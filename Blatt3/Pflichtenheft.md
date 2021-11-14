@@ -53,62 +53,34 @@
 
 ## Technische Umsetzung
 
+![Techstack](TechStack.png)
+
 ### Datenbankmanagementsystem
-- PostgreSQL
+- [PostgreSQL](https://www.postgresql.org/)
   - alle persistenten Daten
 
 ### Backend
-- Python + Flask
-- Interpretation der REST-API Aufrufe
-- Delegation zum DBMS (psycopg)
-- Berechnung der tatsächlichen Wahlkreisgrenzen als (konkaves) Polygon
+- Python + [Flask](https://flask.palletsprojects.com/en/2.0.x/)
+  - Interpretation der REST-API Aufrufe
+  - Delegation zum DBMS ([psycopg](https://www.psycopg.org/))
+  - Berechnung der tatsächlichen Wahlkreisgrenzen als (konkaves) Polygon
 
 ### Frontend
-- Angular mit Typescript
-- Mapbox GL JS
+- [Angular](https://www.angular.io/) mit Typescript
+- [Mapbox GL JS](https://github.com/mapbox/mapbox-gl-js)
   - interaktive Map
-- GeoJSON
-  - Wahlkreisgrenzen
+  - Wahlkreisgrenzen als GeoJSON
+
+### Infrastruktur
+- [nginx](https://www.nginx.com/) als Webserver
+- [Docker](https://www.docker.com/)
 
 ## Datenmodell
 
-![UML-Entwurf](../Entwurf.png)
+![UML-Entwurf](Entwurf.png)
 
 ## GUI-Mockup
-- Navigationsleiste (oben):
-  - Titel und Logo
-  - **Bundestag** 
-  - Daten (Parteien, Landeslisten, Kandidaten, Wahlkreisdaten)
-  - Karten (Interaktive Karte, Heatmap)
-  - Statistiken
-  - Timeslider für Auswahl der Wahl (ein zusätzlicher Slider für Vergleich)
-- Bundestag
-  - Genaue Sitzverteilung + Gesamtanzahl
-  - Filter für "einfache" Statistiken (Frauenanteil, Überhangsmandate, etc.)
-  -
-- Liste an Parteien ( + Suche/Filter)
-- Parteiübersicht mit Landeslisten + Ergebnissen
-  - Landeslisten mit Kandidaten (+ Suche/Filter) + Ergebnissen (farblich kennzeichnen)
-  - Listenkandidatenübersicht + Einzug ja/nein 
-
-  ODER
-
-  - Liste an allen Direktkandidaten
-  - Direktkandidatenübersicht + Ergebnisse
-
-- liste an Wahlkreisen
-- Wahlkreisübersicht + Daten + Liste an Direktkandidaten + Ergebnisse
-- Statistiken
-  - Gruppierung von mehreren Statistiken
-  - Dropdown für Auswahl von Gruppierungen
-  - Visualisierung mit Diagrammen
-- Karten
-  - Interaktive Karte + Filter
-    - Erst-/Zweitstimme
-    - Wahlkreise hervorheben
-    - Suche nach Orten/Gemeinden
-    - Wahlkreisdaten on hover
-- Filter
+[Link zu Figma](https://www.figma.com/file/mWyTVjiFh8bLU6Wr6T6HrN/Datenbankenprojekt?node-id=0%3A1)
 
 ## Glossar
  - *BTW*: Bundestagswahl
