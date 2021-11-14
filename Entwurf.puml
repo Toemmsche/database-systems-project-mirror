@@ -24,13 +24,6 @@ class Bundestagswahl{
    int nummer
 }
 
-class Wahlkreisinformation {
-    int deutscheBevoelkerung
-    int anzahlGemeinden
-    int flaeche
-    int altersDurchschnitt
-}
-
 class Landesliste {
 }
 
@@ -41,6 +34,10 @@ class Listenplatz {
 class Wahlkreis {
     int nummer
     String name
+    int deutscheBevoelkerung
+    int anzahlGemeinden
+    int flaeche
+    int altersDurchschnitt
 }
 
 class ZweitstimmenErgebnis {
@@ -71,8 +68,7 @@ Listenplatz "*" -- "1" Kandidat : enthaelt >
 
 Wahlkreis "1..*" --* "1" Bundesland : besteht aus <
 
-Wahlkreisinformation "*" --* "1" Wahlkreis : < hat
-Wahlkreisinformation "299" -- "1" Bundestagswahl: gueltig fuer >
+Wahlkreis "299" -- "1" Bundestagswahl: gueltig fuer >
 
 Direktkandidatur "*" -- "1" Kandidat : von >
 Direktkandidatur "*" -- "1" Wahlkreis : < hat

@@ -12,13 +12,13 @@ Grundsätzlich wird identische Funktionalität für die BTW 2017 (und älter) wi
 - Speichern aller relevanten Daten für die BTW
 - Sitzverteilung des Bundestags berechnen, ausgeben und visualisieren
 - Besetzung und Typen der Sitze (Überhangsmandat, Direktmandat, etc.) bestimmen und ausgeben
-- Erst- und Zweitstimmenergebnis pro Bundesland/Wahlkreis ausgeben und visualisieren (Kreisdiagramm)
 - Vergleich der Wahlergebnisse ggü. 2017 auf Bundes-, Landes-, und Wahlkreisebene
 - Stimmabgabe möglich
 
 ### Weitere Anforderungen
+- Erst- und Zweitstimmenergebnis pro Bundesland/Wahlkreis ausgeben und visualisieren (Kreisdiagramm)
 - Heatmaps für jede Partei, die zeigen, in welchen Gebieten ein Partei am stärksten abgeschnitten hat
-- Ausgaben der Kandidaten- und Landeslisten
+- Ausgaben der Kandidaten- und Landeslisten für alle Parteien
 - Ausgabe der Wahlkreise, inklusive Daten
 - Suchfunktion für Wahlkreise, Kandidaten, und Parteien
 - interessante Statistiken berechnen und visualisieren:
