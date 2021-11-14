@@ -10,13 +10,16 @@ class Kandidat {
 class Bundesland {
     String name
     boolean osten
+    Image wappen
 }
 
 class Partei {
     String name
+    String id
+    boolean nationaleMinderheit
     int gruendungsjahr
     String farbe
-    boolean nationaleMinderheit
+    Image logo
 }
 
 class Bundestagswahl{

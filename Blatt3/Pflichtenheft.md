@@ -57,7 +57,7 @@
 
 ### Datenbankmanagementsystem
 - [PostgreSQL](https://www.postgresql.org/)
-  - alle persistenten Daten
+  - für alle persistenten Daten
 
 ### Backend
 - Python + [Flask](https://flask.palletsprojects.com/en/2.0.x/)
