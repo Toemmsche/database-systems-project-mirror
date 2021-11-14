@@ -41,6 +41,7 @@ class Wahlkreis {
     int anzahlGemeinden
     int flaeche
     int altersDurchschnitt
+    List<GeoJSON> begrenzung
 }
 
 class ZweitstimmenErgebnis {
@@ -81,6 +82,6 @@ Direktkandidatur "*" -- "1" Bundestagswahl: zur >
 Erststimme "*" -- "0..1" Direktkandidatur : fuer >
 Zweitstimme "*" -- "0..1" Landesliste : fuer >
 Stimme "*" -up- "1" Wahlkreis : stammt aus >
-ZweitstimmenErgebnis "*" -- "1" Wahlkreis : stammt aus >
+ZweitstimmenErgebnis "*" -left- "1" Wahlkreis : stammt aus >
 ZweitstimmenErgebnis "*" -- "1" Landesliste : fuer >
 @enduml

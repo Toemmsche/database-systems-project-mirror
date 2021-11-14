@@ -45,7 +45,8 @@ Grundsätzlich wird identische Funktionalität für die BTW 2017 (und älter) wi
 	- keine Anfragen durch Endnutzer
 - **Performance**:
 	- geeignet für knapp 2*60Mio. Stimmeingaben innerhalb des Wahlzeitfensters
-	- (Neu-)Berechnung der genauen Sizverteilung im Bundestag innerhalb von 2s (Speichermedium: SSD)
+	- (Neu-)Berechnung der genauen Sizverteilung im Bundestag innerhalb von 
+      5s (Speichermedium: SSD)
 	- effiziente Analysen auf universellen Datenbanksystemen und Consumer-Hardware ermöglichen
     - Möglichkeit pro Wahlkreis Einzelstimmen zu Wahlkreisergebnissen vorzuaggregieren
 - **Supportability**:

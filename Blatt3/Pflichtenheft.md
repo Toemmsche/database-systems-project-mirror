@@ -4,6 +4,7 @@
 
 ### Musskriterien
 - Speichern aller relevanten Daten (siehe Datenmodell) für die BTW
+  - insbesondere aggreggierte Ergebnisse pro Wahlkreis
 - Sitzverteilung des Bundestags
   - Berechnung der Verteilung auf die Parteien unter Beachtung von Sonderregeln:
     - Überhangsmandate (außer die ersten drei)
@@ -13,6 +14,8 @@
   - Visualisierung als Diagramm
   - Bestimmung des Mandatstyps (Überhangsmandat, Direktmandat, Listenmandat)
   - Besetzung der Sitze mit Kandidaten
+  - Neuberechnung mit Einzelstimmen in < 5s
+  - Neuberechnung mit Aggregationen in < 1s
 - Möglicher Vergleich aller Ausgaben (von 2021) mit der Wahl 2017
 - Stimmabgabe durch Benutzer
   - Einzeln
@@ -48,7 +51,7 @@
 ### Abgrenzungskriterien
 - keine Möglichkeit eigene (SQL-)Anfragen zu formulieren
 - keine Einzelstimmen für Wahlen vor 2021
-- keine Neuberechnung des Bundestags bei jeder Abfrage
+- keine Neuberechnung des Bundestags bei *jeder* Abfrage
 - keine personenbezogenen Daten (insbesondere über Wähler) speichern
 
 ## Technische Umsetzung
@@ -56,13 +59,20 @@
 ![Techstack](TechStack.png)
 
 ### Datenbankmanagementsystem
-- [PostgreSQL](https://www.postgresql.org/)
-  - für alle persistenten Daten
+- [PostgreSQL](https://www.postgresql.org/) zum Management aller persistenten 
+  Daten
+- Erstellung von Views für zu berechnende Daten. Zur Abfrage wird 
+  lediglich "SELECT * FROM view;" benötigt.
+  - Wahlkreissieger 
+  - Überhangsmandate
+  - Sitzverteilung
+  - Verschiedene Statistiken
 
 ### Backend
 - Python + [Flask](https://flask.palletsprojects.com/en/2.0.x/)
-  - Interpretation der REST-API Aufrufe
+  - Entegegennehmen der REST-API Aufrufe
   - Delegation zum DBMS ([psycopg](https://www.psycopg.org/))
+  - JSON als Nachrichtenformat
   - Berechnung der tatsächlichen Wahlkreisgrenzen als (konkaves) Polygon
 
 ### Frontend
@@ -70,14 +80,26 @@
 - [Mapbox GL JS](https://github.com/mapbox/mapbox-gl-js)
   - interaktive Map
   - Wahlkreisgrenzen als GeoJSON
+- Verschiedene Bibliotheken zur Visualisierung
+  - Balkendiagramme
+  - Sitzverteilung
 
 ### Infrastruktur
-- [nginx](https://www.nginx.com/) als Webserver
-- [Docker](https://www.docker.com/)
+- [nginx](https://www.nginx.com/) als Webserver für statische Dateien und 
+  das Frontend
+- [Docker](https://www.docker.com/) zum Verpacken und Ausführen der 
+  Komponenten als Container --> Erhöhte Portabilität
+- Alle Komponenten sollen auf einer Hostingplattform 
+  für Container / vServer gehostet werden.
 
 ## Datenmodell
 
 ![UML-Entwurf](Entwurf.png)
+
+### Hinweise zur Zugangsberechtigung
+
+- Stimmabgaben sind nur in Kombination mit einem gültigen Schlüssel möglich.
+- Es werden keine Nutzerkonten verwaltet.
 
 ## GUI-Mockup
 [Link zu Figma](https://www.figma.com/file/mWyTVjiFh8bLU6Wr6T6HrN/Datenbankenprojekt?node-id=0%3A1)
