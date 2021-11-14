@@ -96,13 +96,13 @@
 
 ![UML-Entwurf](Entwurf.png)
 
+## GUI-Mockup
+[Link zu Figma](https://www.figma.com/file/mWyTVjiFh8bLU6Wr6T6HrN/Datenbankenprojekt?node-id=0%3A1)
+
 ### Hinweise zur Zugangsberechtigung
 
 - Stimmabgaben sind nur in Kombination mit einem gültigen Schlüssel möglich.
 - Es werden keine Nutzerkonten verwaltet.
-
-## GUI-Mockup
-[Link zu Figma](https://www.figma.com/file/mWyTVjiFh8bLU6Wr6T6HrN/Datenbankenprojekt?node-id=0%3A1)
 
 ## Glossar
  - *BTW*: Bundestagswahl
