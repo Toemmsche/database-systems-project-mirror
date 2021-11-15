@@ -74,7 +74,7 @@ CREATE TABLE Direktkandidatur
 (
     direktId      INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     partei        VARCHAR(20) REFERENCES Partei (kuerzel),
-    kandidat      INTEGER REFERENCES Kandidat (kandId)       NOT NULL,
+    kandidat      INTEGER REFERENCES Kandidat (kandId),
     wahl          INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
     wahlkreis     INTEGER REFERENCES Wahlkreis (wkId)        NOT NULL,
     anzahlStimmen INTEGER
