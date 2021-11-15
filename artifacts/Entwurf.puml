@@ -2,12 +2,16 @@
 class Kandidat {
     String vorname
     String nachname
+    String namensZusatz
+    String titel
     char geschlecht
     Date geburtsdatum
+    String geburtsort
     String beruf
 }
 
 class Bundesland {
+    Strind landId
     String name
     boolean osten
     Image wappen
@@ -28,6 +32,7 @@ class Bundestagswahl{
 }
 
 class Landesliste {
+    int stimmzettelPosition
 }
 
 class Listenplatz {
@@ -38,9 +43,6 @@ class Wahlkreis {
     int nummer
     String name
     int deutscheBevoelkerung
-    int anzahlGemeinden
-    int flaeche
-    int altersDurchschnitt
     List<GeoJSON> begrenzung
 }
 
@@ -79,7 +81,7 @@ Listenplatz "*" -- "1" Kandidat : enthaelt >
 Wahlkreis "1..*" --* "1" Bundesland : besteht aus <
 Wahlkreis "1" *-right- "1..*" Gemeinde : besteht aus >
 Wahlkreis "299" -- "1" Bundestagswahl: gueltig fuer >
-
+Gemeinde "1" -- "0..*" Kandidat: wohnt in <
 Direktkandidatur "*" -- "1" Kandidat : von >
 Direktkandidatur "*" -- "1" Wahlkreis : < hat
 Direktkandidatur "*" -- "0..1" Partei : von >

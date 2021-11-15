@@ -27,13 +27,11 @@ CREATE TABLE Bundesland
 
 CREATE TABLE Wahlkreis
 (
-    wkId                 INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nummer               INTEGER                                    NOT NULL,
-    wahl                 INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
-    deutscheBevoelkerung INTEGER                                    NOT NULL,
-    flaeche              INTEGER,
-    altersDurchschnitt   REAL,
-    begrenzung           BYTEA,
+    wkId       INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nummer     INTEGER                                    NOT NULL,
+    wahl       INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
+    deutsche   INTEGER                                    NOT NULL,
+    begrenzung BYTEA,
     UNIQUE (nummer, wahl)
 );
 
@@ -79,21 +77,20 @@ CREATE TABLE Direktkandidatur
     kandidat      INTEGER REFERENCES Kandidat (kandId)       NOT NULL,
     wahl          INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
     wahlkreis     INTEGER REFERENCES Wahlkreis (wkId)        NOT NULL,
-    anzahlStimmen INTEGER,
-    UNIQUE (kandidat, wahl)
+    anzahlStimmen INTEGER
 );
 
 CREATE TABLE Landesliste
 (
-    listenId INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    partei   VARCHAR(20) REFERENCES Partei (kuerzel)    NOT NULL,
-    wahl     INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
-    land     VARCHAR(50) REFERENCES Bundesland (landId) NOT NULL,
+    listenId            INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    partei              VARCHAR(20) REFERENCES Partei (kuerzel)    NOT NULL,
+    wahl                INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
+    land                VARCHAR(50) REFERENCES Bundesland (landId) NOT NULL,
+    stimmzettelPosition INTEGER                                    NOT NULL,
     UNIQUE (partei, wahl, land)
 );
 
 -- Constraint damit kein Kandidat in zwei Landeslistenfür eine Wahl antritt
-
 CREATE TABLE Listenplatz
 (
     position INTEGER                                   NOT NULL,
