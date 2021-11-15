@@ -44,6 +44,12 @@ class Wahlkreis {
     List<GeoJSON> begrenzung
 }
 
+class Gemeinde {
+    int plz
+    String name
+    String zusatz
+}
+
 class ZweitstimmenErgebnis {
     int anzahl
 }
@@ -71,7 +77,7 @@ Landesliste "1" *-- "1..*" Listenplatz : enthaelt >
 Listenplatz "*" -- "1" Kandidat : enthaelt >
 
 Wahlkreis "1..*" --* "1" Bundesland : besteht aus <
-
+Wahlkreis "1" *-right- "1..*" Gemeinde : besteht aus >
 Wahlkreis "299" -- "1" Bundestagswahl: gueltig fuer >
 
 Direktkandidatur "*" -- "1" Kandidat : von >

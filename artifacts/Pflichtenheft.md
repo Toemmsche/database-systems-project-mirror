@@ -19,7 +19,7 @@
 - Möglicher Vergleich aller Ausgaben (von 2021) mit der Wahl 2017
 - Stimmabgabe durch Benutzer
   - Einzeln
-  - Batch-Loading
+  - Batch-Loading und Umwandlung in Einzelstimmen
 
 ### Sollkriterien
 - ausführliche Dokumentation und Versionierung
