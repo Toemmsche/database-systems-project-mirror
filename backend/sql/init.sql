@@ -60,7 +60,7 @@ CREATE TABLE Partei
 );
 CREATE TABLE Kandidat
 (
-    kandId      INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    kandId      UUID PRIMARY KEY,
     vorname     VARCHAR(100) NOT NULL,
     nachname    VARCHAR(60)  NOT NULL,
     titel       VARCHAR(50),
@@ -75,9 +75,9 @@ CREATE TABLE Kandidat
 
 CREATE TABLE Direktkandidatur
 (
-    direktId      INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    direktId      UUID PRIMARY KEY,
     partei        INTEGER REFERENCES Partei (parteiId),
-    kandidat      INTEGER REFERENCES Kandidat (kandId),
+    kandidat      UUID REFERENCES Kandidat (kandId),
     wahl          INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
     wahlkreis     UUID REFERENCES Wahlkreis (wkId)           NOT NULL,
     anzahlStimmen INTEGER
@@ -85,7 +85,7 @@ CREATE TABLE Direktkandidatur
 
 CREATE TABLE Landesliste
 (
-    listenId            INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    listenId            UUID PRIMARY KEY,
     partei              INTEGER REFERENCES Partei (parteiId)       NOT NULL,
     wahl                INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
     land                VARCHAR(50) REFERENCES Bundesland (landId) NOT NULL,
@@ -96,33 +96,33 @@ CREATE TABLE Landesliste
 -- Constraint damit kein Kandidat in zwei Landeslistenfür eine Wahl antritt
 CREATE TABLE Listenplatz
 (
-    position INTEGER                                   NOT NULL,
-    kandidat INTEGER REFERENCES Kandidat (kandId)      NOT NULL,
-    liste    INTEGER REFERENCES Landesliste (listenId) NOT NULL,
+    position INTEGER                                NOT NULL,
+    kandidat UUID REFERENCES Kandidat (kandId)      NOT NULL,
+    liste    UUID REFERENCES Landesliste (listenId) NOT NULL,
     PRIMARY KEY (liste, position)
 );
 
 CREATE TABLE Erststimme
 (
     erstId     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    wahlkreis  UUID REFERENCES Wahlkreis (wkId)               NOT NULL,
-    kandidatur INTEGER REFERENCES Direktkandidatur (direktId) NOT NULL,
+    wahlkreis  UUID REFERENCES Wahlkreis (wkId)            NOT NULL,
+    kandidatur UUID REFERENCES Direktkandidatur (direktId) NOT NULL,
     briefwahl  BIT,
-    gueltig    BIT                                            NOT NULL
+    gueltig    BIT                                         NOT NULL
 );
 
 CREATE TABLE Zweitstimme
 (
     zweitId   INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    liste     INTEGER REFERENCES Landesliste (listenId),
+    liste     UUID REFERENCES Landesliste (listenId),
     gueltig   BIT NOT NULL,
     briefwahl BIT
 );
 
 CREATE TABLE Zweitstimmenergebnis
 (
-    liste         INTEGER REFERENCES Landesliste (listenId) NOT NULL,
-    wahlkreis     UUID REFERENCES Wahlkreis (wkId)          NOT NULL,
+    liste         UUID REFERENCES Landesliste (listenId) NOT NULL,
+    wahlkreis     UUID REFERENCES Wahlkreis (wkId)       NOT NULL,
     anzahlStimmen INTEGER,
     PRIMARY KEY (liste, wahlkreis)
 );

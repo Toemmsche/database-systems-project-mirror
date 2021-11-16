@@ -95,27 +95,91 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
     records = local_csv(kandidaten_2021, delimiter=';')
 
     gemeinde_mapping = key_dict(cursor, 'gemeinde', ('plz',), 'gemeindeid')
+    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
+    partei_mapping = {(x[0].upper(),): partei_mapping[x] for x in partei_mapping}
+    wahlkreis_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl',), 'wkId')
 
     # make candidates unique
     unique_set = set()
     temp_records = []
     for kand in records:
+        kand['kandId'] = uuid.uuid4()
         key = (
             kand['Vornamen'],
             kand['Nachname'],
             kand['Geburtsjahr'],
-            kand['Geburtsort'],
+            # kand['Geburtsort'], different birthplace format for Mr. Traymont Wilhelmi
         )
         if key not in unique_set:
             temp_records.append(kand)
             unique_set.add(key)
     records = temp_records
 
-    id_iter = itertools.count()
+    kandidaten_landesliste_1 = list(
+        filter(
+            lambda row: row['Kennzeichen'] == 'Landesliste',
+            records
+        )
+    )
+    kandidaten_landesliste_2 = list(
+        filter(
+            lambda row: row['VerknKennzeichen'] == 'Landesliste',
+            records
+        )
+    )
+
+    direktkandidaten = list(
+        filter(
+            lambda row: row['Kennzeichen'] == 'Kreiswahlvorschlag',
+            records
+        )
+    )
+
+    direktkandidaten_parteilos = list(
+        filter(
+            lambda row: row['Kennzeichen'] == 'anderer Kreiswahlvorschlag',
+            records
+        )
+    )
+
+    unique_landeslisten = dict()
+    landeslisten = list()
+    for kand in kandidaten_landesliste_1:
+        key = (
+            kand['GebietLandAbk'],
+            kand['Gruppenname']
+        )
+        if key not in unique_landeslisten:
+            landeslisten.append(key)
+            unique_landeslisten[key] = uuid.uuid4()
+
+    for kand in kandidaten_landesliste_2:
+        key = (
+            kand['VerknGebietLandAbk'],
+            kand['VerknGruppenname']
+        )
+        if key not in unique_landeslisten:
+            landeslisten.append(key)
+            unique_landeslisten[key] = uuid.uuid4()
+
+    landeslisten = list(
+        map(
+            lambda liste: (
+                unique_landeslisten[liste],
+                partei_mapping[(liste[1].upper(),)],
+                20,
+                liste[0],
+                0 # TODO: Stimmzettelposition
+            ),
+            landeslisten
+        )
+    )
+    load_into_db(cursor, landeslisten, 'Landesliste')
+
     records = list(
         map(
             lambda row: (
-                next(id_iter),
+                row['kandId'],
                 row['Vornamen'],
                 row['Nachname'],
                 row['Titel'],
@@ -132,6 +196,56 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
     )
     load_into_db(cursor, records, 'Kandidat')
 
+    kandidaten_landesliste_1 = list(
+        map(
+            lambda row: (
+                row['Listenplatz'],
+                row['kandId'],
+                unique_landeslisten[(row['GebietLandAbk'], row['Gruppenname'])]
+            ),
+            kandidaten_landesliste_1
+        )
+    )
+    kandidaten_landesliste_2 = list(
+        map(
+            lambda row: (
+                row['VerknListenplatz'],
+                row['kandId'],
+                unique_landeslisten[(row['VerknGebietLandAbk'], row['VerknGruppenname'])]
+            ),
+            kandidaten_landesliste_2
+        )
+    )
+    load_into_db(cursor, kandidaten_landesliste_1 + kandidaten_landesliste_2, 'Listenplatz')
+
+    direktkandidaten = list(
+        map(
+            lambda row: (
+                uuid.uuid4(),
+                partei_mapping[(row['Gruppenname'].upper(),)],
+                row['kandId'],
+                20,
+                wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
+                0
+            ),
+            direktkandidaten
+        )
+    )
+    direktkandidaten_parteilos = list(
+        map(
+            lambda row: (
+                uuid.uuid4(),
+                None,
+                row['kandId'],
+                20,
+                wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
+                0
+            ),
+            direktkandidaten_parteilos
+        )
+    )
+    load_into_db(cursor, direktkandidaten + direktkandidaten_parteilos, 'Direktkandidatur')
+
 
 if __name__ == '__main__':
-    load_gemeinden_2021(None)
+    load_gemeinden(None)
