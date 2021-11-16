@@ -24,7 +24,8 @@ def load_all() -> None:
             # load data for 2021
             load_bundestagswahl_2021(cursor)
             load_bundeslaender(cursor)
-            load_wahlkreise(cursor)
+            load_wahlkreise(wahlkreise_2021, 20, 'Bevölkerung am 31.12.2019 - Deutsche (in 1000)', cursor)
+            load_wahlkreise(wahlkreise_2017, 19, 'Bevölkerung am 31.12.2015 - Deutsche (in 1000)', cursor, 'cp1252')
             load_gemeinden_2021(cursor)
             load_parteien(cursor)
             load_kandidaten_2021(cursor)

@@ -1,4 +1,5 @@
 import itertools
+import uuid
 
 import psycopg
 from psycopg.types import datetime
@@ -28,19 +29,18 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
     load_into_db(cursor, records, 'Bundesland')
 
 
-def load_wahlkreise(cursor: psycopg.cursor) -> None:
-    records = download_csv(wahlkreise_2021, delimiter=';', skip=1)
+def load_wahlkreise(url: str, wahl: int, deutsche_key: str, cursor: psycopg.cursor, encoding: str = 'utf-8-sig') -> None:
+    records = download_csv(url, delimiter=';', skip=1, encoding=encoding)
     bundesland_mapping = key_dict(cursor, 'bundesland', ('name',), 'landId')
-    id_iter = itertools.count()
     records = list(
         map(
             lambda row: (
-                next(id_iter),
+                uuid.uuid4(),
                 row['Wahlkreis-Nr.'],
                 row['Wahlkreis-Name'],
                 bundesland_mapping[(row['Land'],)],
-                20,
-                0,
+                wahl,
+                int(parse_float_de(row[deutsche_key]) * 1000),
                 None,
             ),
             filter(
