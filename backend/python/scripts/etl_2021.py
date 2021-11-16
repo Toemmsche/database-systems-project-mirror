@@ -29,29 +29,45 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
 
 def load_wahlkreise(cursor: psycopg.cursor) -> None:
     records = download_csv(wahlkreise_2021, delimiter=';', skip=1)
+    bundesland_mapping = key_dict(cursor, 'bundesland', ('name',), 'landId')
     id_iter = itertools.count()
-    cursor.execute("SELECT landId, name FROM BUNDESLAND;")
-    bundeslaender = {bundesland[1]: bundesland[0] for bundesland in cursor.fetchall()}
-    records = list(map(
-        lambda row: (next(id_iter), row['Wahlkreis-Nr.'], row['Wahlkreis-Name'], bundeslaender[row['Land']], 20, 0, None),
-        filter(lambda row: row['Land'] != 'Deutschland' and row['Wahlkreis-Name'] != 'Land insgesamt', records)
-    ))
+    records = list(
+        map(
+            lambda row: (
+                next(id_iter),
+                row['Wahlkreis-Nr.'],
+                row['Wahlkreis-Name'],
+                bundesland_mapping[(row['Land'],)],
+                20,
+                0,
+                None,
+            ),
+            filter(
+                lambda row: row['Land'] != 'Deutschland' and
+                            row['Wahlkreis-Name'] != 'Land insgesamt',
+                records
+            )
+        )
+    )
+    print(records[290:])
     load_into_db(cursor, records, 'Wahlkreis')
 
 
 def load_gemeinden(cursor: psycopg.cursor) -> None:
     records = local_csv(gemeinden, delimiter=';')
+    wk_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl'), 'wkid')
     id_iter = itertools.count()
     records = list(
         map(
             lambda row: (next(id_iter),
                          row['Gemeindename'],
                          row['PLZ-GemVerwaltung'],
-                         row['Wahlkreis-Nr'],
+                         wk_mapping[(int(row['Wahlkreis-Nr']), 20)],
                          None),
             records,
         )
     )
+    records = list(set(records))
     load_into_db(cursor, records, 'Gemeinde')
 
 

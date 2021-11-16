@@ -44,8 +44,8 @@ CREATE TABLE Gemeinde
     name       VARCHAR(100)                        NOT NULL,
     plz        CHAR(5),
     wahlkreis  INTEGER REFERENCES Wahlkreis (wkId) NOT NULL,
-    zusatz     VARCHAR(100),
-    UNIQUE (name, plz, wahlkreis)
+    zusatz     VARCHAR(100)
+    --UNIQUE (name, plz, wahlkreis)
 );
 
 CREATE TABLE Partei

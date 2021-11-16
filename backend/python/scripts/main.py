@@ -26,6 +26,7 @@ def load_all() -> None:
             load_bundeslaender(cursor)
             load_wahlkreise(cursor)
             load_gemeinden(cursor)
+            key_dict(cursor, 'bundesland', ('name', 'osten'), 'landId')
 
 
 if __name__ == '__main__':

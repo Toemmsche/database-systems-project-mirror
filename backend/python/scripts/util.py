@@ -4,6 +4,7 @@ import logging
 import requests
 
 import psycopg
+from psycopg2 import sql
 
 logger = logging.getLogger('ETL')
 
@@ -48,6 +49,18 @@ def download_csv(url: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
     response = requests.get(url, stream=True)
     content = response.content.decode(encoding)
     return parse_csv(content, delimiter, skip)
+
+
+def key_dict(cursor, table: str, keys: tuple, target: str):
+    res = cursor.execute('SELECT * FROM %s' % table)
+    col_names = [desc[0] for desc in cursor.description]
+    keys = tuple(col_names.index(key.lower()) for key in keys)
+    target = col_names.index(target.lower())
+    d = {}
+    for r in res:
+        t = tuple(r[i] for i in keys)
+        d.update({t: r[target]})
+    return d
 
 
 if __name__ == '__main__':
