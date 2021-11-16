@@ -26,7 +26,7 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
         logger.info('Copied {} rows into {}'.format(str(len(records)), table))
 
 
-def download_csv(url: str):
+def download_csv(url: str) -> list[dict]:
     response = requests.get(url, stream=True)
     lines = response.content.decode('utf-8-sig').split('\n')
     file = [{k: v for k, v in row.items()}

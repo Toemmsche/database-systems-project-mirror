@@ -15,6 +15,9 @@ def load_bundestagswahl_2021(cursor: psycopg.cursor):
 
 
 def load_bundeslaender(cursor: psycopg.cursor) -> None:
-    csv = download_csv(bundeslaender)
-    load_into_db(cursor, csv, )
-    pass
+    records = download_csv(bundeslaender)
+    records = list(map(
+        lambda row: (row['label'], row['name_de'], 0, None),
+        records,
+    ))
+    load_into_db(cursor, records, 'Bundesland')
