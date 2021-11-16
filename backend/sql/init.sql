@@ -37,7 +37,7 @@ CREATE TABLE Wahlkreis
 
 CREATE TABLE Gemeinde
 (
-    gemeindeId INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    gemeindeId INTEGER PRIMARY KEY,
     name       VARCHAR(100)                        NOT NULL,
     plz        CHAR(5),
     wahlkreis  INTEGER REFERENCES Wahlkreis (wkId) NOT NULL,

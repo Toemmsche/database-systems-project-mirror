@@ -24,6 +24,7 @@ def load_all() -> None:
             # load data for 2021
             load_bundestagswahl_2021(cursor)
             load_bundeslaender(cursor)
+            load_gemeinden(cursor)
 
 
 if __name__ == '__main__':

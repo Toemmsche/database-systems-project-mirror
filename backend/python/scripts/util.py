@@ -26,12 +26,27 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
         logger.info('Copied {} rows into {}'.format(str(len(records)), table))
 
 
-def download_csv(url: str) -> list[dict]:
-    response = requests.get(url, stream=True)
-    lines = response.content.decode('utf-8-sig').split('\n')
+def parse_csv(string: str, delimiter) -> list[dict]:
+    lines = string.split('\n')
     file = [{k: v for k, v in row.items()}
-            for row in csv.DictReader(lines, skipinitialspace=True)]
+            for row in csv.DictReader(
+            filter(lambda row: row != "" and row[0] != '#', lines),
+            delimiter=delimiter,
+            skipinitialspace=True
+        )]
     return file
+
+
+def local_csv(path: str, delimiter=',', encoding='utf-8-sig') -> list[dict]:
+    with open(path, 'r', encoding=encoding) as f:
+        return parse_csv(f.read(), delimiter)
+
+
+def download_csv(url: str, delimiter=',', encoding='utf-8-sig') -> list[
+    dict]:
+    response = requests.get(url, stream=True)
+    content = response.content.decode(encoding)
+    return parse_csv(content, delimiter)
 
 
 if __name__ == '__main__':
