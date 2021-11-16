@@ -32,14 +32,19 @@ def parse_csv(string: str, delimiter, skip) -> list[dict]:
     lines = string.split('\n')
     file = [{k: v for k, v in row.items()}
             for row in csv.DictReader(
-            itertools.islice(filter(lambda row: row != "" and row[0] != '#', lines), skip, None),
+            itertools.islice(
+                filter(lambda row: row != "" and row[0] != '#', lines),
+                skip,
+                None
+                ),
             delimiter=delimiter,
             skipinitialspace=True
         )]
     return file
 
 
-def local_csv(path: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[dict]:
+def local_csv(path: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
+    dict]:
     with open(path, 'r', encoding=encoding) as f:
         return parse_csv(f.read(), delimiter, skip)
 
@@ -61,6 +66,13 @@ def key_dict(cursor, table: str, keys: tuple, target: str):
         t = tuple(r[i] for i in keys)
         d.update({t: r[target]})
     return d
+
+
+def notFalsy(s, d):
+    if s:
+        return s
+    else:
+        return d
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 import itertools
 
+import psycopg
 from psycopg.types import datetime
 from util import *
 from links import *
@@ -49,12 +50,11 @@ def load_wahlkreise(cursor: psycopg.cursor) -> None:
             )
         )
     )
-    print(records[290:])
     load_into_db(cursor, records, 'Wahlkreis')
 
 
-def load_gemeinden(cursor: psycopg.cursor) -> None:
-    records = local_csv(gemeinden, delimiter=';')
+def load_gemeinden_2021(cursor: psycopg.cursor) -> None:
+    records = local_csv(gemeinden_2021, delimiter=';')
     wk_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl'), 'wkid')
     id_iter = itertools.count()
     records = list(
@@ -67,9 +67,70 @@ def load_gemeinden(cursor: psycopg.cursor) -> None:
             records,
         )
     )
-    records = list(set(records))
     load_into_db(cursor, records, 'Gemeinde')
 
 
+def load_parteien(cursor: psycopg.cursor) -> None:
+    records = local_csv(parteien)
+    id_iter = itertools.count()
+    records = list(
+        map(
+            lambda row: (
+                next(id_iter),
+                row['Name'],
+                row['Kurzbezeichnung'],
+                0,  # TODO
+                notFalsy(row['Gründungsdatum'][-4:], None),
+                None,  # TODO
+                None
+            ),
+            records,
+        )
+    )
+    load_into_db(cursor, records, 'Partei')
+
+
+def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
+    records = local_csv(kandidaten_2021, delimiter=';')
+
+    gemeinde_mapping = key_dict(cursor, 'gemeinde', ('plz',), 'gemeindeid')
+
+    # make candidates unique
+    unique_set = set()
+    temp_records = []
+    for kand in records:
+        key = (
+            kand['Vornamen'],
+            kand['Nachname'],
+            kand['Geburtsjahr'],
+            kand['Geburtsort'],
+        )
+        if key not in unique_set:
+            temp_records.append(kand)
+            unique_set.add(key)
+    records = temp_records
+
+    id_iter = itertools.count()
+    records = list(
+        map(
+            lambda row: (
+                next(id_iter),
+                row['Vornamen'],
+                row['Nachname'],
+                row['Titel'],
+                row['Namenszusatz'],
+                row['Geburtsjahr'],
+                row['Geburtsort'],
+                # gemeinde_mapping[row['PLZ']],
+                None,  # TODO
+                row['Beruf'],
+                row['Geschlecht'],
+            ),
+            records,
+        )
+    )
+    load_into_db(cursor, records, 'Kandidat')
+
+
 if __name__ == '__main__':
-    load_gemeinden(None)
+    load_gemeinden_2021(None)

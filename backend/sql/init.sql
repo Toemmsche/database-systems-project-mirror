@@ -50,8 +50,9 @@ CREATE TABLE Gemeinde
 
 CREATE TABLE Partei
 (
+    parteiId            INTEGER PRIMARY KEY,
     name                VARCHAR(100) UNIQUE NOT NULL,
-    kuerzel             VARCHAR(20) PRIMARY KEY,
+    kuerzel             VARCHAR(40),
     nationaleMinderheit BIT                 NOT NULL,
     gruendungsjahr      INTEGER,
     farbe               VARCHAR(6),
@@ -59,24 +60,23 @@ CREATE TABLE Partei
 );
 CREATE TABLE Kandidat
 (
-    kandId     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    vorname    VARCHAR(100)                             NOT NULL,
-    nachname   VARCHAR(60)                              NOT NULL,
-    titel      VARCHAR(50)                              NOT NULL,
-    zusatz     VARCHAR(50)                              NOT NULL,
-    geburtstag DATE                                     NOT NULL,
-    geburtsort VARCHAR(200)                             NOT NULL,
-    wohnort    INTEGER REFERENCES Gemeinde (gemeindeId) NOT NULL,
-    beruf      VARCHAR(200)                             NOT NULL,
-    geschlecht VARCHAR(20)                              NOT NULL,
-    partei     VARCHAR(20) REFERENCES Partei (kuerzel)  NOT NULL,
-    UNIQUE (vorname, nachname, geburtstag)
+    kandId      INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    vorname     VARCHAR(100)                         NOT NULL,
+    nachname    VARCHAR(60)                          NOT NULL,
+    titel       VARCHAR(50)                          ,
+    zusatz      VARCHAR(50)                          ,
+    geburtsjahr INTEGER                              NOT NULL,
+    geburtsort  VARCHAR(200)                         NOT NULL,
+    wohnort     VARCHAR(200)                         ,
+    beruf       VARCHAR(200)                         NOT NULL,
+    geschlecht  VARCHAR(20)                          NOT NULL,
+    UNIQUE (vorname, nachname, geburtsjahr, geburtsort)
 );
 
 CREATE TABLE Direktkandidatur
 (
     direktId      INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    partei        VARCHAR(20) REFERENCES Partei (kuerzel),
+    partei        INTEGER REFERENCES Partei (parteiId),
     kandidat      INTEGER REFERENCES Kandidat (kandId),
     wahl          INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
     wahlkreis     INTEGER REFERENCES Wahlkreis (wkId)        NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE Direktkandidatur
 CREATE TABLE Landesliste
 (
     listenId            INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    partei              VARCHAR(20) REFERENCES Partei (kuerzel)    NOT NULL,
+    partei              INTEGER REFERENCES Partei (parteiId)       NOT NULL,
     wahl                INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
     land                VARCHAR(50) REFERENCES Bundesland (landId) NOT NULL,
     stimmzettelPosition INTEGER                                    NOT NULL,
