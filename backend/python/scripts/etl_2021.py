@@ -1,6 +1,6 @@
 from psycopg.types import datetime
-import urllib
 from util import *
+from links import *
 
 
 def load_bundestagswahl_2021(cursor: psycopg.cursor):
@@ -14,5 +14,7 @@ def load_bundestagswahl_2021(cursor: psycopg.cursor):
     )
 
 
-def load_bundeslaender() -> None:
+def load_bundeslaender(cursor: psycopg.cursor) -> None:
+    csv = download_csv(bundeslaender)
+    load_into_db(cursor, csv, )
     pass

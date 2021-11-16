@@ -23,18 +23,19 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
     with cursor.copy('COPY {} FROM STDIN'.format(table)) as copy:
         for record in records:
             copy.write_row(record)
-        logger.info('Wrote {} rows into {}'.format(str(len(records)), table))
+        logger.info('Copied {} rows into {}'.format(str(len(records)), table))
 
 
-def download_csv(url: str) -> csv:
+def download_csv(url: str):
     response = requests.get(url, stream=True)
-    response.raw.decode_content = True
-    lines = response.content.decode().split('\n')
-    file = csv.reader(lines)
+    lines = response.content.decode('utf-8-sig').split('\n')
+    file = [{k: v for k, v in row.items()}
+            for row in csv.DictReader(lines, skipinitialspace=True)]
     return file
 
 
 if __name__ == '__main__':
     download_csv(
-        'https://raw.githubusercontent.com/sumtxt/ags/master/data-raw/bundeslaender.csv'
-        )
+        'https://raw.githubusercontent.com/sumtxt/ags/master/data-raw'
+        '/bundeslaender.csv'
+    )
