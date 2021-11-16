@@ -1,3 +1,5 @@
+import os
+
 from etl_2021 import *
 
 import logging
@@ -12,7 +14,7 @@ def load_all() -> None:
     with psycopg.connect(
             dbname='wahl',
             user='postgres',
-            password='1108'
+            password=os.environ.get('POSTGRES_PWD')
     ) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
