@@ -15,4 +15,4 @@ def load_bundestagswahl_2021(cursor: psycopg.cursor):
 
 
 def load_bundeslaender() -> None:
-    urllib.
+    pass
