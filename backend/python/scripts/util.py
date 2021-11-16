@@ -1,4 +1,5 @@
 import csv
+import itertools
 import logging
 import requests
 
@@ -26,27 +27,27 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
         logger.info('Copied {} rows into {}'.format(str(len(records)), table))
 
 
-def parse_csv(string: str, delimiter) -> list[dict]:
+def parse_csv(string: str, delimiter, skip) -> list[dict]:
     lines = string.split('\n')
     file = [{k: v for k, v in row.items()}
             for row in csv.DictReader(
-            filter(lambda row: row != "" and row[0] != '#', lines),
+            itertools.islice(filter(lambda row: row != "" and row[0] != '#', lines), skip, None),
             delimiter=delimiter,
             skipinitialspace=True
         )]
     return file
 
 
-def local_csv(path: str, delimiter=',', encoding='utf-8-sig') -> list[dict]:
+def local_csv(path: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[dict]:
     with open(path, 'r', encoding=encoding) as f:
-        return parse_csv(f.read(), delimiter)
+        return parse_csv(f.read(), delimiter, skip)
 
 
-def download_csv(url: str, delimiter=',', encoding='utf-8-sig') -> list[
+def download_csv(url: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
     dict]:
     response = requests.get(url, stream=True)
     content = response.content.decode(encoding)
-    return parse_csv(content, delimiter)
+    return parse_csv(content, delimiter, skip)
 
 
 if __name__ == '__main__':

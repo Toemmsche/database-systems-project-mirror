@@ -29,10 +29,13 @@ CREATE TABLE Wahlkreis
 (
     wkId       INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nummer     INTEGER                                    NOT NULL,
+    name       VARCHAR(100)                               NOT NULL,
+    land       CHAR(2) REFERENCES Bundesland (landId)     NOT NULL,
     wahl       INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
     deutsche   INTEGER                                    NOT NULL,
     begrenzung BYTEA,
-    UNIQUE (nummer, wahl)
+    UNIQUE (nummer, wahl),
+    UNIQUE (name, wahl)
 );
 
 CREATE TABLE Gemeinde

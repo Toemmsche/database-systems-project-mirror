@@ -27,6 +27,18 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
     load_into_db(cursor, records, 'Bundesland')
 
 
+def load_wahlkreise(cursor: psycopg.cursor) -> None:
+    records = download_csv(wahlkreise_2021, delimiter=';', skip=1)
+    id_iter = itertools.count()
+    cursor.execute("SELECT landId, name FROM BUNDESLAND;")
+    bundeslaender = {bundesland[1]: bundesland[0] for bundesland in cursor.fetchall()}
+    records = list(map(
+        lambda row: (next(id_iter), row['Wahlkreis-Nr.'], row['Wahlkreis-Name'], bundeslaender[row['Land']], 20, 0, None),
+        filter(lambda row: row['Land'] != 'Deutschland' and row['Wahlkreis-Name'] != 'Land insgesamt', records)
+    ))
+    load_into_db(cursor, records, 'Wahlkreis')
+
+
 def load_gemeinden(cursor: psycopg.cursor) -> None:
     records = local_csv(gemeinden, delimiter=';')
     id_iter = itertools.count()
