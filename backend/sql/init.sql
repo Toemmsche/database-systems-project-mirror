@@ -40,7 +40,7 @@ CREATE TABLE Wahlkreis
 
 CREATE TABLE Gemeinde
 (
-    gemeindeId INTEGER PRIMARY KEY,
+    gemeindeId UUID PRIMARY KEY,
     name       VARCHAR(100)                     NOT NULL,
     plz        CHAR(5),
     wahlkreis  UUID REFERENCES Wahlkreis (wkId) NOT NULL,

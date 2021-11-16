@@ -26,7 +26,8 @@ def load_all() -> None:
             load_bundeslaender(cursor)
             load_wahlkreise(wahlkreise_2021, 20, 'Bevölkerung am 31.12.2019 - Deutsche (in 1000)', cursor)
             load_wahlkreise(wahlkreise_2017, 19, 'Bevölkerung am 31.12.2015 - Deutsche (in 1000)', cursor, 'cp1252')
-            load_gemeinden_2021(cursor)
+            load_gemeinden(gemeinden_2021, 20, cursor)
+            load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
             load_parteien(cursor)
             load_kandidaten_2021(cursor)
 
