@@ -29,9 +29,10 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
 
 def load_gemeinden(cursor: psycopg.cursor) -> None:
     records = local_csv(gemeinden, delimiter=';')
+    id_iter = itertools.count()
     records = list(
         map(
-            lambda row: (itertools.count.next,
+            lambda row: (next(id_iter),
                          row['Gemeindename'],
                          row['PLZ-GemVerwaltung'],
                          row['Wahlkreis-Nr'],
