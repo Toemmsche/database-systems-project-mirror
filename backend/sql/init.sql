@@ -19,10 +19,11 @@ CREATE TABLE Bundestagswahl
 
 CREATE TABLE Bundesland
 (
-    landId CHAR(2) PRIMARY KEY,
-    name   VARCHAR(50),
-    osten  BIT NOT NULL,
-    wappen BYTEA
+    landId  INTEGER PRIMARY KEY,
+    kuerzel CHAR(2) UNIQUE NOT NULL,
+    name    VARCHAR(50),
+    osten   BIT            NOT NULL,
+    wappen  BYTEA
 );
 
 CREATE TABLE Wahlkreis
@@ -30,7 +31,7 @@ CREATE TABLE Wahlkreis
     wkId       UUID PRIMARY KEY,
     nummer     INTEGER                                    NOT NULL,
     name       VARCHAR(100)                               NOT NULL,
-    land       CHAR(2) REFERENCES Bundesland (landId)     NOT NULL,
+    land       INTEGER REFERENCES Bundesland (landId)     NOT NULL,
     wahl       INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
     deutsche   INTEGER                                    NOT NULL,
     begrenzung BYTEA,
@@ -88,7 +89,7 @@ CREATE TABLE Landesliste
     listenId            UUID PRIMARY KEY,
     partei              INTEGER REFERENCES Partei (parteiId)       NOT NULL,
     wahl                INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
-    land                VARCHAR(50) REFERENCES Bundesland (landId) NOT NULL,
+    land                INTEGER REFERENCES Bundesland (landId)     NOT NULL,
     stimmzettelPosition INTEGER                                    NOT NULL,
     UNIQUE (partei, wahl, land)
 );
