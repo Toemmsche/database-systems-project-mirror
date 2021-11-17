@@ -1,6 +1,8 @@
 import csv
 import itertools
 import logging
+import uuid
+
 import requests
 
 import psycopg
@@ -59,7 +61,7 @@ def parse_float_de(str: str) -> float:
     return float(str.replace('.', '').replace(',','.'))
 
 
-def key_dict(cursor, table: str, keys: tuple, target: str):
+def key_dict(cursor : psycopg.cursor, table: str, keys: tuple, target: str):
     res = cursor.execute('SELECT * FROM %s' % table)
     col_names = [desc[0] for desc in cursor.description]
     keys = tuple(col_names.index(key.lower()) for key in keys)
@@ -69,6 +71,17 @@ def key_dict(cursor, table: str, keys: tuple, target: str):
         t = tuple(r[i] for i in keys)
         d.update({t: r[target]})
     return d
+
+def make_unique(dicts : list[dict], key_values: tuple):
+    unique_list = []
+    key_set = set()
+    for d in dicts:
+        d['uuid'] = uuid.uuid4()
+        key = tuple(d[value] for value in key_values)
+        if key not in key_set:
+            unique_list.append(d)
+            key_set.add(key)
+    return unique_list
 
 
 def notFalsy(s, d):
