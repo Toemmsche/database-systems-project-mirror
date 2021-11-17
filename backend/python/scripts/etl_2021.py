@@ -218,15 +218,25 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
     wahlkreis_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl',), 'wkId')
     kandidaten_mapping = key_dict(cursor, 'kandidat', ('vorname', 'nachname', 'geburtsjahr'), 'kandId')
 
-    ergebnisse = list(
+    ergebnisse_partei = list(
         filter(
             lambda row: row['Gebietsart'] == 'Wahlkreis' and row['Gruppenart'] == 'Partei' and row['Stimme'] == '1' and
                         row['Anzahl'] != '',
             ergebnisse
         )
     )
-    ergebnisse_dict = {
-        (ergebnis['Gruppenname'], int(ergebnis['Gebietsnummer'])): int(ergebnis['Anzahl']) for ergebnis in ergebnisse
+    ergebnisse_partei_dict = {
+        (ergebnis['Gruppenname'], int(ergebnis['Gebietsnummer'])): int(ergebnis['Anzahl']) for ergebnis in ergebnisse_partei
+    }
+
+    ergebnisse_parteilos = list(
+        filter(
+            lambda row: row['Gebietsart'] == 'Wahlkreis' and row['Gruppenart'] == 'Einzelbewerber/Wählergruppe' and row['Stimme'] == '1',
+            ergebnisse
+        )
+    )
+    ergebnisse_parteilos_dict = {
+        ergebnis['Gruppenname']: int(ergebnis['Anzahl']) for ergebnis in ergebnisse_parteilos
     }
 
     direktkandidaten = list(
@@ -248,10 +258,11 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
             lambda row: (
                 uuid.uuid4(),
                 partei_mapping[(row['Gruppenname'].upper(),)],
+                None,
                 kandidaten_mapping[(row['Vornamen'], row['Nachname'], int(row['Geburtsjahr']),)],
                 20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
-                ergebnisse_dict[(row['Gruppenname'], int(row['Gebietsnummer']))]
+                ergebnisse_partei_dict[(row['Gruppenname'], int(row['Gebietsnummer']))]
             ),
             direktkandidaten
         )
@@ -261,10 +272,11 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
             lambda row: (
                 uuid.uuid4(),
                 None,
+                row['Gruppenname'],
                 kandidaten_mapping[(row['Vornamen'], row['Nachname'], int(row['Geburtsjahr']),)],
                 20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
-                0
+                ergebnisse_parteilos_dict[row['Gruppenname']] if row['Gruppenname'] in ergebnisse_parteilos_dict else ergebnisse_parteilos_dict[row['GruppennameLang']]
             ),
             direktkandidaten_parteilos
         )

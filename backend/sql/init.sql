@@ -76,12 +76,13 @@ CREATE TABLE Kandidat
 
 CREATE TABLE Direktkandidatur
 (
-    direktId      UUID PRIMARY KEY,
-    partei        INTEGER REFERENCES Partei (parteiId),
-    kandidat      UUID REFERENCES Kandidat (kandId),
-    wahl          INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
-    wahlkreis     UUID REFERENCES Wahlkreis (wkId)           NOT NULL,
-    anzahlStimmen INTEGER
+    direktId             UUID PRIMARY KEY,
+    partei               INTEGER REFERENCES Partei (parteiId),
+    parteilosGruppenname VARCHAR(200),
+    kandidat             UUID REFERENCES Kandidat (kandId),
+    wahl                 INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
+    wahlkreis            UUID REFERENCES Wahlkreis (wkId)           NOT NULL,
+    anzahlStimmen        INTEGER
 );
 
 CREATE TABLE Landesliste
