@@ -5,6 +5,7 @@ import psycopg
 from psycopg.types import datetime
 from util import *
 from links import *
+from functional import seq
 
 
 def load_bundestagswahl_2021(cursor: psycopg.cursor):
@@ -242,17 +243,22 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
         )
     )
     ergebnisse_partei_dict = {
-        (ergebnis['Gruppenname'], int(ergebnis['Gebietsnummer'])): int(ergebnis['Anzahl']) for ergebnis in ergebnisse_partei
+        (ergebnis['Gruppenname'], int(ergebnis['Gebietsnummer'])): int(
+            ergebnis['Anzahl']
+        ) for ergebnis in ergebnisse_partei
     }
 
     ergebnisse_parteilos = list(
         filter(
-            lambda row: row['Gebietsart'] == 'Wahlkreis' and row['Gruppenart'] == 'Einzelbewerber/Wählergruppe' and row['Stimme'] == '1',
+            lambda row: row['Gebietsart'] == 'Wahlkreis' and row[
+                'Gruppenart'] == 'Einzelbewerber/Wählergruppe' and row[
+                            'Stimme'] == '1',
             ergebnisse
         )
     )
     ergebnisse_parteilos_dict = {
-        ergebnis['Gruppenname']: int(ergebnis['Anzahl']) for ergebnis in ergebnisse_parteilos
+        ergebnis['Gruppenname']: int(ergebnis['Anzahl']) for ergebnis in
+        ergebnisse_parteilos
     }
 
     direktkandidaten = list(
@@ -275,10 +281,13 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
                 uuid.uuid4(),
                 partei_mapping[(row['Gruppenname'].upper(),)],
                 None,
-                kandidaten_mapping[(row['Vornamen'], row['Nachname'], int(row['Geburtsjahr']),)],
+                kandidaten_mapping[(
+                    row['Vornamen'], row['Nachname'],
+                    int(row['Geburtsjahr']),)],
                 20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
-                ergebnisse_partei_dict[(row['Gruppenname'], int(row['Gebietsnummer']))]
+                ergebnisse_partei_dict[
+                    (row['Gruppenname'], int(row['Gebietsnummer']))]
             ),
             direktkandidaten
         )
@@ -289,10 +298,14 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
                 uuid.uuid4(),
                 None,
                 row['Gruppenname'],
-                kandidaten_mapping[(row['Vornamen'], row['Nachname'], int(row['Geburtsjahr']),)],
+                kandidaten_mapping[(
+                    row['Vornamen'], row['Nachname'],
+                    int(row['Geburtsjahr']),)],
                 20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
-                ergebnisse_parteilos_dict[row['Gruppenname']] if row['Gruppenname'] in ergebnisse_parteilos_dict else ergebnisse_parteilos_dict[row['GruppennameLang']]
+                ergebnisse_parteilos_dict[row['Gruppenname']] if row[
+                                                                     'Gruppenname'] in ergebnisse_parteilos_dict else
+                ergebnisse_parteilos_dict[row['GruppennameLang']]
             ),
             direktkandidaten_parteilos
         )
@@ -347,6 +360,42 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
         )
     )
     load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
+
+
+def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
+    ergebnisse = download_csv(ergebnisse_2021, delimiter=';', skip=9)
+    print(ergebnisse[1:2])
+    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
+    landeslisten = (seq(ergebnisse)
+        .filter(
+        lambda row: row['UegGebietsart'] == 'BUND' and
+                    row['Gruppenart'] == 'Partei' and
+                    row['Stimme'] == '2' and
+                    row['VorpAnzahl'] != ''
+    )
+        .map(
+        lambda row: (
+            row['Gebietsnummer'],
+            row['Gruppenname'],
+        )
+    ))
+
+    # eliminate duplicates
+    landeslisten = list(set(landeslisten))
+
+    landeslisten = list(
+        map(
+            lambda row: (
+                uuid.uuid4(),
+                partei_mapping[(row[1],)],
+                19,
+                row[0],
+                -1,
+            ),
+            landeslisten
+        )
+    )
+    load_into_db(cursor, landeslisten, 'Landesliste')
 
 
 if __name__ == '__main__':

@@ -24,16 +24,30 @@ def load_all() -> None:
             # load data for 2021
             load_bundestagswahl_2021(cursor)
             load_bundeslaender(cursor)
-            load_wahlkreise(wahlkreise_2021, 20, 'Bevölkerung am 31.12.2019 - Deutsche (in 1000)', cursor)
-            load_wahlkreise(wahlkreise_2017, 19, 'Bevölkerung am 31.12.2015 - Deutsche (in 1000)', cursor, 'cp1252')
+            load_wahlkreise(
+                wahlkreise_2021,
+                20,
+                'Bevölkerung am 31.12.2019 - Deutsche (in 1000)',
+                cursor
+                )
             load_gemeinden(gemeinden_2021, 20, cursor)
-            load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
             load_parteien(cursor)
             load_landeslisten_2021(cursor)
             load_kandidaten_2021(cursor)
             load_listenplaetze_2021(cursor)
             load_direktkandidaten_2021(cursor)
             load_zweitstimmen_2021(cursor)
+
+            # 2017
+            load_wahlkreise(
+                wahlkreise_2017,
+                19,
+                'Bevölkerung am 31.12.2015 - Deutsche (in 1000)',
+                cursor,
+                'cp1252'
+                )
+            load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
+            load_landeslisten_2017(cursor)
 
 
 if __name__ == '__main__':

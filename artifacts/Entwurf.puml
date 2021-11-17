@@ -5,7 +5,7 @@ class Kandidat {
     String namensZusatz
     String titel
     char geschlecht
-    Date geburtsdatum
+    Date geburtsjahr
     String geburtsort
     String beruf
 }
@@ -19,7 +19,7 @@ class Bundesland {
 
 class Partei {
     String name
-    String id
+    String kuerzel
     boolean nationaleMinderheit
     int gruendungsjahr
     String farbe
@@ -43,7 +43,6 @@ class Wahlkreis {
     int nummer
     String name
     int deutscheBevoelkerung
-    List<GeoJSON> begrenzung
 }
 
 class Gemeinde {
@@ -58,7 +57,6 @@ class ZweitstimmenErgebnis {
 
 class Stimme {
     boolean gueltig
-    boolean briefwahl
 }
 
 class Zweitstimme extends Stimme {

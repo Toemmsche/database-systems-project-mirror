@@ -60,7 +60,6 @@ def download_csv(url: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
 def parse_float_de(str: str) -> float:
     return float(str.replace('.', '').replace(',','.'))
 
-
 def key_dict(cursor : psycopg.cursor, table: str, keys: tuple, target: str):
     res = cursor.execute('SELECT * FROM %s' % table)
     col_names = [desc[0] for desc in cursor.description]
