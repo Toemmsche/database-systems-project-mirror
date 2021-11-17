@@ -30,7 +30,8 @@ def load_all() -> None:
             load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
             load_parteien(cursor)
             load_kandidaten_2021(cursor)
-            load_ergebnisse_2021(cursor)
+            load_direktkandidaten_2021(cursor)
+            load_zweitstimmen_2021(cursor)
 
 
 if __name__ == '__main__':

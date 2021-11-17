@@ -97,7 +97,6 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
     gemeinde_mapping = key_dict(cursor, 'gemeinde', ('plz',), 'gemeindeid')
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
     partei_mapping = {(x[0].upper(),): partei_mapping[x] for x in partei_mapping}
-    wahlkreis_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl',), 'wkId')
 
     # make candidates unique
     unique_set = set()
@@ -124,20 +123,6 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
     kandidaten_landesliste_2 = list(
         filter(
             lambda row: row['VerknKennzeichen'] == 'Landesliste',
-            records
-        )
-    )
-
-    direktkandidaten = list(
-        filter(
-            lambda row: row['Kennzeichen'] == 'Kreiswahlvorschlag',
-            records
-        )
-    )
-
-    direktkandidaten_parteilos = list(
-        filter(
-            lambda row: row['Kennzeichen'] == 'anderer Kreiswahlvorschlag',
             records
         )
     )
@@ -223,15 +208,50 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
     )
     load_into_db(cursor, kandidaten_landesliste_1 + kandidaten_landesliste_2, 'Listenplatz')
 
+
+def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
+    records = local_csv(kandidaten_2021, delimiter=';')
+    ergebnisse = download_csv(ergebnisse_2021, delimiter=';', skip=9)
+
+    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
+    partei_mapping = {(x[0].upper(),): partei_mapping[x] for x in partei_mapping}
+    wahlkreis_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl',), 'wkId')
+    kandidaten_mapping = key_dict(cursor, 'kandidat', ('vorname', 'nachname', 'geburtsjahr'), 'kandId')
+
+    ergebnisse = list(
+        filter(
+            lambda row: row['Gebietsart'] == 'Wahlkreis' and row['Gruppenart'] == 'Partei' and row['Stimme'] == '1' and
+                        row['Anzahl'] != '',
+            ergebnisse
+        )
+    )
+    ergebnisse_dict = {
+        (ergebnis['Gruppenname'], int(ergebnis['Gebietsnummer'])): int(ergebnis['Anzahl']) for ergebnis in ergebnisse
+    }
+
+    direktkandidaten = list(
+        filter(
+            lambda row: row['Kennzeichen'] == 'Kreiswahlvorschlag',
+            records
+        )
+    )
+
+    direktkandidaten_parteilos = list(
+        filter(
+            lambda row: row['Kennzeichen'] == 'anderer Kreiswahlvorschlag',
+            records
+        )
+    )
+
     direktkandidaten = list(
         map(
             lambda row: (
                 uuid.uuid4(),
                 partei_mapping[(row['Gruppenname'].upper(),)],
-                row['kandId'],
+                kandidaten_mapping[(row['Vornamen'], row['Nachname'], int(row['Geburtsjahr']),)],
                 20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
-                0
+                ergebnisse_dict[(row['Gruppenname'], int(row['Gebietsnummer']))]
             ),
             direktkandidaten
         )
@@ -241,7 +261,7 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
             lambda row: (
                 uuid.uuid4(),
                 None,
-                row['kandId'],
+                kandidaten_mapping[(row['Vornamen'], row['Nachname'], int(row['Geburtsjahr']),)],
                 20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
                 0
@@ -252,7 +272,7 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
     load_into_db(cursor, direktkandidaten + direktkandidaten_parteilos, 'Direktkandidatur')
 
 
-def load_ergebnisse_2021(cursor: psycopg.cursor) -> None:
+def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
     records = download_csv(ergebnisse_2021, delimiter=';', skip=9)
 
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
