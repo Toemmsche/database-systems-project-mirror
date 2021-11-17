@@ -212,8 +212,51 @@ def load_listenplaetze_2021(cursor: psycopg.cursor) -> None:
         'Listenplatz'
     )
 
+def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
+    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
 
-def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
+    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
+    partei_mapping.update({('Neue Liberale',): partei_mapping[('SL',)]})
+    partei_mapping.update({('MG',): partei_mapping[('Gartenpartei',)]})
+    wahlkreis_mapping = key_dict(
+        cursor,
+        'wahlkreis',
+        ('nummer', 'wahl',),
+        'wkId'
+    )
+
+    ergebnisse_partei = list(
+        filter(
+            lambda row: row['Gebietsart'] == 'Wahlkreis' and
+                        row['Gruppenart'] == 'Partei' and
+                        row['Stimme'] == '1' and
+                        row['Anzahl'] != '',
+            ergebnisse
+        )
+    )
+    direktkandidaten_partei = list(
+        map(
+            lambda row: (
+                uuid.uuid4(),
+                partei_mapping[(row['Gruppenname'],)],
+                None,
+                None,
+                19,
+                wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
+                int(row['Anzahl'])
+            ),
+            ergebnisse_partei
+        )
+    )
+
+    load_into_db(
+        cursor,
+        direktkandidaten_partei,
+        'Direktkandidatur'
+    )
+
+
+def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = False) -> None:
     records = local_csv(kandidaten_2021, delimiter=';')
     ergebnisse = download_csv(ergebnisse_2021, delimiter=';', skip=9)
 
@@ -303,9 +346,9 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
                     int(row['Geburtsjahr']),)],
                 20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
-                ergebnisse_parteilos_dict[row['Gruppenname']] if row[
+                int(ergebnisse_parteilos_dict[row['Gruppenname']]) if row[
                                                                      'Gruppenname'] in ergebnisse_parteilos_dict else
-                ergebnisse_parteilos_dict[row['GruppennameLang']]
+                int(ergebnisse_parteilos_dict[row['GruppennameLang']])
             ),
             direktkandidaten_parteilos
         )
@@ -316,8 +359,29 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor) -> None:
         'Direktkandidatur'
     )
 
+    if not generate_stimmen:
+        return
 
-def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
+    erststimmen = list(
+        itertools.chain.from_iterable(
+            map(
+                lambda row: generate_erststimmen(row[0], row[6]),
+                direktkandidaten
+            )
+        )
+    )
+    erststimmen_parteilos = list(
+        itertools.chain.from_iterable(
+            map(
+                lambda row: generate_zweitstimmen(row[0], row[6]),
+                direktkandidaten_parteilos
+            )
+        )
+    )
+    load_into_db(cursor, erststimmen + erststimmen_parteilos, 'Erststimme')
+
+
+def load_zweitstimmen_2021(cursor: psycopg.cursor, generate_stimmen: bool = False) -> None:
     records = download_csv(ergebnisse_2021, delimiter=';', skip=9)
 
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
@@ -354,12 +418,43 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
                     int(row['UegGebietsnummer']),
                 )],
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
-                row['Anzahl']
+                int(row['Anzahl'])
             ),
             zweitstimmenergebnisse
         )
     )
     load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
+
+    if not generate_stimmen:
+        return
+
+    zweitstimmen = list(
+        itertools.chain.from_iterable(
+            map(
+                lambda row: generate_zweitstimmen(row[0], row[2]),
+                zweitstimmenergebnisse
+            )
+        )
+    )
+    load_into_db(cursor, zweitstimmen, 'Zweitstimme')
+
+
+def generate_erststimmen(kandidatur: uuid, count: int) -> list[tuple]:
+    return list(
+        map(
+            lambda i: (uuid.uuid4(), kandidatur, 1, 0),
+            range(0, count)
+        )
+    )
+
+
+def generate_zweitstimmen(liste: uuid, count: int) -> list[tuple]:
+    return list(
+        map(
+            lambda i: (uuid.uuid4(), liste, 1, 0),
+            range(0, count)
+        )
+    )
 
 
 def load_landeslisten_2017(cursor: psycopg.cursor) -> None:

@@ -107,15 +107,14 @@ CREATE TABLE Listenplatz
 CREATE TABLE Erststimme
 (
     erstId     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    wahlkreis  UUID REFERENCES Wahlkreis (wkId)            NOT NULL,
     kandidatur UUID REFERENCES Direktkandidatur (direktId) NOT NULL,
-    briefwahl  BIT,
-    gueltig    BIT                                         NOT NULL
+    gueltig    BIT                                         NOT NULL,
+    briefwahl  BIT
 );
 
 CREATE TABLE Zweitstimme
 (
-    zweitId   INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    zweitId   UUID PRIMARY KEY,
     liste     UUID REFERENCES Landesliste (listenId),
     gueltig   BIT NOT NULL,
     briefwahl BIT
