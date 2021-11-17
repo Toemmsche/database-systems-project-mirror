@@ -363,38 +363,25 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
 
 
 def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
-    ergebnisse = download_csv(ergebnisse_2021, delimiter=';', skip=9)
-    print(ergebnisse[1:2])
+    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
-    landeslisten = (seq(ergebnisse)
+    partei_mapping.update({('MG',): partei_mapping[('Gartenpartei',)]})
+    landeslisten = list(seq(ergebnisse)
         .filter(
         lambda row: row['UegGebietsart'] == 'BUND' and
                     row['Gruppenart'] == 'Partei' and
                     row['Stimme'] == '2' and
-                    row['VorpAnzahl'] != ''
-    )
+                    row['Anzahl'] != ''
+        )
         .map(
         lambda row: (
+            uuid.uuid4(),
+            partei_mapping[(row['Gruppenname'],)],
+            19,
             row['Gebietsnummer'],
-            row['Gruppenname'],
+            -1
         )
     ))
-
-    # eliminate duplicates
-    landeslisten = list(set(landeslisten))
-
-    landeslisten = list(
-        map(
-            lambda row: (
-                uuid.uuid4(),
-                partei_mapping[(row[1],)],
-                19,
-                row[0],
-                -1,
-            ),
-            landeslisten
-        )
-    )
     load_into_db(cursor, landeslisten, 'Landesliste')
 
 
