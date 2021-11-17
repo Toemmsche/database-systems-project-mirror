@@ -212,6 +212,7 @@ def load_listenplaetze_2021(cursor: psycopg.cursor) -> None:
         'Listenplatz'
     )
 
+
 def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
     ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
 
@@ -249,9 +250,33 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
         )
     )
 
+    ergebnisse_parteilos = list(
+        filter(
+            lambda row: row['Gebietsart'] == 'Wahlkreis' and
+                        row['Gruppenart'] == 'Einzelbewerber/Wählergruppe' and
+                        row['Stimme'] == '1' and
+                        row['Anzahl'] != '',
+            ergebnisse
+        )
+    )
+    direktkandidaten_parteilos = list(
+        map(
+            lambda row: (
+                uuid.uuid4(),
+                None,
+                row['Gruppenname'],
+                None,
+                19,
+                wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
+                int(row['Anzahl'])
+            ),
+            ergebnisse_parteilos
+        )
+    )
+
     load_into_db(
         cursor,
-        direktkandidaten_partei,
+        direktkandidaten_partei + direktkandidaten_parteilos,
         'Direktkandidatur'
     )
 
@@ -347,7 +372,7 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
                 20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
                 int(ergebnisse_parteilos_dict[row['Gruppenname']]) if row[
-                                                                     'Gruppenname'] in ergebnisse_parteilos_dict else
+                                                                          'Gruppenname'] in ergebnisse_parteilos_dict else
                 int(ergebnisse_parteilos_dict[row['GruppennameLang']])
             ),
             direktkandidaten_parteilos
@@ -467,7 +492,7 @@ def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
                     row['Gruppenart'] == 'Partei' and
                     row['Stimme'] == '2' and
                     row['Anzahl'] != ''
-        )
+    )
         .map(
         lambda row: (
             uuid.uuid4(),
