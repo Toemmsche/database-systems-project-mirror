@@ -162,6 +162,9 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
             landeslisten.append(key)
             unique_landeslisten[key] = uuid.uuid4()
 
+    parteireihenfolge = download_csv(parteireihenfolge_2021, delimiter=';')[4:]
+    parteireihenfolge = {partei['Gruppenname_kurz'].upper(): partei for partei in parteireihenfolge}
+
     landeslisten = list(
         map(
             lambda liste: (
@@ -169,7 +172,7 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
                 partei_mapping[(liste[1].upper(),)],
                 20,
                 liste[0],
-                0 # TODO: Stimmzettelposition
+                parteireihenfolge[liste[1].upper()][liste[0]]
             ),
             landeslisten
         )
@@ -245,6 +248,21 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
         )
     )
     load_into_db(cursor, direktkandidaten + direktkandidaten_parteilos, 'Direktkandidatur')
+
+
+def load_ergebnisse_2021(cursor: psycopg.cursor) -> None:
+    records = download_csv(ergebnisse_2021, delimiter=';', skip=2)
+
+    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
+    partei_mapping = {(x[0].upper(),): partei_mapping[x] for x in partei_mapping}
+    wahlkreis_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl',), 'wkId')
+
+    zweitstimmen = list(
+        filter(
+            lambda row: row['gehört zu'] == '99',
+            records
+        )
+    )
 
 
 if __name__ == '__main__':
