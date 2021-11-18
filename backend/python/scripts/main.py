@@ -48,6 +48,7 @@ def load_all() -> None:
                 )
             load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
             load_landeslisten_2017(cursor)
+            load_zweitstimmen_2017(cursor)
             load_direktkandidaten_2017(cursor)
 
 

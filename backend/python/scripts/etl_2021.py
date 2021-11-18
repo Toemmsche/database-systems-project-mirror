@@ -167,7 +167,7 @@ def get_listenplaetze_2021_prefix(cursor: psycopg.cursor, prefix: str) -> \
     landeslisten_mapping = key_dict(
         cursor,
         'Landesliste',
-        ('partei', 'land'),
+        ('partei', 'land', 'wahl'),
         'listenId',
     )
     kandidaten_mapping = key_dict(
@@ -195,6 +195,7 @@ def get_listenplaetze_2021_prefix(cursor: psycopg.cursor, prefix: str) -> \
                 landeslisten_mapping[(
                     parteien_mapping[(row[prefix + 'Gruppenname'],)],
                     int(row[prefix + 'Gebietsnummer']),
+                    20
                 )]
             ),
             kandidaten
@@ -486,23 +487,67 @@ def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
     ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
     partei_mapping.update({('MG',): partei_mapping[('Gartenpartei',)]})
-    landeslisten = list(seq(ergebnisse)
-        .filter(
-        lambda row: row['UegGebietsart'] == 'BUND' and
-                    row['Gruppenart'] == 'Partei' and
-                    row['Stimme'] == '2' and
-                    row['Anzahl'] != ''
+    landeslisten = list(
+        seq(ergebnisse)
+            .filter(
+            lambda row: row['Gebietsart'] == 'Land' and
+                        row['Gruppenart'] == 'Partei' and
+                        row['Stimme'] == '2' and
+                        row['Anzahl'] != ''
     )
-        .map(
-        lambda row: (
-            uuid.uuid4(),
-            partei_mapping[(row['Gruppenname'],)],
-            19,
-            row['Gebietsnummer'],
-            -1
+            .map(
+            lambda row: (
+                uuid.uuid4(),
+                partei_mapping[(row['Gruppenname'],)],
+                19,
+                row['Gebietsnummer'],
+                -1
+            )
         )
-    ))
+    )
     load_into_db(cursor, landeslisten, 'Landesliste')
+
+
+def load_zweitstimmen_2017(cursor: psycopg.cursor) -> None:
+    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
+    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
+    partei_mapping.update({('MG',): partei_mapping[('Gartenpartei',)]})
+    listen_mapping = key_dict(
+        cursor,
+        'landesliste',
+        ('partei', 'land', 'wahl'),
+        'listenId',
+    )
+    wahlkreis_mapping = key_dict(
+        cursor,
+        'Wahlkreis',
+        ('nummer', 'wahl'),
+        'wkId'
+        )
+    zweitstimmenergebnisse = list(
+        seq(ergebnisse)
+            .filter(
+            lambda row: row['Gebietsart'] == 'Wahlkreis' and
+                        row['Gruppenart'] == 'Partei' and
+                        row['Stimme'] == '2' and
+                        row['Anzahl'] != ''
+        )
+            .map(
+            lambda row: (
+                listen_mapping[(
+                    partei_mapping[(row['Gruppenname']),],
+                    int(row['Gebietsnummer']),
+                    19,
+                )],
+                wahlkreis_mapping[(
+                    int(row['Gebietsnummer']),
+                    19
+                )],
+                row['Anzahl'],
+            )
+        )
+    )
+    load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
 
 
 if __name__ == '__main__':

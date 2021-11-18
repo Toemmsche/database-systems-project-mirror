@@ -106,10 +106,8 @@ CREATE TABLE Listenplatz
 
 CREATE TABLE Erststimme
 (
-    erstId     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    kandidatur UUID REFERENCES Direktkandidatur (direktId) NOT NULL,
-    gueltig    BIT                                         NOT NULL,
-    briefwahl  BIT
+    erstId     UUID PRIMARY KEY,
+    kandidatur UUID REFERENCES Direktkandidatur (direktId) NOT NULL
 );
 
 CREATE TABLE Zweitstimme
@@ -117,7 +115,7 @@ CREATE TABLE Zweitstimme
     zweitId   UUID PRIMARY KEY,
     liste     UUID REFERENCES Landesliste (listenId),
     gueltig   BIT NOT NULL,
-    briefwahl BIT
+    wahlkreis UUID REFERENCES Wahlkreis (wkId)
 );
 
 CREATE TABLE Zweitstimmenergebnis
