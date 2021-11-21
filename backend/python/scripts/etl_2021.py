@@ -399,7 +399,7 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
     erststimmen_parteilos = list(
         itertools.chain.from_iterable(
             map(
-                lambda row: generate_zweitstimmen(row[0], row[6]),
+                lambda row: generate_erststimmen(row[0], row[6]),
                 direktkandidaten_parteilos
             )
         )
@@ -457,7 +457,7 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor, generate_stimmen: bool = Fals
     zweitstimmen = list(
         itertools.chain.from_iterable(
             map(
-                lambda row: generate_zweitstimmen(row[0], row[2]),
+                lambda row: generate_zweitstimmen(row[0], row[1], row[2]),
                 zweitstimmenergebnisse
             )
         )
@@ -468,16 +468,16 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor, generate_stimmen: bool = Fals
 def generate_erststimmen(kandidatur: uuid, count: int) -> list[tuple]:
     return list(
         map(
-            lambda i: (uuid.uuid4(), kandidatur, 1, 0),
+            lambda i: (uuid.uuid4(), kandidatur),
             range(0, count)
         )
     )
 
 
-def generate_zweitstimmen(liste: uuid, count: int) -> list[tuple]:
+def generate_zweitstimmen(liste: uuid, wahlkreis: uuid, count: int) -> list[tuple]:
     return list(
         map(
-            lambda i: (uuid.uuid4(), liste, 1, 0),
+            lambda i: (uuid.uuid4(), liste, wahlkreis),
             range(0, count)
         )
     )
@@ -536,7 +536,7 @@ def load_zweitstimmen_2017(cursor: psycopg.cursor) -> None:
             lambda row: (
                 listen_mapping[(
                     partei_mapping[(row['Gruppenname']),],
-                    int(row['Gebietsnummer']),
+                    int(row['UegGebietsnummer']),
                     19,
                 )],
                 wahlkreis_mapping[(

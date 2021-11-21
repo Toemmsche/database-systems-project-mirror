@@ -114,7 +114,6 @@ CREATE TABLE Zweitstimme
 (
     zweitId   UUID PRIMARY KEY,
     liste     UUID REFERENCES Landesliste (listenId),
-    gueltig   BIT NOT NULL,
     wahlkreis UUID REFERENCES Wahlkreis (wkId)
 );
 
