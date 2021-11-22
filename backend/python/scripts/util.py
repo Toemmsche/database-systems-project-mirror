@@ -19,6 +19,15 @@ def init_db(cursor: psycopg.cursor) -> None:
         cursor.execute(init_script.read())
         logger.info('Reset database')
 
+def stimmen_generator(cursor: psycopg.cursor) -> None:
+    with open('../../sql/erststimmengenerator.sql') as stimmen_generator_script:
+        cursor.execute(stimmen_generator_script.read())
+        logger.info('Generate Erststimmen')
+
+    with open('../../sql/zweitstimmengenerator.sql') as stimmen_generator_script:
+        cursor.execute(stimmen_generator_script.read())
+        logger.info('Generate Zweitstimmen')
+
 
 def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
     '''

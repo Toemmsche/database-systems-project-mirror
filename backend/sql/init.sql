@@ -106,13 +106,11 @@ CREATE TABLE Listenplatz
 
 CREATE TABLE Erststimme
 (
-    erstId     UUID PRIMARY KEY,
     kandidatur UUID REFERENCES Direktkandidatur (direktId) NOT NULL
 );
 
 CREATE TABLE Zweitstimme
 (
-    zweitId   UUID PRIMARY KEY,
     liste     UUID REFERENCES Landesliste (listenId),
     wahlkreis UUID REFERENCES Wahlkreis (wkId)
 );

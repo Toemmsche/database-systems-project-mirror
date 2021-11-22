@@ -51,6 +51,8 @@ def load_all() -> None:
             load_zweitstimmen_2017(cursor)
             load_direktkandidaten_2017(cursor)
 
+            stimmen_generator(cursor)
+
 
 if __name__ == '__main__':
     load_all()
