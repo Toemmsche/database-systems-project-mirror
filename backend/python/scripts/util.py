@@ -1,6 +1,7 @@
 import csv
 import itertools
 import logging
+import time
 import uuid
 
 import requests
@@ -21,12 +22,14 @@ def init_db(cursor: psycopg.cursor) -> None:
 
 def stimmen_generator(cursor: psycopg.cursor) -> None:
     with open('../../sql/erststimmengenerator.sql') as stimmen_generator_script:
+        start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
-        logger.info('Generate Erststimmen')
+        logger.info(f'Generated Erststimmen in {time.time() - start_time}s')
 
     with open('../../sql/zweitstimmengenerator.sql') as stimmen_generator_script:
+        start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
-        logger.info('Generate Zweitstimmen')
+        logger.info(f'Generated Zweitstimmen in {time.time() - start_time}s')
 
 
 def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
@@ -34,9 +37,10 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
     Loads a list of records into a database table.
     '''
     with cursor.copy('COPY {} FROM STDIN'.format(table)) as copy:
+        start_time = time.time()
         for record in records:
             copy.write_row(record)
-        logger.info('Copied {} rows into {}'.format(str(len(records)), table))
+        logger.info(f'Copied {len(records)} rows into {table} in {time.time() - start_time}s')
 
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
@@ -47,7 +51,7 @@ def parse_csv(string: str, delimiter, skip) -> list[dict]:
                 filter(lambda row: row != "" and row[0] != '#', lines),
                 skip,
                 None
-                ),
+            ),
             delimiter=delimiter,
             skipinitialspace=True
         )]
@@ -66,11 +70,13 @@ def download_csv(url: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
     content = response.content.decode(encoding)
     return parse_csv(content, delimiter, skip)
 
-def parse_float_de(str: str) -> float:
-    return float(str.replace('.', '').replace(',','.'))
 
-def key_dict(cursor : psycopg.cursor, table: str, keys: tuple, target: str):
-    res = cursor.execute('SELECT * FROM %s' % table)
+def parse_float_de(str: str) -> float:
+    return float(str.replace('.', '').replace(',', '.'))
+
+
+def key_dict(cursor: psycopg.cursor, table: str, keys: tuple, target: str):
+    res = cursor.execute('SELECT * FROM %s' % table).fetchall()
     col_names = [desc[0] for desc in cursor.description]
     keys = tuple(col_names.index(key.lower()) for key in keys)
     target = col_names.index(target.lower())
@@ -80,7 +86,8 @@ def key_dict(cursor : psycopg.cursor, table: str, keys: tuple, target: str):
         d.update({t: r[target]})
     return d
 
-def make_unique(dicts : list[dict], key_values: tuple):
+
+def make_unique(dicts: list[dict], key_values: tuple):
     unique_list = []
     key_set = set()
     for d in dicts:

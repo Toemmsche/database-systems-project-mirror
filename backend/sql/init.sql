@@ -1,67 +1,70 @@
-DROP TABLE IF EXISTS Bundestagswahl CASCADE;
-DROP TABLE IF EXISTS Bundesland CASCADE;
-DROP TABLE IF EXISTS Wahlkreis CASCADE;
-DROP TABLE IF EXISTS Gemeinde CASCADE;
-DROP TABLE IF EXISTS Partei CASCADE;
-DROP TABLE IF EXISTS Kandidat CASCADE;
-DROP TABLE IF EXISTS Direktkandidatur CASCADE;
-DROP TABLE IF EXISTS Landesliste CASCADE;
-DROP TABLE IF EXISTS Listenplatz CASCADE;
-DROP TABLE IF EXISTS Erststimme CASCADE;
-DROP TABLE IF EXISTS Zweitstimme CASCADE;
-DROP TABLE IF EXISTS Zweitstimmenergebnis CASCADE;
+DROP DATABASE IF EXISTS wahl;
+CREATE DATABASE wahl;
 
-CREATE TABLE Bundestagswahl
+DROP TABLE IF EXISTS bundestagswahl CASCADE;
+DROP TABLE IF EXISTS bundesland CASCADE;
+DROP TABLE IF EXISTS wahlkreis CASCADE;
+DROP TABLE IF EXISTS gemeinde CASCADE;
+DROP TABLE IF EXISTS partei CASCADE;
+DROP TABLE IF EXISTS kandidat CASCADE;
+DROP TABLE IF EXISTS direktkandidatur CASCADE;
+DROP TABLE IF EXISTS landesliste CASCADE;
+DROP TABLE IF EXISTS listenplatz CASCADE;
+DROP TABLE IF EXISTS erststimme CASCADE;
+DROP TABLE IF EXISTS zweitstimme CASCADE;
+DROP TABLE IF EXISTS zweitstimmenergebnis CASCADE;
+
+CREATE TABLE bundestagswahl
 (
     nummer INTEGER PRIMARY KEY,
     tag    DATE UNIQUE NOT NULL
 );
 
-CREATE TABLE Bundesland
+CREATE TABLE bundesland
 (
-    landId  INTEGER PRIMARY KEY,
+    landid  INTEGER PRIMARY KEY,
     kuerzel CHAR(2) UNIQUE NOT NULL,
     name    VARCHAR(50),
     osten   BIT            NOT NULL,
-    wappen  BYTEA
+    wappen  bytea
 );
 
-CREATE TABLE Wahlkreis
+CREATE TABLE wahlkreis
 (
-    wkId       UUID PRIMARY KEY,
+    wkid       uuid PRIMARY KEY,
     nummer     INTEGER                                    NOT NULL,
     name       VARCHAR(100)                               NOT NULL,
-    land       INTEGER REFERENCES Bundesland (landId)     NOT NULL,
-    wahl       INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
+    land       INTEGER REFERENCES bundesland (landid)     NOT NULL,
+    wahl       INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
     deutsche   INTEGER                                    NOT NULL,
-    begrenzung BYTEA,
+    begrenzung bytea,
     UNIQUE (nummer, wahl),
     UNIQUE (name, wahl)
 );
 
-CREATE TABLE Gemeinde
+CREATE TABLE gemeinde
 (
-    gemeindeId UUID PRIMARY KEY,
+    gemeindeid uuid PRIMARY KEY,
     name       VARCHAR(100)                     NOT NULL,
     plz        CHAR(5),
-    wahlkreis  UUID REFERENCES Wahlkreis (wkId) NOT NULL,
+    wahlkreis  uuid REFERENCES wahlkreis (wkid) NOT NULL,
     zusatz     VARCHAR(100)
     --UNIQUE (name, plz, wahlkreis)
 );
 
-CREATE TABLE Partei
+CREATE TABLE partei
 (
-    parteiId            INTEGER PRIMARY KEY,
+    parteiid            INTEGER PRIMARY KEY,
     name                VARCHAR(100) UNIQUE NOT NULL,
     kuerzel             VARCHAR(40),
-    nationaleMinderheit BIT                 NOT NULL,
+    nationaleminderheit BIT                 NOT NULL,
     gruendungsjahr      INTEGER,
     farbe               VARCHAR(6),
-    logo                BYTEA
+    logo                bytea
 );
-CREATE TABLE Kandidat
+CREATE TABLE kandidat
 (
-    kandId      UUID PRIMARY KEY,
+    kandid      uuid PRIMARY KEY,
     vorname     VARCHAR(100) NOT NULL,
     nachname    VARCHAR(60)  NOT NULL,
     titel       VARCHAR(50),
@@ -74,51 +77,51 @@ CREATE TABLE Kandidat
     UNIQUE (vorname, nachname, geburtsjahr, geburtsort)
 );
 
-CREATE TABLE Direktkandidatur
+CREATE TABLE direktkandidatur
 (
-    direktId             UUID PRIMARY KEY,
-    partei               INTEGER REFERENCES Partei (parteiId),
-    parteilosGruppenname VARCHAR(200),
-    kandidat             UUID REFERENCES Kandidat (kandId),
-    wahl                 INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
-    wahlkreis            UUID REFERENCES Wahlkreis (wkId)           NOT NULL,
-    anzahlStimmen        INTEGER
+    direktid             uuid PRIMARY KEY,
+    partei               INTEGER REFERENCES partei (parteiid),
+    parteilosgruppenname VARCHAR(200),
+    kandidat             uuid REFERENCES kandidat (kandid),
+    wahl                 INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
+    wahlkreis            uuid REFERENCES wahlkreis (wkid)           NOT NULL,
+    anzahlstimmen        INTEGER
 );
 
-CREATE TABLE Landesliste
+CREATE TABLE landesliste
 (
-    listenId            UUID PRIMARY KEY,
-    partei              INTEGER REFERENCES Partei (parteiId)       NOT NULL,
-    wahl                INTEGER REFERENCES Bundestagswahl (nummer) NOT NULL,
-    land                INTEGER REFERENCES Bundesland (landId)     NOT NULL,
-    stimmzettelPosition INTEGER                                    NOT NULL,
+    listenid            uuid PRIMARY KEY,
+    partei              INTEGER REFERENCES partei (parteiid)       NOT NULL,
+    wahl                INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
+    land                INTEGER REFERENCES bundesland (landid)     NOT NULL,
+    stimmzettelposition INTEGER                                    NOT NULL,
     UNIQUE (partei, wahl, land)
 );
 
 -- Constraint damit kein Kandidat in zwei Landeslistenfür eine Wahl antritt
-CREATE TABLE Listenplatz
+CREATE TABLE listenplatz
 (
     position INTEGER                                NOT NULL,
-    kandidat UUID REFERENCES Kandidat (kandId)      NOT NULL,
-    liste    UUID REFERENCES Landesliste (listenId) NOT NULL,
+    kandidat uuid REFERENCES kandidat (kandid)      NOT NULL,
+    liste    uuid REFERENCES landesliste (listenid) NOT NULL,
     PRIMARY KEY (liste, position)
 );
 
-CREATE TABLE Erststimme
+CREATE TABLE erststimme
 (
-    kandidatur UUID REFERENCES Direktkandidatur (direktId) NOT NULL
+    kandidatur uuid REFERENCES direktkandidatur (direktid) NOT NULL
 );
 
-CREATE TABLE Zweitstimme
+CREATE TABLE zweitstimme
 (
-    liste     UUID REFERENCES Landesliste (listenId),
-    wahlkreis UUID REFERENCES Wahlkreis (wkId)
+    liste     uuid REFERENCES landesliste (listenid),
+    wahlkreis uuid REFERENCES wahlkreis (wkid)
 );
 
-CREATE TABLE Zweitstimmenergebnis
+CREATE TABLE zweitstimmenergebnis
 (
-    liste         UUID REFERENCES Landesliste (listenId) NOT NULL,
-    wahlkreis     UUID REFERENCES Wahlkreis (wkId)       NOT NULL,
-    anzahlStimmen INTEGER,
+    liste         uuid REFERENCES landesliste (listenid) NOT NULL,
+    wahlkreis     uuid REFERENCES wahlkreis (wkid)       NOT NULL,
+    anzahlstimmen INTEGER,
     PRIMARY KEY (liste, wahlkreis)
 );
