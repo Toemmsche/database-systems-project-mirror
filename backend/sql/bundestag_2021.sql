@@ -1,6 +1,5 @@
 /*
  TODO: Aufteilung von Überhangsmandaten, die nicht ausgeglichen werden auf Länder (beeinflusst Ergebnis nicht, da CSU nur in einem Land)
- TODO: Divisorermittlung beschleunigen (wie bei letzter rekursiver Abfrage)
  TODO: Einzelstimmen verwenden statt aggregierte Werte
  */
 with recursive
@@ -91,15 +90,29 @@ with recursive
         (select sum(round(d.deutsche / (
                 (select *
                  from anzahl_deutsche)::numeric / 598))) as sitze,
-                sum(d.deutsche)::numeric / 598           as divisor
+                sum(d.deutsche)::numeric / 598           as divisor,
+                sum(d.deutsche)::numeric / 598           as next_divisor
          from deutsche d
          union all
-         (select (select sum(round(d.deutsche / sv.divisor))
+         (select (select sum(round(d.deutsche / sv.next_divisor))
                   from deutsche d) as sitze,
+                 sv.next_divisor,
                  case
-                     when sitze < 598 then sv.divisor - 1
-                     when sitze > 598 then sv.divisor + 1
-                     else sv.divisor
+                     when sitze < 598 then
+                         (select avg(d.divisor)
+                          from (select d.deutsche / (round(d.deutsche / sv.next_divisor) + 0.5 + dk.divisor) as divisor
+                                from deutsche d,
+                                     divisor_kandidaten dk
+                                order by divisor desc
+                                limit 2) as d)
+                     when sitze > 598 then
+                         (select avg(d.divisor)
+                          from (select d.deutsche / (round(d.deutsche / sv.next_divisor) - 0.5 - dk.divisor) as divisor
+                                from deutsche d,
+                                     divisor_kandidaten dk
+                                order by divisor
+                                limit 2) as d)
+                     else sv.next_divisor
                      end
           from sitzverteilung sv
           where sitze != 598)),
@@ -167,7 +180,8 @@ with recursive
     laender_divisor as
         (select zsl.land                                                                as land,
                 sum(round(zs.anzahlStimmen / (zsl.anzahlStimmen::numeric / svl.sitze))) as sitze2,
-                zsl.anzahlStimmen::numeric / svl.sitze                                  as divisor
+                zsl.anzahlStimmen::numeric / svl.sitze                                  as divisor,
+                zsl.anzahlStimmen::numeric / svl.sitze                                  as next_divisor
          from zweitstimmen_gefiltert zs,
               zweitstimmen_land zsl,
               sitzverteilung_laender svl
@@ -179,13 +193,31 @@ with recursive
          union all
          (select zsl.land,
 
-                 (select sum(round(zs.anzahlStimmen / ld.divisor))
+                 (select sum(round(zs.anzahlStimmen / ld.next_divisor))
                   from zweitstimmen_gefiltert zs
                   where zs.land = zsl.land) as sitze,
+                 ld.next_divisor,
                  case
-                     when sitze < ld.sitze2 then ld.divisor + 1
-                     when sitze > ld.sitze2 then ld.divisor - 1
-                     else ld.divisor
+                     when sitze < ld.sitze2 then
+                         (select avg(d.divisor)
+                          from (select zs.anzahlStimmen /
+                                       (round(zs.anzahlStimmen / ld.next_divisor) - 0.5 - dk.divisor) as divisor
+                                from divisor_kandidaten dk,
+                                     zweitstimmen_gefiltert zs
+                                where zs.land = zsl.land
+                                  and round(zs.anzahlStimmen / ld.next_divisor) > dk.divisor
+                                order by divisor
+                                limit 2) as d)
+                     when sitze > ld.sitze2 then
+                         (select avg(d.divisor)
+                          from (select zs.anzahlStimmen /
+                                       (round(zs.anzahlStimmen / ld.next_divisor) + 0.5 + dk.divisor) as divisor
+                                from divisor_kandidaten dk,
+                                     zweitstimmen_gefiltert zs
+                                where zs.land = zsl.land
+                                order by divisor desc
+                                limit 2) as d)
+                     else ld.next_divisor
                      end
           from zweitstimmen_land zsl,
                laender_divisor ld,
