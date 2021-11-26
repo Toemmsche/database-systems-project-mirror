@@ -1,377 +1,325 @@
 DROP MATERIALIZED VIEW IF EXISTS wahlauswahl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS blbevoelkerung CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS bundesland_bevoelkerung CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS direktmandat CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS zspartei CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS zsparteibl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS zsbl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS btparteien CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS zsbtpartei CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS zsbtparteibl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS sitzebl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS sitzkontigentparteibl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS mindmsitzeparteibl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS minsitzeparteibl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS sitzanspruchpartei CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS anspruchohneueberhang CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS ueberhangparteibl CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS ueberhangpartei CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS divisorobergrenze CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS finalesitze CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS llsitzeparteibl CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS qparteien CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_qpartei CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_qpartei_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS sitze_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS sitzkontigent_qpartei_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS direktmandate_qpartei_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mindestsitze_qpartei_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS sitzanspruch_qpartei CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS sitzanspruch_ohne_ueberhang CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS ueberhang_qpartei_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS qpartei_mit_ueberhang CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS divisor_qpartei CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS sitze_qpartei CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS divisor_landesliste CASCADE;
 
 CREATE MATERIALIZED VIEW wahlauswahl AS
-(
-VALUES (20));
+    VALUES (20);
 
 --German population by state
-CREATE MATERIALIZED VIEW blbevoelkerung AS
-(
-SELECT bl.landid, SUM(wk.deutsche) AS bevoelkerung
+CREATE MATERIALIZED VIEW bundesland_bevoelkerung(land, bevoelkerung) AS
+    /*
+SELECT bl.landid AS land, SUM(wk.deutsche) AS bevoelkerung
 FROM bundesland bl,
      wahlkreis wk
 WHERE wk.land = bl.landid
   AND wk.wahl = (SELECT * FROM wahlauswahl)
-GROUP BY bl.landid
-ORDER BY bl.landid
-    );
+GROUP BY bl.landid;*/
+    VALUES (1,
+             2659792),
+            (2,
+             1537766),
+            (3,
+             7207587),
+            (4,
+             548941),
+            (5,
+             15415642),
+            (6,
+             5222158),
+            (7,
+             3610865),
+            (8,
+             9313413),
+            (9,
+             11328866),
+            (10,
+             865191),
+            (11,
+             2942960),
+            (12,
+             2397701),
+            (13,
+             1532412),
+            (14,
+             3826905),
+            (15,
+             2056177),
+            (16,
+             1996822);
+
 
 --The winners of each constituency
 CREATE MATERIALIZED VIEW direktmandat AS
-(
-SELECT wk.wkid, dk.direktid, dk.partei
-FROM direktkandidatur dk,
-     wahlkreis wk
-WHERE dk.wahlkreis = wk.wkid
-  AND dk.wahl = (SELECT * FROM wahlauswahl)
-  AND dk.anzahlstimmen =
-      (SELECT MAX(dk1.anzahlstimmen)
-       FROM direktkandidatur dk1
-       WHERE dk1.wahlkreis = dk.wahlkreis)
-    );
+    SELECT wk.wkid AS wahlkreis, dk.direktid, dk.partei
+    FROM direktkandidatur dk,
+         wahlkreis wk
+    WHERE dk.wahlkreis = wk.wkid
+      AND dk.wahl = (SELECT * FROM wahlauswahl)
+      AND dk.anzahlstimmen =
+          (SELECT MAX(dk1.anzahlstimmen)
+           FROM direktkandidatur dk1
+           WHERE dk1.wahlkreis = dk.wahlkreis);
 
 --Second votes by party
-CREATE MATERIALIZED VIEW zspartei AS
-(
-SELECT p.parteiid, SUM(zwe.anzahlstimmen) AS anzahlstimmen
-FROM partei p,
-     landesliste ll,
-     zweitstimmenergebnis zwe
-WHERE p.parteiid = ll.partei
-  AND ll.listenid = zwe.liste
-  AND ll.wahl = (SELECT * FROM wahlauswahl)
-GROUP BY p.parteiid
-    );
+CREATE MATERIALIZED VIEW zweitstimmen_partei AS
+    SELECT p.parteiid AS partei, SUM(zwe.anzahlstimmen) AS anzahlstimmen
+    FROM partei p,
+         landesliste ll,
+         zweitstimmenergebnis zwe
+    WHERE p.parteiid = ll.partei
+      AND ll.listenid = zwe.liste
+      AND ll.wahl = (SELECT * FROM wahlauswahl)
+    GROUP BY p.parteiid;
 
 --Second votes by party and state
-CREATE MATERIALIZED VIEW zsparteibl AS
-(
-SELECT ll.land, p.parteiid, SUM(zwe.anzahlstimmen) AS anzahlstimmen
-FROM partei p,
-     landesliste ll,
-     zweitstimmenergebnis zwe
-WHERE p.parteiid = ll.partei
-  AND ll.listenid = zwe.liste
-  AND ll.wahl = (SELECT * FROM wahlauswahl)
-GROUP BY ll.land, p.parteiid
-    );
+CREATE MATERIALIZED VIEW zweitstimmen_partei_bundesland AS
+    SELECT ll.land, p.parteiid AS partei, SUM(zwe.anzahlstimmen) AS anzahlstimmen
+    FROM partei p,
+         landesliste ll,
+         zweitstimmenergebnis zwe
+    WHERE p.parteiid = ll.partei
+      AND ll.listenid = zwe.liste
+      AND ll.wahl = (SELECT * FROM wahlauswahl)
+    GROUP BY ll.land, p.parteiid;
 
 --Second votes by state
-CREATE MATERIALIZED VIEW zsbl AS
-(
-SELECT land, SUM(anzahlstimmen) AS anzahlstimmen
-FROM zsparteibl
-GROUP BY land
-    );
+CREATE MATERIALIZED VIEW zweitstimmen_bundesland AS
+    SELECT land, SUM(anzahlstimmen) AS anzahlstimmen
+    FROM zweitstimmen_partei_bundesland
+    GROUP BY land;
 
 --All parties that are qualified to receive seats based on the second vote
-CREATE MATERIALIZED VIEW btpartei AS
-(
-SELECT p.parteiid
-FROM zspartei p,
-     direktkandidatur dk,
-     direktmandat dm
---Achieve 5% at least
-WHERE p.anzahlstimmen >= 0.05 * (SELECT SUM(anzahlstimmen) FROM zspartei)
-UNION
-SELECT p.parteiid
-FROM partei p,
-     direktkandidatur dk,
-     direktmandat dm
-WHERE dk.direktid = dm.direktid
-  AND p.parteiid = dk.partei
-GROUP BY p.parteiid
---Obtain three direct seats at least
-HAVING COUNT(*) >= 3
+CREATE MATERIALIZED VIEW qpartei AS
+    SELECT p.partei
+    FROM zweitstimmen_partei p,
+         direktkandidatur dk,
+         direktmandat dm
+         --Achieve 5% at least
+    WHERE p.anzahlstimmen >= 0.05 * (SELECT SUM(anzahlstimmen) FROM zweitstimmen_partei)
+    UNION
+    SELECT p.parteiid
+    FROM partei p,
+         direktkandidatur dk,
+         direktmandat dm
+    WHERE dk.direktid = dm.direktid
+      AND p.parteiid = dk.partei
+    GROUP BY p.parteiid
+             --Obtain three direct seats at least
+    HAVING COUNT(*) >= 3;
 --TODO nationale minderheit
-    );
 
-CREATE MATERIALIZED VIEW zsbtpartei AS
-(
-SELECT zs.*
-FROM zspartei zs,
-     btpartei p
-WHERE zs.parteiid = p.parteiid
-
-    );
+CREATE MATERIALIZED VIEW zweitstimmen_qpartei AS
+    SELECT zs.*
+    FROM zweitstimmen_partei zs,
+         qpartei p
+    WHERE zs.partei = p.partei;
 
 --second votes per qualified party per state
-CREATE MATERIALIZED VIEW zsbtparteibl AS
-(
-SELECT *
-FROM zsparteibl
-WHERE parteiid IN (SELECT * FROM btpartei)
-    );
+CREATE MATERIALIZED VIEW zweitstimmen_qpartei_bundesland AS
+    SELECT *
+    FROM zweitstimmen_partei_bundesland
+    WHERE partei IN (SELECT * FROM qpartei);
 
 --Number of assigned to each state
-CREATE MATERIALIZED VIEW sitzebl AS
-(
-WITH gesamtsitze AS (
-    SELECT 2 * COUNT(*)
-    FROM wahlkreis wk
-    WHERE wk.wahl = (SELECT * FROM wahlauswahl)
-),
-     range (index) AS (SELECT GENERATE_SERIES(100000, 200000)),
-     divisorverfahren AS (
-         SELECT r.index
-         FROM blbevoelkerung blb,
-              range r
-         GROUP BY r.index
-         HAVING SUM(ROUND(blb.bevoelkerung * 1.00000000 / r.index)) = (SELECT * FROM gesamtsitze)
-         ORDER BY r.index
-                  --only take one divisor
-         LIMIT 1)
-SELECT landid, ROUND(bevoelkerung * 1.00000000 / (SELECT * FROM divisorverfahren)) AS sitze
-FROM blbevoelkerung
-    );
+CREATE MATERIALIZED VIEW sitze_bundesland AS
+    WITH RECURSIVE
+        gesamtsitze AS
+            (SELECT 2 * COUNT(*)
+             FROM wahlkreis
+             WHERE wahl = (SELECT * FROM wahlauswahl)),
+        anzahl_deutsche AS
+            (SELECT SUM(b.bevoelkerung) AS anzahl_deutsche
+             FROM bundesland_bevoelkerung b),
+        sitzverteilung AS
+            (SELECT SUM(ROUND(b.bevoelkerung / (
+                    (SELECT *
+                     FROM anzahl_deutsche)::decimal / (SELECT * FROM gesamtsitze)))) AS sitze,
+                    SUM(b.bevoelkerung)::decimal / (SELECT * FROM gesamtsitze)       AS divisor
+             FROM bundesland_bevoelkerung b
+             UNION ALL
+             (SELECT (SELECT SUM(ROUND(b.bevoelkerung / sv.divisor))
+                      FROM bundesland_bevoelkerung b) AS sitze,
+                     CASE
+                         WHEN sitze < (SELECT * FROM gesamtsitze) THEN sv.divisor - 1
+                         WHEN sitze > (SELECT * FROM gesamtsitze) THEN sv.divisor + 1
+                         ELSE sv.divisor
+                         END
+              FROM sitzverteilung sv
+              WHERE sitze != (SELECT * FROM gesamtsitze))),
+        divisor AS
+            (SELECT divisor
+             FROM sitzverteilung
+             WHERE sitze = (SELECT * FROM gesamtsitze))
+    SELECT land, ROUND(bevoelkerung::decimal / (SELECT * FROM divisor)) AS sitze, (SELECT * FROM divisor)
+    FROM bundesland_bevoelkerung;
 
 SELECT *
-FROM btpartei;
+FROM sitze_bundesland;
 
 --Minimum number of seats for each party in each state
-CREATE MATERIALIZED VIEW sitzkontingentparteibl AS
-(
-WITH range(index) AS (SELECT GENERATE_SERIES(60000, 90000)),
-     divisorverfahren AS (
-         SELECT bl.landid AS land,
-                (
-                    SELECT r.index
-                    FROM range r,
-                         zsbtparteibl zs,
-                         sitzebl sbl
-                    WHERE sbl.landid = zs.land
-                      AND bl.landid = zs.land
-                    GROUP BY zs.land, r.index, sbl.sitze
-                    HAVING SUM(ROUND(zs.anzahlstimmen * 1.00000000 / r.index)) = sbl.sitze
-                    LIMIT 1
-                )         AS divisor
-         FROM bundesland bl
-     )
-SELECT zs.land,
-       zs.parteiid,
-       ROUND(zs.anzahlstimmen * 1.00000000 / d.divisor) AS sitze
-FROM zsbtparteibl zs,
-     divisorverfahren d
-WHERE zs.land = d.land
-    );
-
-
-CREATE MATERIALIZED VIEW mindmsitzeparteibl AS
-(
-SELECT bl.landid AS land, p.parteiid AS partei, COUNT(dm.direktid) AS sitze
-FROM ((btpartei p CROSS JOIN bundesland bl)
-         LEFT OUTER JOIN direktmandat dm ON dm.partei = p.parteiid
-    AND EXISTS(
-                                                    SELECT *
-                                                    FROM wahlkreis wk
-                                                    WHERE dm.wkid = wk.wkid
-                                                      AND wk.land = bl.landid)
-    )
-GROUP BY bl.landid, p.parteiid);
-
-CREATE MATERIALIZED VIEW minsitzeparteibl AS
-(
-SELECT bl.landid  AS land,
-       p.parteiid AS partei,
-       GREATEST(
-               (SELECT mds.sitze
-                FROM mindmsitzeparteibl mds
-                WHERE mds.partei = p.parteiid
-                  AND mds.land = bl.landid)
-           , ROUND(((SELECT mzs.sitze
-                     FROM sitzkontingentparteibl mzs
-                     WHERE mzs.parteiid = p.parteiid
-                       AND mzs.land = bl.landid)
-           +
-                    (SELECT mds.sitze
-                     FROM mindmsitzeparteibl mds
-                     WHERE mds.partei = p.parteiid
-                       AND mds.land = bl.landid)
+CREATE MATERIALIZED VIEW sitzkontingent_qpartei_bundesland AS
+    WITH RECURSIVE laender_divisor AS
+                       (SELECT zsl.land                                                                 AS land,
+                               SUM(ROUND(zsl.anzahlstimmen / (zsl.anzahlstimmen::numeric / sbl.sitze))) AS sitze_ld,
+                               zsl.anzahlstimmen::numeric / sbl.sitze                                   AS divisor
+                        FROM zweitstimmen_qpartei_bundesland zsp,
+                             zweitstimmen_bundesland zsl,
+                             sitze_bundesland sbl
+                        WHERE zsl.land = sbl.land
+                        GROUP BY zsl.land,
+                                 zsl.anzahlstimmen,
+                                 sbl.sitze
+                        UNION ALL
+                        (SELECT zsl.land,
+                                (SELECT SUM(ROUND(zsl.anzahlstimmen / ld.divisor))
+                                 FROM zweitstimmen_qpartei_bundesland zsl
+                                 WHERE zsl.land = ld.land) AS sitze_ld,
+                                CASE
+                                    WHEN sitze < sitze_ld THEN ld.divisor + 1
+                                    WHEN sitze > sitze_ld THEN ld.divisor - 1
+                                    ELSE ld.divisor
+                                    END
+                         FROM zweitstimmen_bundesland zsl,
+                              laender_divisor ld,
+                              sitze_bundesland sbl
+                         WHERE zsl.land = ld.land
+                           AND zsl.land = sbl.land
+                           AND sitze != sitze_ld)
                        )
-           / 2))  AS minsitze
-FROM btpartei p,
-     bundesland bl );
-
-CREATE MATERIALIZED VIEW sitzanspruchpartei AS
-(
-SELECT p.parteiid                                  AS partei,
-       GREATEST((
-                    SELECT SUM(ms.minsitze)
-                    FROM minsitzeparteibl ms
-                    WHERE ms.partei = p.parteiid),
-                (SELECT SUM(mzs.sitze)
-                 FROM sitzkontingentparteibl mzs
-                 WHERE mzs.parteiid = p.parteiid)) AS minsitze
-FROM btpartei p
-    );
-
-CREATE MATERIALIZED VIEW anspruchohneueberhang AS
-(
-SELECT p.*
-FROM sitzanspruchpartei p
-WHERE p.minsitze = (SELECT SUM(mzs.sitze)
-                    FROM sitzkontingentparteibl mzs
-                    WHERE mzs.parteiid = p.partei)
-    );
-
-SELECT *
-FROM sitzanspruchpartei;
-
-CREATE MATERIALIZED VIEW ueberhangparteibl AS
-(
-SELECT mdm.partei,
-       (CASE
-            WHEN mdm.sitze > sk.sitze THEN mdm.sitze - sk.sitze
-            ELSE 0
-           END) AS ueberhang
-FROM sitzkontingentparteibl sk,
-     mindmsitzeparteibl mdm
-WHERE sk.parteiid = mdm.partei
-  AND mdm.land = sk.land
-    );
-
-CREATE MATERIALIZED VIEW ueberhangpartei AS
-(
-SELECT DISTINCT p.parteiid
-FROM btpartei p,
-     ueberhangparteibl u
-WHERE u.partei = p.parteiid
-  AND u.ueberhang > 0
-    );
-
-SELECT *
-FROM (
-         SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - 0.5) AS div
-         FROM ueberhangpartei p,
-              zspartei zs,
-              sitzanspruchpartei msp
-         WHERE p.parteiid = zs.parteiid
-           AND p.parteiid = msp.partei
-         UNION
-         SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - 1.5) AS div
-         FROM ueberhangpartei p,
-              zspartei zs,
-              sitzanspruchpartei msp
-         WHERE p.parteiid = zs.parteiid
-           AND p.parteiid = msp.partei
-         UNION
-         SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - 2.5) AS div
-         FROM ueberhangpartei p,
-              zspartei zs,
-              sitzanspruchpartei msp
-         WHERE p.parteiid = zs.parteiid
-           AND p.parteiid = msp.partei
-         UNION
-         SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - 3.5) AS div
-         FROM ueberhangpartei p,
-              zspartei zs,
-              sitzanspruchpartei msp
-         WHERE p.parteiid = zs.parteiid
-           AND p.parteiid = msp.partei
-     ) AS ueberhangdivisor
-ORDER BY div ASC
-OFFSET 3 LIMIT 1;
-
-
-CREATE MATERIALIZED VIEW endgueltigerdivisor AS
-(
-SELECT FLOOR(LEAST((SELECT MIN(zsp.anzahlstimmen / (msp.minsitze * 1.0000 - 0.5))
-                    FROM zsbtpartei zsp,
-                         anspruchohneueberhang msp
-                    WHERE zsp.parteiid = msp.partei),
-                   (SELECT *
-                    FROM (
-                             SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - 0.5) AS div
-                             FROM ueberhangpartei p,
-                                  zspartei zs,
-                                  sitzanspruchpartei msp
-                             WHERE p.parteiid = zs.parteiid
-                               AND p.parteiid = msp.partei
-                             UNION
-                             SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - 1.5) AS div
-                             FROM ueberhangpartei p,
-                                  zspartei zs,
-                                  sitzanspruchpartei msp
-                             WHERE p.parteiid = zs.parteiid
-                               AND p.parteiid = msp.partei
-                             UNION
-                             SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - 2.5) AS div
-                             FROM ueberhangpartei p,
-                                  zspartei zs,
-                                  sitzanspruchpartei msp
-                             WHERE p.parteiid = zs.parteiid
-                               AND p.parteiid = msp.partei
-                             UNION
-                             SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - 3.5) AS div
-                             FROM ueberhangpartei p,
-                                  zspartei zs,
-                                  sitzanspruchpartei msp
-                             WHERE p.parteiid = zs.parteiid
-                               AND p.parteiid = msp.partei
-                         ) AS ueberhangdivisor
-                    ORDER BY div ASC
-                    OFFSET 3 LIMIT 1
-                   ))));
+    SELECT zsl.land,
+           zsl.partei,
+           ROUND(zsl.anzahlstimmen / ld.divisor) AS sitze
+    FROM laender_divisor ld,
+         zweitstimmen_qpartei_bundesland zsl,
+         sitze_bundesland sbl
+    WHERE ld.land = zsl.land
+      AND zsl.land = sbl.land
+      AND sbl.sitze = ld.sitze_ld;
 
 
 
-CREATE MATERIALIZED VIEW finalesitze AS
-(
-SELECT zsp.parteiid, ROUND(zsp.anzahlstimmen / (SELECT * FROM endgueltigerdivisor)) AS sitze
-FROM zsbtpartei zsp
-    );
+CREATE MATERIALIZED VIEW direktmandate_qpartei_bundesland AS
+    SELECT bl.landid AS land, p.partei AS partei, COUNT(dm.direktid) AS sitze
+    FROM ((qpartei p CROSS JOIN bundesland bl)
+             LEFT OUTER JOIN direktmandat dm ON dm.partei = p.partei
+        AND EXISTS(
+                                                        SELECT *
+                                                        FROM wahlkreis wk
+                                                        WHERE dm.wahlkreis = wk.wkid
+                                                          AND wk.land = bl.landid)
+        )
+    GROUP BY bl.landid, p.partei;
+
+CREATE MATERIALIZED VIEW mindestsitze_qpartei_bundesland AS
+    SELECT bl.landid AS land,
+           p.partei  AS partei,
+           GREATEST(
+                   (SELECT mds.sitze
+                    FROM direktmandate_qpartei_bundesland mds
+                    WHERE mds.partei = p.partei
+                      AND mds.land = bl.landid)
+               , ROUND(
+                               ((SELECT mzs.sitze
+                                 FROM sitzkontingent_qpartei_bundesland mzs
+                                 WHERE mzs.partei = p.partei
+                                   AND mzs.land = bl.landid)
+                                   +
+                                (SELECT mds.sitze
+                                 FROM direktmandate_qpartei_bundesland mds
+                                 WHERE mds.partei = p.partei
+                                   AND mds.land = bl.landid)
+                                   )
+                               / 2)
+               )     AS minsitze
+    FROM qpartei p,
+         bundesland bl;
+
+
+
+CREATE MATERIALIZED VIEW sitzanspruch_qpartei AS
+    SELECT p.partei                                AS partei,
+           GREATEST((SELECT SUM(ms.minsitze)
+                     FROM mindestsitze_qpartei_bundesland ms
+                     WHERE ms.partei = p.partei),
+                    (SELECT SUM(mzs.sitze)
+                     FROM sitzkontingent_qpartei_bundesland mzs
+                     WHERE mzs.partei = p.partei)) AS minsitze
+    FROM qpartei p;
+
+select * from sitzanspruch_qpartei;
+
+CREATE MATERIALIZED VIEW sitzanspruch_ohne_ueberhang AS
+    SELECT p.*
+    FROM sitzanspruch_qpartei p
+    WHERE p.minsitze = (SELECT SUM(mzs.sitze)
+                        FROM sitzkontingent_qpartei_bundesland mzs
+                        WHERE mzs.partei = p.partei);
 
 SELECT *
-FROM finalesitze;
+FROM sitzanspruch_qpartei;
 
---TODO ÜBERHANGE
-CREATE MATERIALIZED VIEW llsitzeparteibl AS
-(
-WITH range(index) AS (SELECT GENERATE_SERIES(1000, 100000))
-SELECT p.parteiid AS partei,
-       (
-           SELECT r.index
-           FROM range r,
-                finalesitze fs,
-                zsbtparteibl zs
-           WHERE fs.parteiid = p.parteiid
-             AND zs.parteiid = p.parteiid
-           GROUP BY fs.parteiid, r.index, fs.sitze
-           HAVING SUM(GREATEST(ROUND(zs.anzahlstimmen * 1.00000000 / r.index),
-                               (SELECT msp.minsitze
-                                FROM minsitzeparteibl msp
-                                WHERE msp.partei = zs.parteiid
-                                  AND msp.land = zs.land)
-               )) = fs.sitze
-           LIMIT 1
-       )          AS divisor
-FROM btpartei p
-    );
+CREATE MATERIALIZED VIEW ueberhang_qpartei_bundesland AS
+    SELECT mdm.partei,
+           (CASE
+                WHEN mdm.sitze > sk.sitze THEN mdm.sitze - sk.sitze
+                ELSE 0
+               END) AS ueberhang
+    FROM sitzkontingent_qpartei_bundesland sk,
+         direktmandate_qpartei_bundesland mdm
+    WHERE sk.partei = mdm.partei
+      AND mdm.land = sk.land;
 
+CREATE MATERIALIZED VIEW qpartei_mit_ueberhang AS
+    SELECT DISTINCT p.partei
+    FROM qpartei p,
+         ueberhang_qpartei_bundesland u
+    WHERE u.partei = p.partei
+      AND u.ueberhang > 0;
+
+CREATE MATERIALIZED VIEW divisor_qpartei AS
+    SELECT FLOOR(LEAST((SELECT MIN(zsp.anzahlstimmen / (msp.minsitze * 1.0000 - 0.5))
+                        FROM zweitstimmen_qpartei zsp,
+                             sitzanspruch_ohne_ueberhang msp
+                        WHERE zsp.partei = msp.partei),
+                       (SELECT *
+                        FROM (
+                                 WITH interval(wert) AS (VALUES (0), (1), (2), (3))
+                                 SELECT zs.anzahlstimmen / (msp.minsitze * 1.0000 - i.wert) AS div
+                                 FROM qpartei_mit_ueberhang p,
+                                      zweitstimmen_partei zs,
+                                      sitzanspruch_qpartei msp,
+                                      interval i
+                                 WHERE p.partei = zs.partei
+                                   AND p.partei = msp.partei
+                             ) AS ueberhangdivisor
+                        ORDER BY div ASC
+                        OFFSET 3 LIMIT 1
+                       )));
 
 
 SELECT *
-FROM llsitzeparteibl;
+FROM divisor_qpartei;
 
-/*
+CREATE MATERIALIZED VIEW sitze_qpartei AS
+    SELECT zsp.partei, ROUND(zsp.anzahlstimmen / (SELECT * FROM divisor_qpartei)) AS sitze
+    FROM zweitstimmen_qpartei zsp;
 
- */
+SELECT *
+FROM sitze_qpartei;
