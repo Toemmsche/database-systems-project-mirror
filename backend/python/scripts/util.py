@@ -2,7 +2,6 @@ import csv
 import itertools
 import logging
 import time
-import uuid
 
 import requests
 
@@ -31,17 +30,25 @@ def stimmen_generator(cursor: psycopg.cursor) -> None:
         cursor.execute(stimmen_generator_script.read())
         logger.info(f'Generated Zweitstimmen in {time.time() - start_time}s')
 
+def get_column_names(cursor: psycopg.cursor, table: str) -> list[str]:
+    cursor.execute('SELECT * FROM %s' % table)
+    col_names = [desc[0] for desc in cursor.description]
+    return col_names
+
 
 def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
     '''
     Loads a list of records into a database table.
     '''
-    with cursor.copy('COPY {} FROM STDIN'.format(table)) as copy:
+    col_names = get_column_names(cursor, table)
+    record_len = len(records[0])
+    # Cut columns if necessary
+    col_names = col_names[:record_len]
+    with cursor.copy(f'COPY  {table}({",".join(col_names)}) FROM STDIN') as copy:
         start_time = time.time()
         for record in records:
             copy.write_row(record)
         logger.info(f'Copied {len(records)} rows into {table} in {time.time() - start_time}s')
-
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
     lines = string.split('\n')
@@ -56,7 +63,6 @@ def parse_csv(string: str, delimiter, skip) -> list[dict]:
             skipinitialspace=True
         )]
     return file
-
 
 def local_csv(path: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
     dict]:
@@ -91,7 +97,6 @@ def make_unique(dicts: list[dict], key_values: tuple):
     unique_list = []
     key_set = set()
     for d in dicts:
-        d['uuid'] = uuid.uuid4()
         key = tuple(d[value] for value in key_values)
         if key not in key_set:
             unique_list.append(d)

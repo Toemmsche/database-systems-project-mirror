@@ -1,5 +1,4 @@
 import itertools
-import uuid
 
 import psycopg
 from psycopg.types import datetime
@@ -12,8 +11,8 @@ def load_bundestagswahl_2021(cursor: psycopg.cursor):
     load_into_db(
         cursor,
         [
-            (19, datetime.date(2017, 9, 24)),
-            (20, datetime.date(2021, 9, 26)),
+            ( datetime.date(2017, 9, 24), 19),
+            ( datetime.date(2021, 9, 26), 20),
         ],
         'Bundestagswahl'
     )
@@ -23,7 +22,7 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
     records = download_csv(bundeslaender)
     records = list(
         map(
-            lambda row: (row['id'], row['label'], row['name_de'], 0, None),
+            lambda row: (row['label'], row['name_de'], 0, None, row['id']),
             records,
         )
     )
@@ -39,7 +38,6 @@ def load_wahlkreise(
     records = list(
         map(
             lambda row: (
-                uuid.uuid4(),
                 row['Wahlkreis-Nr.'],
                 row['Wahlkreis-Name'],
                 bundesland_mapping[(row['Land'],)],
@@ -68,7 +66,6 @@ def load_gemeinden(
     records = list(
         map(
             lambda row: (
-                uuid.uuid4(),
                 row['Gemeindename'],
                 row['PLZ-GemVerwaltung'],
                 wk_mapping[(int(row['Wahlkreis-Nr']), wahl)],
@@ -81,11 +78,9 @@ def load_gemeinden(
 
 def load_parteien(cursor: psycopg.cursor) -> None:
     records = local_csv(parteien)
-    id_iter = itertools.count()
     records = list(
         map(
             lambda row: (
-                next(id_iter),
                 row['Name'],
                 row['Kurzbezeichnung'],
                 0,  # TODO
@@ -114,7 +109,6 @@ def load_landeslisten_2021(cursor: psycopg.cursor) -> None:
                 if bl != 'Gruppenname_kurz' and bl != 'BUND' and pos != '':
                     landeslisten.append(
                         (
-                            uuid.uuid4(),
                             parteien_mapping[(
                                 partei['Gruppenname_kurz'].upper(),
                             )],
@@ -138,7 +132,6 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
     records = list(
         map(
             lambda row: (
-                row['uuid'],
                 row['Vornamen'],
                 row['Nachname'],
                 row['Titel'],
@@ -239,7 +232,6 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
     direktkandidaten_partei = list(
         map(
             lambda row: (
-                uuid.uuid4(),
                 partei_mapping[(row['Gruppenname'],)],
                 None,
                 None,
@@ -263,7 +255,6 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
     direktkandidaten_parteilos = list(
         map(
             lambda row: (
-                uuid.uuid4(),
                 None,
                 row['Gruppenname'],
                 None,
@@ -347,7 +338,6 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
     direktkandidaten = list(
         map(
             lambda row: (
-                uuid.uuid4(),
                 partei_mapping[(row['Gruppenname'].upper(),)],
                 None,
                 kandidaten_mapping[(
@@ -364,7 +354,6 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
     direktkandidaten_parteilos = list(
         map(
             lambda row: (
-                uuid.uuid4(),
                 None,
                 row['Gruppenname'],
                 kandidaten_mapping[(
@@ -384,27 +373,6 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
         direktkandidaten + direktkandidaten_parteilos,
         'Direktkandidatur'
     )
-
-    if not generate_stimmen:
-        return
-
-    erststimmen = list(
-        itertools.chain.from_iterable(
-            map(
-                lambda row: generate_erststimmen(row[0], row[6]),
-                direktkandidaten
-            )
-        )
-    )
-    erststimmen_parteilos = list(
-        itertools.chain.from_iterable(
-            map(
-                lambda row: generate_erststimmen(row[0], row[6]),
-                direktkandidaten_parteilos
-            )
-        )
-    )
-    load_into_db(cursor, erststimmen + erststimmen_parteilos, 'Erststimme')
 
 
 def load_zweitstimmen_2021(cursor: psycopg.cursor, generate_stimmen: bool = False) -> None:
@@ -451,38 +419,6 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor, generate_stimmen: bool = Fals
     )
     load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
 
-    if not generate_stimmen:
-        return
-
-    zweitstimmen = list(
-        itertools.chain.from_iterable(
-            map(
-                lambda row: generate_zweitstimmen(row[0], row[1], row[2]),
-                zweitstimmenergebnisse
-            )
-        )
-    )
-    load_into_db(cursor, zweitstimmen, 'Zweitstimme')
-
-
-def generate_erststimmen(kandidatur: uuid, count: int) -> list[tuple]:
-    return list(
-        map(
-            lambda i: (uuid.uuid4(), kandidatur),
-            range(0, count)
-        )
-    )
-
-
-def generate_zweitstimmen(liste: uuid, wahlkreis: uuid, count: int) -> list[tuple]:
-    return list(
-        map(
-            lambda i: (uuid.uuid4(), liste, wahlkreis),
-            range(0, count)
-        )
-    )
-
-
 def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
     ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
@@ -497,7 +433,6 @@ def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
     )
             .map(
             lambda row: (
-                uuid.uuid4(),
                 partei_mapping[(row['Gruppenname'],)],
                 19,
                 row['Gebietsnummer'],
