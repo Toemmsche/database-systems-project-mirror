@@ -1,6 +1,3 @@
-DROP DATABASE IF EXISTS wahl;
-CREATE DATABASE wahl;
-
 DROP TABLE IF EXISTS bundestagswahl CASCADE;
 DROP TABLE IF EXISTS bundesland CASCADE;
 DROP TABLE IF EXISTS wahlkreis CASCADE;
@@ -16,55 +13,57 @@ DROP TABLE IF EXISTS zweitstimmenergebnis CASCADE;
 
 CREATE TABLE bundestagswahl
 (
-    nummer INTEGER PRIMARY KEY,
-    tag    DATE UNIQUE NOT NULL
+    tag    DATE UNIQUE NOT NULL,
+    nummer INTEGER PRIMARY KEY
 );
 
 CREATE TABLE bundesland
 (
-    landid  INTEGER PRIMARY KEY,
     kuerzel CHAR(2) UNIQUE NOT NULL,
     name    VARCHAR(50),
     osten   BIT            NOT NULL,
-    wappen  bytea
+    wappen  bytea,
+    landid  INTEGER PRIMARY KEY
 );
 
 CREATE TABLE wahlkreis
 (
-    wkid       uuid PRIMARY KEY,
     nummer     INTEGER                                    NOT NULL,
     name       VARCHAR(100)                               NOT NULL,
     land       INTEGER REFERENCES bundesland (landid)     NOT NULL,
     wahl       INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
     deutsche   INTEGER                                    NOT NULL,
     begrenzung bytea,
+    wkid       SERIAL PRIMARY KEY,
     UNIQUE (nummer, wahl),
     UNIQUE (name, wahl)
 );
 
 CREATE TABLE gemeinde
 (
-    gemeindeid uuid PRIMARY KEY,
-    name       VARCHAR(100)                     NOT NULL,
+
+    name       VARCHAR(100)                        NOT NULL,
     plz        CHAR(5),
-    wahlkreis  uuid REFERENCES wahlkreis (wkid) NOT NULL,
-    zusatz     VARCHAR(100)
+    wahlkreis  INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
+    zusatz     VARCHAR(100),
+    gemeindeid SERIAL PRIMARY KEY
     --UNIQUE (name, plz, wahlkreis)
 );
 
 CREATE TABLE partei
 (
-    parteiid            INTEGER PRIMARY KEY,
+
     name                VARCHAR(100) UNIQUE NOT NULL,
     kuerzel             VARCHAR(40),
     nationaleminderheit BIT                 NOT NULL,
     gruendungsjahr      INTEGER,
     farbe               VARCHAR(6),
-    logo                bytea
+    logo                bytea,
+    parteiid            SERIAL PRIMARY KEY
 );
 CREATE TABLE kandidat
 (
-    kandid      uuid PRIMARY KEY,
+
     vorname     VARCHAR(100) NOT NULL,
     nachname    VARCHAR(60)  NOT NULL,
     titel       VARCHAR(50),
@@ -74,54 +73,57 @@ CREATE TABLE kandidat
     wohnort     VARCHAR(200),
     beruf       VARCHAR(200) NOT NULL,
     geschlecht  VARCHAR(20)  NOT NULL,
+    kandid      SERIAL PRIMARY KEY,
     UNIQUE (vorname, nachname, geburtsjahr, geburtsort)
 );
 
 CREATE TABLE direktkandidatur
 (
-    direktid             uuid PRIMARY KEY,
+
     partei               INTEGER REFERENCES partei (parteiid),
     parteilosgruppenname VARCHAR(200),
-    kandidat             uuid REFERENCES kandidat (kandid),
+    kandidat             INTEGER REFERENCES kandidat (kandid),
     wahl                 INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
-    wahlkreis            uuid REFERENCES wahlkreis (wkid)           NOT NULL,
-    anzahlstimmen        INTEGER
+    wahlkreis            INTEGER REFERENCES wahlkreis (wkid)        NOT NULL,
+    anzahlstimmen        INTEGER,
+    direktid             SERIAL PRIMARY KEY
 );
 
 CREATE TABLE landesliste
 (
-    listenid            uuid PRIMARY KEY,
+
     partei              INTEGER REFERENCES partei (parteiid)       NOT NULL,
     wahl                INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
     land                INTEGER REFERENCES bundesland (landid)     NOT NULL,
     stimmzettelposition INTEGER                                    NOT NULL,
+    listenid            SERIAL PRIMARY KEY,
     UNIQUE (partei, wahl, land)
 );
 
 -- Constraint damit kein Kandidat in zwei Landeslistenfür eine Wahl antritt
 CREATE TABLE listenplatz
 (
-    position INTEGER                                NOT NULL,
-    kandidat uuid REFERENCES kandidat (kandid)      NOT NULL,
-    liste    uuid REFERENCES landesliste (listenid) NOT NULL,
+    position INTEGER                                   NOT NULL,
+    kandidat INTEGER REFERENCES kandidat (kandid)      NOT NULL,
+    liste    INTEGER REFERENCES landesliste (listenid) NOT NULL,
     PRIMARY KEY (liste, position)
 );
 
 CREATE TABLE erststimme
 (
-    kandidatur uuid REFERENCES direktkandidatur (direktid) NOT NULL
+    kandidatur INTEGER REFERENCES direktkandidatur (direktid) NOT NULL
 );
 
 CREATE TABLE zweitstimme
 (
-    liste     uuid REFERENCES landesliste (listenid),
-    wahlkreis uuid REFERENCES wahlkreis (wkid)
+    liste     INTEGER REFERENCES landesliste (listenid),
+    wahlkreis INTEGER REFERENCES wahlkreis (wkid)
 );
 
 CREATE TABLE zweitstimmenergebnis
 (
-    liste         uuid REFERENCES landesliste (listenid) NOT NULL,
-    wahlkreis     uuid REFERENCES wahlkreis (wkid)       NOT NULL,
+    liste         INTEGER REFERENCES landesliste (listenid) NOT NULL,
+    wahlkreis     INTEGER REFERENCES wahlkreis (wkid)       NOT NULL,
     anzahlstimmen INTEGER,
     PRIMARY KEY (liste, wahlkreis)
 );
