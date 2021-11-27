@@ -1,4 +1,5 @@
 DROP MATERIALIZED VIEW IF EXISTS wahlauswahl CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS divisor_kandidat CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS bundesland_bevoelkerung CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS direktmandat CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei CASCADE;
@@ -27,7 +28,7 @@ CREATE MATERIALIZED VIEW wahlauswahl AS
 --German population by state
 CREATE MATERIALIZED VIEW bundesland_bevoelkerung(land, bevoelkerung) AS
     /*
-SELECT bl.landid AS land, SUM(wk.deutsche) AS bevoelkerung
+SELECT bl.landid AS land, SUM(wk.bundesland_bevoelkerung) AS bevoelkerung
 FROM bundesland bl,
      wahlkreis wk
 WHERE wk.land = bl.landid
@@ -143,6 +144,11 @@ CREATE MATERIALIZED VIEW zweitstimmen_qpartei_bundesland AS
     FROM zweitstimmen_partei_bundesland
     WHERE partei IN (SELECT * FROM qpartei);
 
+CREATE MATERIALIZED VIEW divisor_kandidat(divisor) AS
+    VALUES (0),
+           (1);
+
+
 --Number of assigned to each state
 CREATE MATERIALIZED VIEW sitze_bundesland AS
     WITH RECURSIVE
@@ -150,22 +156,38 @@ CREATE MATERIALIZED VIEW sitze_bundesland AS
             (SELECT 2 * COUNT(*)
              FROM wahlkreis
              WHERE wahl = (SELECT * FROM wahlauswahl)),
-        anzahl_deutsche AS
-            (SELECT SUM(b.bevoelkerung) AS anzahl_deutsche
+        anzahl_bundesland_bevoelkerung AS
+            (SELECT SUM(b.bevoelkerung) AS anzahl_bundesland_bevoelkerung
              FROM bundesland_bevoelkerung b),
         sitzverteilung AS
             (SELECT SUM(ROUND(b.bevoelkerung / (
                     (SELECT *
-                     FROM anzahl_deutsche)::decimal / (SELECT * FROM gesamtsitze)))) AS sitze,
-                    SUM(b.bevoelkerung)::decimal / (SELECT * FROM gesamtsitze)       AS divisor
+                     FROM anzahl_bundesland_bevoelkerung)::decimal / (SELECT * FROM gesamtsitze)))) AS sitze,
+                    SUM(b.bevoelkerung)::decimal / (SELECT * FROM gesamtsitze)                      AS divisor,
+                    SUM(b.bevoelkerung)::decimal / (SELECT * FROM gesamtsitze)                      AS next_divisor
              FROM bundesland_bevoelkerung b
              UNION ALL
              (SELECT (SELECT SUM(ROUND(b.bevoelkerung / sv.divisor))
                       FROM bundesland_bevoelkerung b) AS sitze,
+                     sv.next_divisor,
                      CASE
-                         WHEN sitze < (SELECT * FROM gesamtsitze) THEN sv.divisor - 1
-                         WHEN sitze > (SELECT * FROM gesamtsitze) THEN sv.divisor + 1
-                         ELSE sv.divisor
+                         WHEN sitze < (SELECT * FROM gesamtsitze) THEN
+                             (SELECT AVG(d.divisor)
+                              FROM (SELECT b.bevoelkerung /
+                                           (ROUND(b.bevoelkerung / sv.next_divisor) + 0.5 + dk.divisor) AS divisor
+                                    FROM bundesland_bevoelkerung b,
+                                         divisor_kandidat dk
+                                    ORDER BY divisor DESC
+                                    LIMIT 2) AS d)
+                         WHEN sitze > (SELECT * FROM gesamtsitze) THEN
+                             (SELECT AVG(d.divisor)
+                              FROM (SELECT b.bevoelkerung /
+                                           (ROUND(b.bevoelkerung / sv.next_divisor) - 0.5 - dk.divisor) AS divisor
+                                    FROM bundesland_bevoelkerung b,
+                                         divisor_kandidat dk
+                                    ORDER BY divisor
+                                    LIMIT 2) AS d)
+                         ELSE sv.next_divisor
                          END
               FROM sitzverteilung sv
               WHERE sitze != (SELECT * FROM gesamtsitze))),
@@ -181,7 +203,8 @@ CREATE MATERIALIZED VIEW sitzkontingent_qpartei_bundesland AS
     WITH RECURSIVE laender_divisor AS
                        (SELECT zsl.land                                                                 AS land,
                                SUM(ROUND(zsl.anzahlstimmen / (zsl.anzahlstimmen::numeric / sbl.sitze))) AS sitze_ld,
-                               zsl.anzahlstimmen::numeric / sbl.sitze                                   AS divisor
+                               zsl.anzahlstimmen::numeric / sbl.sitze                                   AS divisor,
+                               zsl.anzahlstimmen::numeric / sbl.sitze                                   AS next_divisor
                         FROM zweitstimmen_qpartei_bundesland zsp,
                              zweitstimmen_bundesland zsl,
                              sitze_bundesland sbl
@@ -194,10 +217,28 @@ CREATE MATERIALIZED VIEW sitzkontingent_qpartei_bundesland AS
                                 (SELECT SUM(ROUND(zsl.anzahlstimmen / ld.divisor))
                                  FROM zweitstimmen_qpartei_bundesland zsl
                                  WHERE zsl.land = ld.land) AS sitze_ld,
+                                ld.next_divisor,
                                 CASE
-                                    WHEN sitze < sitze_ld THEN ld.divisor + 1
-                                    WHEN sitze > sitze_ld THEN ld.divisor - 1
-                                    ELSE ld.divisor
+                                    WHEN sitze < ld.sitze_ld THEN
+                                        (SELECT AVG(d.divisor)
+                                         FROM (SELECT zs.anzahlstimmen /
+                                                      (ROUND(zs.anzahlstimmen / ld.next_divisor) - 0.5 - dk.divisor) AS divisor
+                                               FROM divisor_kandidat dk,
+                                                    zweitstimmen_qpartei_bundesland zs
+                                               WHERE zs.land = zsl.land
+                                                 AND ROUND(zs.anzahlstimmen / ld.next_divisor) > dk.divisor
+                                               ORDER BY divisor
+                                               LIMIT 2) AS d)
+                                    WHEN sitze > ld.sitze_ld THEN
+                                        (SELECT AVG(d.divisor)
+                                         FROM (SELECT zs.anzahlstimmen /
+                                                      (ROUND(zs.anzahlstimmen / ld.next_divisor) + 0.5 + dk.divisor) AS divisor
+                                               FROM divisor_kandidat dk,
+                                                    zweitstimmen_qpartei_bundesland zs
+                                               WHERE zs.land = zsl.land
+                                               ORDER BY divisor DESC
+                                               LIMIT 2) AS d)
+                                    ELSE ld.next_divisor
                                     END
                          FROM zweitstimmen_bundesland zsl,
                               laender_divisor ld,
@@ -291,8 +332,6 @@ CREATE MATERIALIZED VIEW sitze_nach_erhoehung AS
 
 CREATE MATERIALIZED VIEW verbleibende_sitze_landesliste AS
     WITH RECURSIVE
-        divisor_kandidaten(divisor) AS (
-            VALUES (0), (1)),
         landeslisten_divisor AS (
             (SELECT zs.partei,
                     SUM(GREATEST(ROUND(zsl.anzahlstimmen / (zs.anzahlstimmen::numeric / svl.sitze)),
@@ -325,7 +364,7 @@ CREATE MATERIALIZED VIEW verbleibende_sitze_landesliste AS
                               FROM (SELECT zs.anzahlstimmen /
                                            (ROUND(zs.anzahlstimmen / ld.next_divisor) - dk.divisor - 0.5) AS divisor
                                     FROM zweitstimmen_qpartei_bundesland zs,
-                                         divisor_kandidaten dk,
+                                         divisor_kandidat dk,
                                          mindestsitze_qpartei_bundesland mp
                                     WHERE zs.partei = ld.partei
                                       AND mp.partei = zs.partei
@@ -338,7 +377,7 @@ CREATE MATERIALIZED VIEW verbleibende_sitze_landesliste AS
                               FROM (SELECT zs.anzahlstimmen /
                                            (ROUND(zs.anzahlstimmen / ld.next_divisor) + dk.divisor + 0.5) AS divisor
                                     FROM zweitstimmen_qpartei_bundesland zs,
-                                         divisor_kandidaten dk
+                                         divisor_kandidat dk
                                     WHERE zs.partei = ld.partei
                                     ORDER BY divisor DESC
                                     LIMIT 2) AS dk)
@@ -428,4 +467,5 @@ CREATE MATERIALIZED VIEW mandate AS
       AND lm.land = bl.landid
       AND lm.partei = p.parteiid;
 
-SELECT * from mandate;
+SELECT *
+FROM mandate;
