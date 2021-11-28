@@ -21,6 +21,7 @@ DROP MATERIALIZED VIEW IF EXISTS landeslisten_ohne_direktmandate CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS listenmandate CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mandate CASCADE;
 
+/*
 --Aggregate zweitstimmen
 DELETE
 FROM zweitstimmenergebnis;
@@ -36,6 +37,8 @@ SET anzahlstimmen = (
     FROM erststimme es
     WHERE es.kandidatur = dk.direktid
 );
+
+ */
 
 CREATE MATERIALIZED VIEW wahlauswahl AS
     VALUES (20);
@@ -162,7 +165,6 @@ CREATE MATERIALIZED VIEW zweitstimmen_qpartei_bundesland AS
 CREATE MATERIALIZED VIEW divisor_kandidat(divisor) AS
     VALUES (0),
            (1);
-
 
 --Number of assigned to each state
 CREATE MATERIALIZED VIEW sitze_bundesland AS
