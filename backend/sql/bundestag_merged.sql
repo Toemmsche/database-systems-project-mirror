@@ -92,7 +92,8 @@ CREATE MATERIALIZED VIEW direktmandat AS
            wk.land,
            dk.direktid,
            dk.partei,
-           dk.kandidat
+           dk.kandidat,
+           dk.anzahlstimmen
     FROM direktkandidatur dk,
          wahlkreis wk
     WHERE dk.wahlkreis = wk.wkid
