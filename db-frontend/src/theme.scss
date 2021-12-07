@@ -1,0 +1,6 @@
+@use '@angular/material' as mat;
+@import 'src/theme_variables.scss';
+
+@include mat.core();
+
+@include mat.all-component-themes($db-theme);
