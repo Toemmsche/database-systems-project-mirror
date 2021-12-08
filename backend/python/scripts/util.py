@@ -2,6 +2,7 @@ import csv
 import itertools
 import logging
 import time
+import json
 
 import requests
 
@@ -15,20 +16,22 @@ def init_db(cursor: psycopg.cursor) -> None:
     '''
     Resets the state of the election database using the init.sql script.
     '''
-    with open('../../sql/init.sql') as init_script:
+    with open('../../sql/init/init.sql') as init_script:
         cursor.execute(init_script.read())
         logger.info('Reset database')
 
+
 def stimmen_generator(cursor: psycopg.cursor) -> None:
-    with open('../../sql/erststimmengenerator.sql') as stimmen_generator_script:
+    with open('../../sql/init/erststimmengenerator.sql') as stimmen_generator_script:
         start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
         logger.info(f'Generated Erststimmen in {time.time() - start_time}s')
 
-    with open('../../sql/zweitstimmengenerator.sql') as stimmen_generator_script:
+    with open('../../sql/init/zweitstimmengenerator.sql') as stimmen_generator_script:
         start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
         logger.info(f'Generated Zweitstimmen in {time.time() - start_time}s')
+
 
 def get_column_names(cursor: psycopg.cursor, table: str) -> list[str]:
     cursor.execute('SELECT * FROM %s' % table)
@@ -50,6 +53,7 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
             copy.write_row(record)
         logger.info(f'Copied {len(records)} rows into {table} in {time.time() - start_time}s')
 
+
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
     lines = string.split('\n')
     file = [{k: v for k, v in row.items()}
@@ -63,6 +67,7 @@ def parse_csv(string: str, delimiter, skip) -> list[dict]:
             skipinitialspace=True
         )]
     return file
+
 
 def local_csv(path: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
     dict]:
@@ -91,6 +96,15 @@ def key_dict(cursor: psycopg.cursor, table: str, keys: tuple, target: str):
         t = tuple(r[i] for i in keys)
         d.update({t: r[target]})
     return d
+
+
+def table_to_json(cursor: psycopg.cursor, table: str):
+    res = cursor.execute('SELECT * FROM %s' % table).fetchall()
+    col_names = [desc[0] for desc in cursor.description]
+    arr = []
+    for r in res:
+        arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
+    return json.dumps(arr)
 
 
 def make_unique(dicts: list[dict], key_values: tuple):
