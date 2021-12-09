@@ -5,8 +5,10 @@ from flask import Flask
 from flask import request
 import json
 from scripts.util import table_to_json
+from flask_cors import CORS
 
 app = Flask("db-backend")
+CORS(app)
 
 # DATABASE INITIALIZATION HERE
 

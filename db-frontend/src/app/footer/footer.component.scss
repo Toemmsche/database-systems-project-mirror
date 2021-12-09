@@ -1,0 +1,6 @@
+@import "~@angular/material/theming";
+@import "../../theme_variables.scss";
+
+#footer {
+  background: mat-color($primaryPalette);
+}

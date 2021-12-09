@@ -1,0 +1,57 @@
+import { Component, OnInit } from '@angular/core';
+import {REST_GET} from "../../../util";
+import {Sitzverteilung} from "../../../model/Sitzverteilung";
+
+@Component({
+  selector: 'app-sitzverteilung',
+  templateUrl: './sitzverteilung.component.html',
+  styleUrls: ['./sitzverteilung.component.scss']
+})
+export class SitzverteilungComponent implements OnInit {
+
+  //TODO support for 2017
+
+  sitzVerteilungConfig = {
+    type: 'doughnut',
+    data: {
+      labels: [] as Array<string>,
+      datasets: [
+        {
+          label: "Sitzverteilung im Deutschen Bundestag",
+          hoverOffset: 4,
+          data: [] as Array<number>,
+          backgroundColor: [] as Array<string>,
+        }
+      ]
+    },
+    options: {
+      rotation: Math.PI,
+      circumference: Math.PI,
+      responsive: true,
+      maintainAspectRatio: false
+    },
+    loaded: false
+  }
+
+
+  constructor() {
+  }
+
+  ngOnInit(): void {
+    this.populate();
+  }
+
+  populate() {
+    REST_GET('sitzverteilung/20').then((data: Array<Sitzverteilung>) => {
+      const sData = this.sitzVerteilungConfig.data;
+      sData.labels = data.map((row) => row.kuerzel);
+      sData.datasets[0].data = data.map((row) => row.sitze);
+      sData.datasets[0].backgroundColor = data.map((row) => row.farbe);
+      this.sitzVerteilungConfig.loaded = true;
+    });
+  }
+
+  sitzVerteilungLoaded() {
+    return this.sitzVerteilungConfig.loaded;
+  }
+}

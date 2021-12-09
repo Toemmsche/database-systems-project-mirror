@@ -1,24 +1,36 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatToolbarModule} from '@angular/material/toolbar';
-import { NavitemComponent } from './navigation/navitem/navitem.component';
+import {NavitemComponent} from './header/navigation/navitem/navitem.component';
+import {SitzverteilungComponent} from './bundestag/sitzverteilung/sitzverteilung.component';
+import {HeaderComponent} from './header/header.component';
+import {FooterComponent} from './footer/footer.component';
+import {BundestagComponent} from './bundestag/bundestag.component';
+import {ChartModule} from 'angular2-chartjs';
 
 @NgModule({
   declarations: [
     AppComponent,
-    NavitemComponent
+    NavitemComponent,
+    SitzverteilungComponent,
+    HeaderComponent,
+    FooterComponent,
+    BundestagComponent
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    MatToolbarModule
+    MatToolbarModule,
+    ChartModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
