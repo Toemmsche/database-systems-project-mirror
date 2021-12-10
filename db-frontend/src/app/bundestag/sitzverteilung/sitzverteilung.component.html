@@ -1,3 +1,18 @@
-<chart *ngIf="sitzVerteilungLoaded()" [type]="sitzVerteilungConfig.type" [data]="sitzVerteilungConfig.data"
-       [options]="sitzVerteilungConfig.options"></chart>
+<div id="sitzverteilung">
+  <chart id="sitzverteilung-chart" *ngIf="sitzVerteilungLoaded()" [type]="sitzVerteilungConfig.type"
+         [data]="sitzVerteilungConfig.data"
+         [options]="sitzVerteilungConfig.options"></chart>
+  <table id="sitzverteilung-table" mat-table *ngIf="sitzVerteilungLoaded()" [dataSource]="sitzverteilung">
+    <ng-container matColumnDef="partei">
+      <th mat-header-cell *matHeaderCellDef>Partei</th>
+      <td mat-cell *matCellDef="let sv"> {{sv.kuerzel}} </td>
+    </ng-container>
+    <ng-container matColumnDef="sitze">
+      <th mat-header-cell *matHeaderCellDef>Sitze (absolut)</th>
+      <td mat-cell *matCellDef="let sv"> {{sv.sitze}} </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let sv; columns: columnsToDisplay"></tr>
+  </table>
+</div>
 

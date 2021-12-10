@@ -2,15 +2,16 @@ import os
 
 import psycopg
 from flask import Flask
-from flask import request
-import json
-from scripts.util import table_to_json
 from flask_cors import CORS
+
+from backend.python.main import init_backend
+from backend.python.util import table_to_json
 
 app = Flask("db-backend")
 CORS(app)
 
-# DATABASE INITIALIZATION HERE
+# Database initialization
+init_backend()
 
 # new database connection
 conn = psycopg.connect(
@@ -22,14 +23,17 @@ conn = psycopg.connect(
 
 cursor = conn.cursor()
 
+
 @app.route("/api/")
 def sayHello():
     return "Hello World"
 
+
 @app.route("/api/sitzverteilung/<wahl>")
-def get_sitzverteilung(wahl : str):
+def get_sitzverteilung(wahl: str):
     # TODO consider 2017 election
     return table_to_json(cursor, "sitzverteilung")
+
 
 if __name__ == '__main__':
     app.run('localhost', 5000)
@@ -37,6 +41,3 @@ if __name__ == '__main__':
 # teardown
 cursor.close()
 conn.close()
-
-
-

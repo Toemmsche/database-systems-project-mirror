@@ -1,18 +1,16 @@
-import itertools
-
-import psycopg
-from psycopg.types import datetime
-from util import *
-from links import *
 from functional import seq
+from psycopg.types import datetime
+
+from links import *
+from util import *
 
 
 def load_bundestagswahl_2021(cursor: psycopg.cursor):
     load_into_db(
         cursor,
         [
-            ( datetime.date(2017, 9, 24), 19),
-            ( datetime.date(2021, 9, 26), 20),
+            (datetime.date(2017, 9, 24), 19),
+            (datetime.date(2021, 9, 26), 20),
         ],
         'Bundestagswahl'
     )
@@ -77,6 +75,15 @@ def load_gemeinden(
 
 
 def load_parteien(cursor: psycopg.cursor) -> None:
+    parteifarben_dict = {
+        'CDU': '000000',
+        'SPD': 'EB001F',
+        'AfD': '00ADEF',
+        'CSU': '0077B3',
+        'FDP': 'FFED00',
+        'DIE LINKE': 'BE3075',
+        'GRÜNE': '64A12D'
+    }
     records = local_csv(parteien)
     records = list(
         map(
@@ -85,7 +92,7 @@ def load_parteien(cursor: psycopg.cursor) -> None:
                 row['Kurzbezeichnung'],
                 0,  # TODO
                 notFalsy(row['Gründungsdatum'][-4:], None),
-                None,  # TODO
+                parteifarben_dict[row['Kurzbezeichnung']] if row['Kurzbezeichnung'] in parteifarben_dict else 'DDDDDD',
                 None
             ),
             records,
@@ -419,6 +426,7 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor, generate_stimmen: bool = Fals
     )
     load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
 
+
 def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
     ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
@@ -430,7 +438,7 @@ def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
                         row['Gruppenart'] == 'Partei' and
                         row['Stimme'] == '2' and
                         row['Anzahl'] != ''
-    )
+        )
             .map(
             lambda row: (
                 partei_mapping[(row['Gruppenname'],)],
@@ -458,7 +466,7 @@ def load_zweitstimmen_2017(cursor: psycopg.cursor) -> None:
         'Wahlkreis',
         ('nummer', 'wahl'),
         'wkId'
-        )
+    )
     zweitstimmenergebnisse = list(
         seq(ergebnisse)
             .filter(

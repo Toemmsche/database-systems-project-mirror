@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {REST_GET} from "../../../util";
 import {Sitzverteilung} from "../../../model/Sitzverteilung";
 
@@ -11,6 +11,8 @@ export class SitzverteilungComponent implements OnInit {
 
   //TODO support for 2017
 
+  sitzverteilung: Array<Sitzverteilung> = [];
+  columnsToDisplay = ['partei', 'sitze'];
   sitzVerteilungConfig = {
     type: 'doughnut',
     data: {
@@ -43,11 +45,19 @@ export class SitzverteilungComponent implements OnInit {
 
   populate() {
     REST_GET('sitzverteilung/20').then((data: Array<Sitzverteilung>) => {
+      // Save for later
+      this.sitzverteilung = data;
+
+      // Populate half-pie chart
       const sData = this.sitzVerteilungConfig.data;
-      sData.labels = data.map((row) => row.kuerzel);
-      sData.datasets[0].data = data.map((row) => row.sitze);
-      sData.datasets[0].backgroundColor = data.map((row) => row.farbe);
+      sData.labels = this.sitzverteilung.map((row) => row.kuerzel);
+      sData.datasets[0].data = this.sitzverteilung.map((row) => row.sitze);
+      sData.datasets[0].backgroundColor = this.sitzverteilung.map((row) => '#' + row.farbe);
       this.sitzVerteilungConfig.loaded = true;
+
+      // Populate table
+
+
     });
   }
 

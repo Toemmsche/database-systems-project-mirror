@@ -11,6 +11,7 @@ import {HeaderComponent} from './header/header.component';
 import {FooterComponent} from './footer/footer.component';
 import {BundestagComponent} from './bundestag/bundestag.component';
 import {ChartModule} from 'angular2-chartjs';
+import {MatTableModule} from "@angular/material/table";
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import {ChartModule} from 'angular2-chartjs';
     AppRoutingModule,
     BrowserAnimationsModule,
     MatToolbarModule,
-    ChartModule
+    ChartModule,
+    MatTableModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,33 +1,29 @@
 import csv
 import itertools
+import json
 import logging
 import time
-import json
-
-import requests
 
 import psycopg
-from psycopg2 import sql
+import requests
 
 logger = logging.getLogger('ETL')
 
 
-def init_db(cursor: psycopg.cursor) -> None:
-    '''
-    Resets the state of the election database using the init.sql script.
-    '''
-    with open('../../sql/init/init.sql') as init_script:
-        cursor.execute(init_script.read())
-        logger.info('Reset database')
+def exec_script(cursor: psycopg.cursor, path: str) -> None:
+    with open(path) as script:
+        start_time = time.time()
+        cursor.execute(script.read())
+        logger.info(f'Executed script {path} in {time.time() - start_time}s')
 
 
 def stimmen_generator(cursor: psycopg.cursor) -> None:
-    with open('../../sql/init/erststimmengenerator.sql') as stimmen_generator_script:
+    with open('../sql/init/erststimmengenerator.sql') as stimmen_generator_script:
         start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
         logger.info(f'Generated Erststimmen in {time.time() - start_time}s')
 
-    with open('../../sql/init/zweitstimmengenerator.sql') as stimmen_generator_script:
+    with open('../sql/init/zweitstimmengenerator.sql') as stimmen_generator_script:
         start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
         logger.info(f'Generated Zweitstimmen in {time.time() - start_time}s')
