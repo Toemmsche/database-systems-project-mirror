@@ -463,7 +463,7 @@ CREATE MATERIALIZED VIEW mandate AS
     SELECT k.vorname,
            k.nachname,
            'Direktmandat aus Wahlkreis ' || wk.nummer || ' - ' || wk.name AS grund,
-           p.kuerzel
+           p.kuerzel as partei
     FROM kandidat k,
          direktmandat dm,
          wahlkreis wk,
@@ -476,7 +476,7 @@ CREATE MATERIALIZED VIEW mandate AS
     SELECT k.vorname,
            k.nachname,
            'Landeslistenmandat von Listenplatz ' || lm.position || ' in ' || bl.name AS grund,
-           p.kuerzel
+           p.kuerzel as partei
     FROM kandidat k,
          listenmandate lm,
          bundesland bl,

@@ -4,5 +4,5 @@ CREATE MATERIALIZED VIEW sitzverteilung AS
     SELECT p.kuerzel, p.farbe, COUNT(*) AS sitze
     FROM mandate m,
          partei p
-    WHERE m.kuerzel = p.kuerzel
+    WHERE m.partei = p.kuerzel
     GROUP BY p.kuerzel, p.farbe;

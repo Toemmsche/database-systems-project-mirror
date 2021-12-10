@@ -29,10 +29,15 @@ def sayHello():
     return "Hello World"
 
 
-@app.route("/api/sitzverteilung/<wahl>")
+@app.route("/api/<wahl>/sitzverteilung")
 def get_sitzverteilung(wahl: str):
     # TODO consider 2017 election
     return table_to_json(cursor, "sitzverteilung")
+
+@app.route("/api/<wahl>/mdb/")
+def get_mdb(wahl: str):
+    # TODO consider 2017 election
+    return table_to_json(cursor, "mdb")
 
 
 if __name__ == '__main__':
