@@ -12,6 +12,7 @@ import {FooterComponent} from './footer/footer.component';
 import {BundestagComponent} from './bundestag/bundestag.component';
 import {ChartModule} from 'angular2-chartjs';
 import {MatTableModule} from "@angular/material/table";
+import { MitgliederComponent } from './bundestag/mitglieder/mitglieder.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import {MatTableModule} from "@angular/material/table";
     SitzverteilungComponent,
     HeaderComponent,
     FooterComponent,
-    BundestagComponent
+    BundestagComponent,
+    MitgliederComponent
 
   ],
   imports: [

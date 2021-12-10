@@ -30,7 +30,7 @@ export class SitzverteilungComponent implements OnInit {
       rotation: Math.PI,
       circumference: Math.PI,
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: true
     },
     loaded: false
   }
@@ -44,7 +44,7 @@ export class SitzverteilungComponent implements OnInit {
   }
 
   populate() {
-    REST_GET('sitzverteilung/20').then((data: Array<Sitzverteilung>) => {
+    REST_GET('20/sitzverteilung').then((data: Array<Sitzverteilung>) => {
       // Save for later
       this.sitzverteilung = data;
 
@@ -54,10 +54,6 @@ export class SitzverteilungComponent implements OnInit {
       sData.datasets[0].data = this.sitzverteilung.map((row) => row.sitze);
       sData.datasets[0].backgroundColor = this.sitzverteilung.map((row) => '#' + row.farbe);
       this.sitzVerteilungConfig.loaded = true;
-
-      // Populate table
-
-
     });
   }
 
