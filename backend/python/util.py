@@ -1,6 +1,6 @@
 import csv
 import itertools
-import json
+import simplejson as json
 import logging
 import time
 
@@ -94,13 +94,17 @@ def key_dict(cursor: psycopg.cursor, table: str, keys: tuple, target: str):
     return d
 
 
-def table_to_json(cursor: psycopg.cursor, table: str):
-    res = cursor.execute('SELECT * FROM %s' % table).fetchall()
+def query_result_to_json(cursor: psycopg.cursor, result: list):
     col_names = [desc[0] for desc in cursor.description]
     arr = []
-    for r in res:
+    for r in result:
         arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
-    return json.dumps(arr)
+    return json.dumps(arr, use_decimal=True)
+
+
+def table_to_json(cursor: psycopg.cursor, table: str):
+    res = cursor.execute('SELECT * FROM %s' % table).fetchall()
+    return query_result_to_json(cursor, res)
 
 
 def make_unique(dicts: list[dict], key_values: tuple):
