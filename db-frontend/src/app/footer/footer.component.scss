@@ -4,3 +4,16 @@
 #footer {
   background: mat-color($primaryPalette);
 }
+
+#footer-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 2%;
+}
+
+:host {
+  height: 200px;
+}
+
