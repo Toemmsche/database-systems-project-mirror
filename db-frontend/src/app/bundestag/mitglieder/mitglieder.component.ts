@@ -13,7 +13,7 @@ export class MitgliederComponent implements OnInit {
 
   columnsToDisplay = ['vorname', 'nachname', 'partei', 'geburtsjahr', 'grund'];
 
-  mdb : Array<MDB> = [];
+  mdb !: Array<MDB>;
 
   constructor() {
   }
@@ -22,13 +22,15 @@ export class MitgliederComponent implements OnInit {
     this.populate();
   }
 
-  populate() : void {
-    REST_GET('20/mdb').then((data: Array<MDB>) => {
-      this.mdb = data.sort((a,b) => a.nachname.localeCompare(b.nachname));
+  populate(): void {
+    REST_GET('20/mdb')
+      .then(response => response.json())
+      .then((data: Array<MDB>) => {
+      this.mdb = data.sort((a, b) => a.nachname.localeCompare(b.nachname));
     });
   }
 
-  mdbLoaded() : boolean {
+  mdbLoaded(): boolean {
     return this.mdb.length != 0;
   }
 }

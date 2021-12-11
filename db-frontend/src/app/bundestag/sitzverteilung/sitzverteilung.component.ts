@@ -11,7 +11,7 @@ export class SitzverteilungComponent implements OnInit {
 
   //TODO support for 2017
 
-  sitzverteilung: Array<Sitzverteilung> = [];
+  sitzverteilung !: Array<Sitzverteilung>;
   columnsToDisplay = ['partei', 'sitze'];
   sitzVerteilungConfig = {
     type: 'doughnut',
@@ -44,17 +44,20 @@ export class SitzverteilungComponent implements OnInit {
   }
 
   populate() {
-    REST_GET('20/sitzverteilung').then((data: Array<Sitzverteilung>) => {
-      // Save for later
-      this.sitzverteilung = data;
+    REST_GET('20/sitzverteilung')
+      .then(response => response.json())
+      .then((data: Array<Sitzverteilung>) => {
+        // Save for later
+        this.sitzverteilung = data;
 
-      // Populate half-pie chart
-      const sData = this.sitzVerteilungConfig.data;
-      sData.labels = this.sitzverteilung.map((row) => row.kuerzel);
-      sData.datasets[0].data = this.sitzverteilung.map((row) => row.sitze);
-      sData.datasets[0].backgroundColor = this.sitzverteilung.map((row) => '#' + row.farbe);
-      this.sitzVerteilungConfig.loaded = true;
-    });
+        // Populate half-pie chart
+        const sData = this.sitzVerteilungConfig.data;
+        sData.labels = this.sitzverteilung.map((row) => row.kuerzel);
+        sData.datasets[0].data = this.sitzverteilung.map((row) => row.sitze);
+        sData.datasets[0].backgroundColor = this.sitzverteilung.map((row) => '#' +
+          row.farbe);
+        this.sitzVerteilungConfig.loaded = true;
+      });
   }
 
   sitzVerteilungLoaded() {

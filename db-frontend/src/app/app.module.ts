@@ -12,7 +12,10 @@ import {FooterComponent} from './footer/footer.component';
 import {BundestagComponent} from './bundestag/bundestag.component';
 import {ChartModule} from 'angular2-chartjs';
 import {MatTableModule} from "@angular/material/table";
-import { MitgliederComponent } from './bundestag/mitglieder/mitglieder.component';
+import {MitgliederComponent} from './bundestag/mitglieder/mitglieder.component';
+import {WahlkreisComponent} from './daten/wahlkreis/wahlkreis.component';
+import {MatCardModule} from "@angular/material/card";
+import {CommonModule} from "@angular/common";
 
 @NgModule({
   declarations: [
@@ -22,7 +25,8 @@ import { MitgliederComponent } from './bundestag/mitglieder/mitglieder.component
     HeaderComponent,
     FooterComponent,
     BundestagComponent,
-    MitgliederComponent
+    MitgliederComponent,
+    WahlkreisComponent
 
   ],
   imports: [
@@ -32,6 +36,8 @@ import { MitgliederComponent } from './bundestag/mitglieder/mitglieder.component
     MatToolbarModule,
     ChartModule,
     MatTableModule,
+    MatCardModule,
+    CommonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

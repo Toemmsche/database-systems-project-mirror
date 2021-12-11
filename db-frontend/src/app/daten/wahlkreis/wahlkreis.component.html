@@ -1,0 +1,41 @@
+<mat-card id="wahlkreis-card" *ngIf="wahlkreisLoaded()">
+  <mat-card-title>{{"Wahlkreis " + nummer}}</mat-card-title>
+  <table>
+    <tr class="wahlkreis-card-row">
+      <td class="wahlkreis-card-key">
+        <mat-card-content>
+          Name
+        </mat-card-content>
+      </td>
+      <td class="wahlkreis-card-value">
+        <mat-card-content>
+          {{wahlkreis.name}}
+        </mat-card-content>
+      </td>
+    </tr>
+    <tr class="wahlkreis-card-row">
+      <td class="wahlkreis-card-key">
+        <mat-card-content>
+          Sieger
+        </mat-card-content>
+      </td>
+      <td class="wahlkreis-card-value">
+        <mat-card-content>
+          {{wahlkreis.sieger_vorname + " " + wahlkreis.sieger_nachname + ", " + wahlkreis.sieger_partei}}
+        </mat-card-content>
+      </td>
+    </tr>
+    <tr class="wahlkreis-card-row">
+      <td class="wahlkreis-card-key">
+        <mat-card-content>
+          Wahlbeteiligung
+        </mat-card-content>
+      </td>
+      <td class="wahlkreis-card-value">
+        <mat-card-content>
+          {{ (wahlkreis.wahlbeteiligung * 100 | number: '1.0-2')  + '%'}}
+        </mat-card-content>
+      </td>
+    </tr>
+  </table>
+</mat-card>
