@@ -32,11 +32,13 @@ export class WahlkreisComponent implements OnInit {
     },
     options: {
       scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
           }
-        }]
+        ]
       }
     }
   }
@@ -59,6 +61,14 @@ export class WahlkreisComponent implements OnInit {
     REST_GET(`20/wahlkreis/${this.nummer}/results`)
       .then(response => response.json())
       .then((data: Array<WahlkreisResult>) => {
+        data = data.sort((a, b) => {
+          if (a.partei == 'Sonstige') {
+            return 1;
+          } else if (b.partei == 'Sonstige') {
+            return -1;
+          }
+          return b.abs_stimmen - a.abs_stimmen;
+        });
         // Populate bar chart
         const chartData = this.resultsConfig.data;
         chartData.labels = data.map((result) => result.partei);
