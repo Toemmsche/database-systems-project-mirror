@@ -1,11 +1,11 @@
 import csv
 import itertools
-import simplejson as json
 import logging
 import time
 
 import psycopg
 import requests
+import simplejson as json
 
 logger = logging.getLogger('ETL')
 
@@ -100,6 +100,13 @@ def query_result_to_json(cursor: psycopg.cursor, result: list):
     for r in result:
         arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
     return json.dumps(arr, use_decimal=True)
+
+
+def single_result_to_json(cursor: psycopg.cursor, result: list):
+    col_names = [desc[0] for desc in cursor.description]
+    res = result[0]
+    obj = {col_names[i]: res[i] for i in range(0, len(col_names))}
+    return json.dumps(obj, use_decimal=True)
 
 
 def table_to_json(cursor: psycopg.cursor, table: str):

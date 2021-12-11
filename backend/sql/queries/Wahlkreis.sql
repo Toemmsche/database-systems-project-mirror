@@ -3,9 +3,9 @@ DROP MATERIALIZED VIEW IF EXISTS wahlkreisinformation CASCADE;
 CREATE MATERIALIZED VIEW wahlkreisinformation AS
     SELECT wk.nummer,
            wk.name,
-           k.vorname,
-           k.nachname,
-           p.kuerzel as partei,
+           k.vorname as sieger_vorname,
+           k.nachname as sieger_nachname,
+           p.kuerzel as sieger_partei,
            SUM(ze.anzahlstimmen)::decimal / wk.deutsche AS wahlbeteiligung
     FROM wahlkreis wk,
          direktmandat dm,
