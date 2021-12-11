@@ -19,7 +19,7 @@ export class SitzverteilungComponent implements OnInit {
       labels: [] as Array<string>,
       datasets: [
         {
-          label: "Sitzverteilung im Deutschen Bundestag",
+          label: "Sitze",
           hoverOffset: 4,
           data: [] as Array<number>,
           backgroundColor: [] as Array<string>,
@@ -31,8 +31,7 @@ export class SitzverteilungComponent implements OnInit {
       circumference: Math.PI,
       responsive: true,
       maintainAspectRatio: true
-    },
-    loaded: false
+    }
   }
 
 
@@ -47,20 +46,19 @@ export class SitzverteilungComponent implements OnInit {
     REST_GET('20/sitzverteilung')
       .then(response => response.json())
       .then((data: Array<Sitzverteilung>) => {
+        // Populate half-pie chart
+        const chartData = this.sitzVerteilungConfig.data;
+        chartData.labels = data.map((row) => row.partei);
+        chartData.datasets[0].data = data.map((row) => row.sitze);
+        chartData.datasets[0].backgroundColor = data.map((row) => '#' +
+          row.partei_farbe);
+
         // Save for later
         this.sitzverteilung = data;
-
-        // Populate half-pie chart
-        const sData = this.sitzVerteilungConfig.data;
-        sData.labels = this.sitzverteilung.map((row) => row.kuerzel);
-        sData.datasets[0].data = this.sitzverteilung.map((row) => row.sitze);
-        sData.datasets[0].backgroundColor = this.sitzverteilung.map((row) => '#' +
-          row.farbe);
-        this.sitzVerteilungConfig.loaded = true;
       });
   }
 
   sitzVerteilungLoaded() {
-    return this.sitzVerteilungConfig.loaded;
+    return this.sitzverteilung != null && this.sitzverteilung.length > 0;
   }
 }

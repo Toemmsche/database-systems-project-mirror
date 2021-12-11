@@ -38,4 +38,8 @@
       </td>
     </tr>
   </table>
+  <mat-card-subtitle><h1>Erststimmenergebnisse der Parteien</h1></mat-card-subtitle>
+  <chart id="wahlkreis-results-chart" [type]="resultsConfig.type"
+         [data]="resultsConfig.data"
+         [options]="resultsConfig.options"></chart>
 </mat-card>

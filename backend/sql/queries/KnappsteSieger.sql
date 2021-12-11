@@ -69,5 +69,3 @@ CREATE MATERIALIZED VIEW knappste_siege_oder_niederlagen AS
     SELECT *
     FROM kleinster_rueckstand_partei;
 
-
-select * from knappste_siege_oder_niederlagen;

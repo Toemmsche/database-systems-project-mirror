@@ -31,6 +31,6 @@ export class MitgliederComponent implements OnInit {
   }
 
   mdbLoaded(): boolean {
-    return this.mdb.length != 0;
+    return this.mdb != null && this.mdb.length > 0;
   }
 }

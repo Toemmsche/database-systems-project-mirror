@@ -1,6 +1,7 @@
 import csv
 import itertools
 import logging
+import math
 import time
 
 import psycopg
@@ -130,6 +131,14 @@ def notFalsy(s, d):
         return s
     else:
         return d
+
+
+def models_nat(num: str):
+    try:
+        x = int(num)
+    except:
+        return False
+    return not math.isnan(x) and x >= 0
 
 
 if __name__ == '__main__':

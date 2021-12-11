@@ -1,11 +1,11 @@
 export class Sitzverteilung {
-  kuerzel: string;
+  partei: string;
   sitze: number;
-  farbe: string;
+  partei_farbe: string;
 
-  constructor(kuerzel: string, sitze: number, farbe: string) {
-    this.kuerzel = kuerzel;
+  constructor(partei: string, sitze: number, partei_farbe: string) {
+    this.partei = partei;
     this.sitze = sitze;
-    this.farbe = farbe;
+    this.partei_farbe = partei_farbe;
   }
 }
