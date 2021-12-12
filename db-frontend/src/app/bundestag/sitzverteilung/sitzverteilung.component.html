@@ -1,9 +1,9 @@
 <h1>Sitzverteilung im Deutschen Bundestag</h1>
-<div id="sitzverteilung"  *ngIf="sitzVerteilungLoaded()">
+<div id="sitzverteilung" *ngIf="sitzVerteilungLoaded()">
   <chart id="sitzverteilung-chart" [type]="sitzVerteilungConfig.type"
          [data]="sitzVerteilungConfig.data"
          [options]="sitzVerteilungConfig.options"></chart>
-  <table id="sitzverteilung-table" mat-table [dataSource]="sitzverteilung">
+  <table id="sitzverteilung-table" mat-table [dataSource]="sitzverteilung" class="mat-elevation-z8">
     <ng-container matColumnDef="partei">
       <th mat-header-cell *matHeaderCellDef>Partei</th>
       <td mat-cell *matCellDef="let sv"> {{sv.partei}} </td>
@@ -13,10 +13,11 @@
       <td mat-cell *matCellDef="let sv"> {{sv.sitze}} </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-    <tr mat-row *matRowDef="let sv; columns: columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let sv; columns: columnsToDisplay"
+        [ngStyle]="{'background': '#' +  sv.partei_farbe + '60'}"></tr>
   </table>
 </div>
-<span  *ngIf="!sitzVerteilungLoaded()">Loading...</span>
+<span *ngIf="!sitzVerteilungLoaded()">Loading...</span>
 
 
 

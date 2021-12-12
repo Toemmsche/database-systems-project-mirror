@@ -13,7 +13,7 @@ export class MitgliederComponent implements OnInit {
 
   columnsToDisplay = ['vorname', 'nachname', 'partei', 'geburtsjahr', 'grund'];
 
-  mdb !: Array<MDB>;
+  mdbData !: Array<MDB>;
 
   constructor() {
   }
@@ -26,11 +26,11 @@ export class MitgliederComponent implements OnInit {
     REST_GET('20/mdb')
       .then(response => response.json())
       .then((data: Array<MDB>) => {
-      this.mdb = data.sort((a, b) => a.nachname.localeCompare(b.nachname));
+      this.mdbData = data.sort((a, b) => a.nachname.localeCompare(b.nachname));
     });
   }
 
   mdbLoaded(): boolean {
-    return this.mdb != null && this.mdb.length > 0;
+    return this.mdbData != null && this.mdbData.length > 0;
   }
 }

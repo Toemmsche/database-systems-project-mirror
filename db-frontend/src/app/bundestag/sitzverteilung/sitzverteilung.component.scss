@@ -1,5 +1,5 @@
 #sitzverteilung-chart {
-  width: 100%;
+  width: 75%;
 }
 
 #sitzverteilung {
@@ -10,8 +10,18 @@
   justify-content: space-between;
 }
 
-:host {
-  width: 100%;
-  margin: 5rem;
+#sitzverteilung-table {
+  transform: translate(0, -30%)
 }
 
+:host {
+  width: 100%;
+  margin-bottom: 100px;
+  margin-top: 50px;
+}
+
+.mat-column-partei, .mat-column-sitze {
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+}

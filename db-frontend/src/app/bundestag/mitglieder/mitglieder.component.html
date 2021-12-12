@@ -1,5 +1,5 @@
 <h1>Mitglieder des Deutschen Bundestages</h1>
-<table id="mdb-table" mat-table *ngIf="mdbLoaded()" [dataSource]="mdb">
+<table id="mdb-table" mat-table *ngIf="mdbLoaded()" [dataSource]="mdbData" class="mat-elevation-z8">
   <ng-container matColumnDef="vorname">
     <th mat-header-cell *matHeaderCellDef>Vorname</th>
     <td mat-cell *matCellDef="let mdb"> {{mdb.vorname}} </td>
@@ -22,5 +22,6 @@
   </ng-container>
   <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
   <tr mat-row *matRowDef="let mdb; columns: columnsToDisplay"></tr>
+      <!--[ngStyle]="{'background': '#' +  mdb.partei_farbe + '60'}" -->
 </table>
-<span  *ngIf="!mdbLoaded()">Loading...</span>
+<span *ngIf="!mdbLoaded()">Loading...</span>

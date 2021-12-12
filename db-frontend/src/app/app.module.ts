@@ -16,6 +16,7 @@ import {MitgliederComponent} from './bundestag/mitglieder/mitglieder.component';
 import {WahlkreisComponent} from './daten/wahlkreis/wahlkreis.component';
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
+import { WahlkreissiegerComponent } from './karte/wahlkreissieger/wahlkreissieger.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import {CommonModule} from "@angular/common";
     FooterComponent,
     BundestagComponent,
     MitgliederComponent,
-    WahlkreisComponent
+    WahlkreisComponent,
+    WahlkreissiegerComponent
 
   ],
   imports: [

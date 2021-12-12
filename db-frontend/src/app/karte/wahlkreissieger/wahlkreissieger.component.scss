@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 100px;
+  margin-top: 50px;
+}
+
+.mat-column-nummer, .mat-column-name, .mat-column-erststimme-sieger, .mat-column-zweitstimme-sieger {
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+}
