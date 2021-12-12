@@ -17,6 +17,11 @@ import {WahlkreisComponent} from './daten/wahlkreis/wahlkreis.component';
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
 import { WahlkreissiegerComponent } from './karte/wahlkreissieger/wahlkreissieger.component';
+import { UeberhangComponent } from './stat/ueberhang/ueberhang.component';
+import {MatDividerModule} from "@angular/material/divider";
+import { StatComponent } from './stat/stat.component';
+import {MatListModule} from "@angular/material/list";
+import {MatGridListModule} from "@angular/material/grid-list";
 
 @NgModule({
   declarations: [
@@ -28,7 +33,9 @@ import { WahlkreissiegerComponent } from './karte/wahlkreissieger/wahlkreissiege
     BundestagComponent,
     MitgliederComponent,
     WahlkreisComponent,
-    WahlkreissiegerComponent
+    WahlkreissiegerComponent,
+    UeberhangComponent,
+    StatComponent
 
   ],
   imports: [
@@ -39,7 +46,10 @@ import { WahlkreissiegerComponent } from './karte/wahlkreissieger/wahlkreissiege
     ChartModule,
     MatTableModule,
     MatCardModule,
-    CommonModule
+    CommonModule,
+    MatDividerModule,
+    MatListModule,
+    MatGridListModule
   ],
   providers: [],
   bootstrap: [AppComponent]
