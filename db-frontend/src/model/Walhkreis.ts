@@ -4,7 +4,7 @@ export class Wahlkreis {
   sieger_vorname: string;
   sieger_nachname: string;
   sieger_partei: string;
-  wahlbeteiligung: number;
+  wahlbeteiligung_prozent: number;
 
   constructor(
     nummer: number,
@@ -12,14 +12,14 @@ export class Wahlkreis {
     sieger_vorname: string,
     sieger_nachname: string,
     sieger_partei: string,
-    wahlbeteiligung: number,
+    wahlbeteiligung_prozent: number,
   ) {
     this.nummer = nummer;
     this.name = name;
     this.sieger_vorname = sieger_vorname;
     this.sieger_nachname = sieger_nachname;
     this.sieger_partei = sieger_partei;
-    this.wahlbeteiligung = wahlbeteiligung;
+    this.wahlbeteiligung_prozent = wahlbeteiligung_prozent;
   }
 
 }

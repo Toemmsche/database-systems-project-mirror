@@ -1,8 +1,14 @@
-<mat-grid-list cols="3" rowHeight="2:1">
+<mat-grid-list cols="2">
   <mat-grid-tile>
     <mat-card class="clickable-card" id="ueberhang-summary-card" routerLink="/Statistiken/Ueberhang">
       <mat-card-title>Überhangmandate</mat-card-title>
       <mat-card-content>nach Partei und Bundesland</mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card class="clickable-card" id="knappstesieger-summary-card" routerLink="/Statistiken/KnappsteSieger">
+      <mat-card-title>Knappste Sieger bzw. Verlierer</mat-card-title>
+      <mat-card-content>Die 10 knappsten Wahlkreissieger (oder -niederlagen) jeder Partei</mat-card-content>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>

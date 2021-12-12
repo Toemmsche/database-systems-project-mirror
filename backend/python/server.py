@@ -83,11 +83,19 @@ def get_wahlkreissieger(wahl: str):
         abort(404)
     return table_to_json(cursor, 'wahlkreissieger')
 
+
 @app.route("/api/<wahl>/ueberhang")
 def get_ueberhang(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
     return table_to_json(cursor, 'ueberhang_qpartei_bundesland')
+
+
+@app.route("/api/<wahl>/stat/knapp")
+def get_knapp(wahl: str):
+    if not models_nat(wahl) or int(wahl) not in [19, 20]:
+        abort(404)
+    return table_to_json(cursor, 'knappste_siege_oder_niederlagen')
 
 
 if __name__ == '__main__':

@@ -22,6 +22,7 @@ import {MatDividerModule} from "@angular/material/divider";
 import { StatComponent } from './stat/stat.component';
 import {MatListModule} from "@angular/material/list";
 import {MatGridListModule} from "@angular/material/grid-list";
+import { KnappComponent } from './stat/knapp/knapp.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import {MatGridListModule} from "@angular/material/grid-list";
     WahlkreisComponent,
     WahlkreissiegerComponent,
     UeberhangComponent,
-    StatComponent
+    StatComponent,
+    KnappComponent
 
   ],
   imports: [

@@ -7,7 +7,7 @@ CREATE MATERIALIZED VIEW wahlkreisinformation AS
            k.vorname                                    AS sieger_vorname,
            k.nachname                                   AS sieger_nachname,
            p.kuerzel                                    AS sieger_partei,
-           SUM(ze.anzahlstimmen)::decimal / wk.deutsche AS wahlbeteiligung
+           SUM(ze.anzahlstimmen)::decimal * 100 / wk.deutsche AS wahlbeteiligung_prozent
     FROM wahlkreis wk,
          direktmandat dm,
          kandidat k,

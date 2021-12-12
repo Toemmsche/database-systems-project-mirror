@@ -1,5 +1,7 @@
 <mat-card id="wahlkreis-card" *ngIf="wahlkreisLoaded()">
   <mat-card-title>{{"Wahlkreis " + nummer}}</mat-card-title>
+  <mat-divider inset></mat-divider>
+  <mat-card-content></mat-card-content>
   <table>
     <tr class="wahlkreis-card-row">
       <td class="wahlkreis-card-key">
@@ -33,7 +35,7 @@
       </td>
       <td class="wahlkreis-card-value">
         <mat-card-content>
-          {{ (wahlkreis.wahlbeteiligung * 100 | number: '1.0-2')  + '%'}}
+          {{ (wahlkreis.wahlbeteiligung_prozent  | number: '1.0-2') + '%'}}
         </mat-card-content>
       </td>
     </tr>
@@ -42,9 +44,7 @@
   <!-- hack for empty space-->
   <mat-card-content></mat-card-content>
   <mat-card-subtitle><h1>Erststimmenergebnisse der Parteien</h1></mat-card-subtitle>
-  <mat-card-content>
-    <chart id="wahlkreis-results-chart" [type]="resultsConfig.type"
-           [data]="resultsConfig.data"
-           [options]="resultsConfig.options"></chart>
-  </mat-card-content>
+  <chart id="wahlkreis-results-chart" [type]="resultsConfig.type"
+         [data]="resultsConfig.data"
+         [options]="resultsConfig.options"></chart>
 </mat-card>
