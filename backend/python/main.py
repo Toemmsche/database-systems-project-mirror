@@ -62,13 +62,8 @@ def exec_util_queries():
     ) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
-            # open scritp directory
-            for root, dirs, files in os.walk('../sql/util'):
-                for file in files:
-                    fullpath = os.path.join(root, file)
-                    with open(fullpath) as util_query:
-                        cursor.execute(util_query.read())
-                        exec_script(cursor, fullpath)
+            exec_script(cursor, '../sql/util/bundestag_merged.sql')
+            exec_script(cursor, '../sql/util/util_views.sql')
 
 
 def exec_data_queries():
