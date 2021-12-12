@@ -2,8 +2,7 @@ import math
 import os
 
 import psycopg
-from flask import Flask
-from flask import abort
+from flask import Flask, abort, request
 from flask_cors import CORS
 
 from main import init_backend
@@ -12,6 +11,7 @@ from util import (
     single_result_to_json,
     query_result_to_json,
     models_nat,
+    exec_script,
 )
 
 app = Flask("db-backend")
@@ -56,6 +56,10 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
             int(wahl) not in [19, 20] or \
             not models_nat(wknr):
         abort(404)
+    # if specified, reset aggregates
+    reset_aggregates = request.args.get('einzelstimmen')
+    if reset_aggregates == 'true':
+        exec_script(cursor, '../sql/util/Aggregat.sql')
     res = cursor.execute(
         f'SELECT * FROM wahlkreisinformation WHERE nummer = {wknr}'
     ).fetchall()
