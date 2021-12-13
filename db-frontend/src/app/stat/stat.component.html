@@ -1,4 +1,4 @@
-<mat-grid-list cols="2">
+<mat-grid-list cols="2" rowHeight="2:1">
   <mat-grid-tile>
     <mat-card class="clickable-card" id="ueberhang-summary-card" routerLink="/Statistiken/Ueberhang">
       <mat-card-title>Überhangmandate</mat-card-title>
@@ -9,6 +9,12 @@
     <mat-card class="clickable-card" id="knappstesieger-summary-card" routerLink="/Statistiken/KnappsteSieger">
       <mat-card-title>Knappste Sieger bzw. Verlierer</mat-card-title>
       <mat-card-content>Die 10 knappsten Wahlkreissieger (oder -niederlagen) jeder Partei</mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card class="clickable-card" id="ostenergebnis-summary-card" routerLink="/Statistiken/OstenErgebnis">
+      <mat-card-title>Wahlergebnis in Ostdeutschland</mat-card-title>
+      <mat-card-content>Das Wahlergebnis nach Zweitstimmen in Ostdeutschland</mat-card-content>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>

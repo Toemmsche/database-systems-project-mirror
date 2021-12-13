@@ -23,6 +23,7 @@ import { StatComponent } from './stat/stat.component';
 import {MatListModule} from "@angular/material/list";
 import {MatGridListModule} from "@angular/material/grid-list";
 import { KnappComponent } from './stat/knapp/knapp.component';
+import { OstenergebnisComponent } from './stat/ostenergebnis/ostenergebnis.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { KnappComponent } from './stat/knapp/knapp.component';
     WahlkreissiegerComponent,
     UeberhangComponent,
     StatComponent,
-    KnappComponent
+    KnappComponent,
+    OstenergebnisComponent
 
   ],
   imports: [

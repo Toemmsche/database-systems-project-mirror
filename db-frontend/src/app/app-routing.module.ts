@@ -7,6 +7,7 @@ import {WahlkreissiegerComponent} from "./karte/wahlkreissieger/wahlkreissieger.
 import {UeberhangComponent} from "./stat/ueberhang/ueberhang.component";
 import {StatComponent} from "./stat/stat.component";
 import {KnappComponent} from "./stat/knapp/knapp.component";
+import {OstenergebnisComponent} from "./stat/ostenergebnis/ostenergebnis.component";
 
 const routes: Routes = [
   {path: 'Bundestag', component: BundestagComponent, pathMatch: 'full'},
@@ -16,6 +17,7 @@ const routes: Routes = [
   {path: 'Statistiken', component: StatComponent, pathMatch: 'full'},
   {path: 'Statistiken/Ueberhang', component: UeberhangComponent, pathMatch: 'full'},
   {path: 'Statistiken/KnappsteSieger', component: KnappComponent, pathMatch: 'full'},
+  {path: 'Statistiken/OstenErgebnis', component: OstenergebnisComponent, pathMatch: 'full'},
   {path: '', component: BundestagComponent, pathMatch: 'full'}
 ];
 

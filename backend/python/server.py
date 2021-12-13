@@ -97,6 +97,11 @@ def get_knapp(wahl: str):
         abort(404)
     return table_to_json(cursor, 'knappste_siege_oder_niederlagen')
 
+@app.route("/api/<wahl>/ostenergebnis")
+def get_osten_ergebnis(wahl: str):
+    if not models_nat(wahl) or int(wahl) not in [19, 20]:
+        abort(404)
+    return table_to_json(cursor, 'zweitstimmen_qpartei_osten')
 
 if __name__ == '__main__':
     app.run('localhost', 5000)

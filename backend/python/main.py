@@ -51,7 +51,7 @@ def init_all() -> None:
             load_zweitstimmen_2017(cursor)
             load_direktkandidaten_2017(cursor)
 
-            stimmen_generator(cursor)
+            # stimmen_generator(cursor)
 
 
 def exec_util_queries():

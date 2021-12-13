@@ -18,9 +18,15 @@ def load_bundestagswahl_2021(cursor: psycopg.cursor):
 
 def load_bundeslaender(cursor: psycopg.cursor) -> None:
     records = download_csv(bundeslaender)
+    osten_bundeslaender = ['BB', 'SN', 'MV', 'TH', 'ST'] # no berlin
     records = list(
         map(
-            lambda row: (row['label'], row['name_de'], 0, None, row['id']),
+            lambda row: (
+                row['label'],
+                row['name_de'],
+                1 if row['label'] in osten_bundeslaender else 0, # osten
+                None,
+                row['id']),
             records,
         )
     )
