@@ -115,18 +115,14 @@ CREATE MATERIALIZED VIEW zweitstimmen_bundesland AS
 --All parties that are qualified to receive seats based on the second vote
 CREATE MATERIALIZED VIEW qpartei AS
     SELECT p.partei
-    FROM zweitstimmen_partei p,
-         direktkandidatur dk,
-         direktmandat dm
+    FROM zweitstimmen_partei p
          --Achieve 5% at least
     WHERE p.anzahlstimmen >= 0.05 * (SELECT SUM(anzahlstimmen) FROM zweitstimmen_partei)
     UNION
     SELECT p.parteiid
     FROM partei p,
-         direktkandidatur dk,
          direktmandat dm
-    WHERE dk.direktid = dm.direktid
-      AND p.parteiid = dk.partei
+    WHERE p.parteiid = dm.partei
     GROUP BY p.parteiid
              --Obtain three direct seats at least
     HAVING COUNT(*) >= 3
