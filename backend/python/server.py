@@ -1,17 +1,15 @@
-import math
-import os
-
 import psycopg
 from flask import Flask, abort, request
 from flask_cors import CORS
 
+from main import db_config
 from main import init_backend
 from util import (
     table_to_json,
     single_result_to_json,
     query_result_to_json,
     models_nat,
-    exec_script,
+    reset_aggregates
 )
 
 app = Flask("db-backend")
@@ -22,9 +20,7 @@ init_backend()
 
 # new database connection
 conn = psycopg.connect(
-    dbname='wahl',
-    user='postgres',
-    password=os.environ.get('POSTGRES_PWD'),
+    **db_config,
     autocommit=True
 )
 
@@ -57,9 +53,9 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
             not models_nat(wknr):
         abort(404)
     # if specified, reset aggregates
-    reset_aggregates = request.args.get('einzelstimmen')
-    if reset_aggregates == 'true':
-        exec_script(cursor, '../sql/util/Aggregat.sql')
+    shouldReset = request.args.get('einzelstimmen')
+    if shouldReset == 'true':
+        reset_aggregates(cursor, wknr)
     res = cursor.execute(
         f'SELECT * FROM wahlkreisinformation WHERE nummer = {wknr}'
     ).fetchall()

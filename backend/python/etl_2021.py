@@ -492,6 +492,5 @@ def load_zweitstimmen_2017(cursor: psycopg.cursor) -> None:
     )
     load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
 
-
 if __name__ == '__main__':
     load_landeslisten_2021(None)

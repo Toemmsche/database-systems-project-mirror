@@ -465,6 +465,3 @@ CREATE MATERIALIZED VIEW mandate AS
     WHERE k.kandid = lm.kandidat
       AND lm.land = bl.landid
       AND lm.partei = p.parteiid;
-
-SELECT *
-FROM mandate;

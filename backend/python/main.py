@@ -1,4 +1,3 @@
-import logging
 import os
 
 from etl_2021 import *
@@ -7,14 +6,16 @@ from etl_2021 import *
 logging.basicConfig()
 logging.root.setLevel(logging.NOTSET)
 
+db_config = {
+    'dbname': 'wahl',
+    'user': 'postgres',
+    'password': os.environ.get('POSTGRES_PWD')
+}
+
 
 def init_all() -> None:
     # open database connection
-    with psycopg.connect(
-            dbname='wahl',
-            user='postgres',
-            password=os.environ.get('POSTGRES_PWD')
-    ) as conn:
+    with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             # reset first
@@ -50,16 +51,12 @@ def init_all() -> None:
             load_zweitstimmen_2017(cursor)
             load_direktkandidaten_2017(cursor)
 
-            # stimmen_generator(cursor)
+            stimmen_generator(cursor)
 
 
 def exec_util_queries():
     # open database connection
-    with psycopg.connect(
-            dbname='wahl',
-            user='postgres',
-            password=os.environ.get('POSTGRES_PWD')
-    ) as conn:
+    with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             exec_script(cursor, '../sql/util/bundestag_merged.sql')
@@ -68,11 +65,7 @@ def exec_util_queries():
 
 def exec_data_queries():
     # open database connection
-    with psycopg.connect(
-            dbname='wahl',
-            user='postgres',
-            password=os.environ.get('POSTGRES_PWD')
-    ) as conn:
+    with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             # open scritp directory

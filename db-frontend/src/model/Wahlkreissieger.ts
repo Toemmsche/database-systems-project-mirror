@@ -1,6 +1,5 @@
 export class Wahlkreissieger {
 
-
   constructor(
     nummer: number,
     name: string,

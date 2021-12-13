@@ -10,6 +10,26 @@ import simplejson as json
 
 logger = logging.getLogger('ETL')
 
+def reset_aggregates(cursor: psycopg.cursor, wknr: str):
+    start_time = time.time()
+    # recalculate aggregate
+    cursor.execute(
+        f"""
+        UPDATE direktkandidatur
+                SET anzahlstimmen =
+                        (SELECT COUNT(*)
+                        FROM erststimme e
+                        WHERE e.kandidatur = direktid)    
+                WHERE EXISTS (
+                    SELECT * 
+                    FROM wahlkreis wk
+                    WHERE wk.nummer = {wknr}
+                    AND wk.wahl = (SELECT * FROM wahlauswahl)
+                )
+        """
+    )
+    logger.info(f'Reset aggregates for wahlkreis in {time.time() - start_time}s')
+
 
 def exec_script(cursor: psycopg.cursor, path: str) -> None:
     with open(path) as script:
