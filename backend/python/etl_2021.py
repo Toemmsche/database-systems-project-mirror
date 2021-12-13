@@ -24,7 +24,7 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
             lambda row: (
                 row['label'],
                 row['name_de'],
-                1 if row['label'] in osten_bundeslaender else 0, # osten
+                row['label'] in osten_bundeslaender, # osten
                 None,
                 row['id']),
             records,

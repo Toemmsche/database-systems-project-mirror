@@ -15,7 +15,7 @@ CREATE MATERIALIZED VIEW zweitstimmen_qpartei_osten AS
        AND wk.land = bl.landid
        AND ze.wahlkreis = wk.wkid
        AND ze.liste = ll.listenid
-       AND bl.osten = B'1'
+       AND bl.osten
      GROUP BY p.kuerzel, p.farbe)
     UNION
     (SELECT 'Sonstige' AS partei, 'DDDDDD' AS partei_farbe, SUM(ze.anzahlstimmen) AS abs_stimmen
@@ -30,7 +30,7 @@ CREATE MATERIALIZED VIEW zweitstimmen_qpartei_osten AS
        AND wk.land = bl.landid
        AND ze.wahlkreis = wk.wkid
        AND ze.liste = ll.listenid
-       AND bl.osten = B'1');
+       AND bl.osten);
 
 SELECT *
 FROM zweitstimmen_qpartei_osten;

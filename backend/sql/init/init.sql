@@ -21,7 +21,7 @@ CREATE TABLE bundesland
 (
     kuerzel CHAR(2) UNIQUE NOT NULL,
     name    VARCHAR(50),
-    osten   BIT            NOT NULL,
+    osten   BOOLEAN        NOT NULL,
     wappen  bytea,
     landid  INTEGER PRIMARY KEY
 );
