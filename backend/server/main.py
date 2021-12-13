@@ -1,6 +1,6 @@
 import os
 
-from etl_2021 import *
+from server.etl_2021 import *
 
 # adjust logger config
 logging.basicConfig()
@@ -59,8 +59,8 @@ def exec_util_queries():
     with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
-            exec_script(cursor, '../sql/util/bundestag_merged.sql')
-            exec_script(cursor, '../sql/util/util_views.sql')
+            exec_script(cursor, '../sql/views/bundestag_merged.sql')
+            exec_script(cursor, '../sql/views/util_views.sql')
 
 
 def exec_data_queries():
