@@ -90,13 +90,16 @@ def load_parteien(cursor: psycopg.cursor) -> None:
         'DIE LINKE': 'BE3075',
         'GRÜNE': '64A12D'
     }
+
+    nationale_minderheiten = set(['SSW'])
+
     records = local_csv(parteien)
     records = list(
         map(
             lambda row: (
                 row['Name'],
                 row['Kurzbezeichnung'],
-                0,  # TODO
+                row['Kurzbezeichnung'] in nationale_minderheiten,
                 notFalsy(row['Gründungsdatum'][-4:], None),
                 parteifarben_dict[row['Kurzbezeichnung']] if row['Kurzbezeichnung'] in parteifarben_dict else 'DDDDDD',
                 None

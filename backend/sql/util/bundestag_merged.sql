@@ -129,8 +129,11 @@ CREATE MATERIALIZED VIEW qpartei AS
       AND p.parteiid = dk.partei
     GROUP BY p.parteiid
              --Obtain three direct seats at least
-    HAVING COUNT(*) >= 3;
---TODO nationale minderheit
+    HAVING COUNT(*) >= 3
+    UNION
+    SELECT p.parteiid
+    FROM partei p
+    WHERE p.nationaleminderheit;
 
 CREATE MATERIALIZED VIEW zweitstimmen_qpartei AS
     SELECT zs.*

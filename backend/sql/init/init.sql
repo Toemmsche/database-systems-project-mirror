@@ -55,7 +55,7 @@ CREATE TABLE partei
 
     name                VARCHAR(100) UNIQUE NOT NULL,
     kuerzel             VARCHAR(40),
-    nationaleminderheit BIT                 NOT NULL,
+    nationaleminderheit BOOLEAN             NOT NULL,
     gruendungsjahr      INTEGER,
     farbe               VARCHAR(6),
     logo                bytea,
