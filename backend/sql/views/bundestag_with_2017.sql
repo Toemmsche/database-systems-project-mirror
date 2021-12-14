@@ -248,7 +248,7 @@ CREATE VIEW sitzanspruch_qpartei
     GROUP BY zp.wahl, zp.partei, zp.anzahlstimmen;
 
 
-CREATE MATERIALIZED VIEW sitze_nach_erhoehung AS --(wahl, partei, sitze) AS
+CREATE MATERIALIZED VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
     WITH divisor_obergrenze(wahl, obergrenze) AS
              (SELECT btw.nummer,
                   /*
