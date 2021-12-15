@@ -251,7 +251,6 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
                 partei_mapping[(row['Gruppenname'],)],
                 None,
                 None,
-                19,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
                 int(row['Anzahl'])
             ),
@@ -274,7 +273,6 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
                 None,
                 row['Gruppenname'],
                 None,
-                19,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
                 int(row['Anzahl'])
             ),
@@ -359,7 +357,6 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
                 kandidaten_mapping[(
                     row['Vornamen'], row['Nachname'],
                     int(row['Geburtsjahr']),)],
-                20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
                 ergebnisse_partei_dict[
                     (row['Gruppenname'], int(row['Gebietsnummer']))]
@@ -375,7 +372,6 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
                 kandidaten_mapping[(
                     row['Vornamen'], row['Nachname'],
                     int(row['Geburtsjahr']),)],
-                20,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
                 int(ergebnisse_parteilos_dict[row['Gruppenname']]) if row[
                                                                           'Gruppenname'] in ergebnisse_parteilos_dict else

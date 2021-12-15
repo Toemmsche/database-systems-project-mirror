@@ -1,7 +1,7 @@
-/*
 --Aggregate zweitstimmen
 DELETE
 FROM zweitstimmenergebnis;
+
 INSERT INTO zweitstimmenergebnis(liste, wahlkreis, anzahlstimmen)
     (SELECT zs.liste, zs.wahlkreis, COUNT(*)
      FROM zweitstimme zs
@@ -14,5 +14,5 @@ SET anzahlstimmen = (
     FROM erststimme es
     WHERE es.kandidatur = dk.direktid
 );
- */
- select * from mandat;
+
+

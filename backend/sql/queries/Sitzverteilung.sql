@@ -1,8 +1,8 @@
-DROP MATERIALIZED VIEW IF EXISTS sitzverteilung CASCADE;
+DROP VIEW IF EXISTS sitzverteilung CASCADE;
 
-CREATE MATERIALIZED VIEW sitzverteilung AS
-    SELECT p.kuerzel as partei, p.farbe as partei_farbe, COUNT(*) AS sitze
-    FROM mandate m,
+CREATE VIEW sitzverteilung(wahl, partei, partei_farbe, sitze) AS
+    SELECT m.wahl, p.kuerzel, p.farbe, COUNT(*) AS sitze
+    FROM mandat m,
          partei p
-    WHERE m.partei = p.kuerzel
-    GROUP BY p.kuerzel, p.farbe;
+    WHERE m.partei = p.parteiid
+    GROUP BY m.wahl, p.kuerzel, p.farbe;

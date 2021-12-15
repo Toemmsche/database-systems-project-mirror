@@ -59,7 +59,7 @@ def exec_util_queries():
     with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
-            exec_script(cursor, 'sql/views/Core.sql')
+           # exec_script(cursor, 'sql/views/Core.sql')
             exec_script(cursor, 'sql/views/Stimmen.sql')
             exec_script(cursor, 'sql/views/Ergebnis.sql')
             exec_script(cursor, 'sql/views/bundestag_with_2017.sql')
@@ -80,7 +80,7 @@ def exec_data_queries():
 def init_backend():
     init_all()
     exec_util_queries()
-    # exec_data_queries()
+    exec_data_queries()
 
 
 if __name__ == '__main__':

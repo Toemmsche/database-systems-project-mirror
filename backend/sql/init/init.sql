@@ -83,7 +83,7 @@ CREATE TABLE direktkandidatur
     partei               INTEGER REFERENCES partei (parteiid),
     parteilosgruppenname VARCHAR(200),
     kandidat             INTEGER REFERENCES kandidat (kandid),
-    wahl                 INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
+    wahlkreis            INTEGER REFERENCES wahlkreis (wkid)        NOT NULL,
     anzahlstimmen        INTEGER,
     direktid             SERIAL PRIMARY KEY
 );

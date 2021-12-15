@@ -10,7 +10,8 @@ import simplejson as json
 
 logger = logging.getLogger('ETL')
 
-def reset_aggregates(cursor: psycopg.cursor, wknr: str):
+
+def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
     start_time = time.time()
     # recalculate aggregate
     cursor.execute(
@@ -20,11 +21,11 @@ def reset_aggregates(cursor: psycopg.cursor, wknr: str):
                         (SELECT COUNT(*)
                         FROM erststimme e
                         WHERE e.kandidatur = direktid)    
-                WHERE EXISTS (
-                    SELECT * 
+                WHERE walhkreis = (
+                    SELECT wk.wkid
                     FROM wahlkreis wk
                     WHERE wk.nummer = {wknr}
-                    AND wk.wahl = (SELECT * FROM wahlauswahl)
+                    AND wk.wahl = {wahl}
                 )
         """
     )
@@ -39,15 +40,10 @@ def exec_script(cursor: psycopg.cursor, path: str) -> None:
 
 
 def stimmen_generator(cursor: psycopg.cursor) -> None:
-    with open('sql/init/erststimmengenerator.sql') as stimmen_generator_script:
+    with open('sql/init/StimmenGenerator.sql') as stimmen_generator_script:
         start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
-        logger.info(f'Generated Erststimmen in {time.time() - start_time}s')
-
-    with open('sql/init/zweitstimmengenerator.sql') as stimmen_generator_script:
-        start_time = time.time()
-        cursor.execute(stimmen_generator_script.read())
-        logger.info(f'Generated Zweitstimmen in {time.time() - start_time}s')
+        logger.info(f'Generated Einzelstimmen in {time.time() - start_time}s')
 
 
 def get_column_names(cursor: psycopg.cursor, table: str) -> list[str]:
@@ -115,24 +111,25 @@ def key_dict(cursor: psycopg.cursor, table: str, keys: tuple, target: str):
     return d
 
 
-def query_result_to_json(cursor: psycopg.cursor, result: list):
+def query_result_to_json(cursor: psycopg.cursor, result: list, single: bool):
     col_names = [desc[0] for desc in cursor.description]
-    arr = []
-    for r in result:
-        arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
-    return json.dumps(arr, use_decimal=True)
+    if single:
+        obj = {col_names[i]: result[0][i] for i in range(0, len(col_names))}
+        return json.dumps(obj, use_decimal=True)
+    else:
+        arr = []
+        for r in result:
+            arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
+        return json.dumps(arr, use_decimal=True)
 
 
-def single_result_to_json(cursor: psycopg.cursor, result: list):
-    col_names = [desc[0] for desc in cursor.description]
-    res = result[0]
-    obj = {col_names[i]: res[i] for i in range(0, len(col_names))}
-    return json.dumps(obj, use_decimal=True)
-
-
-def table_to_json(cursor: psycopg.cursor, table: str):
-    res = cursor.execute('SELECT * FROM %s' % table).fetchall()
-    return query_result_to_json(cursor, res)
+def table_to_json(cursor: psycopg.cursor, table: str, **kwargs):
+    return_single = kwargs.pop('single', False)
+    kwargs_str = " AND ".join([key + " = " + value for key, value in kwargs.items()])
+    if len(kwargs) > 0:
+        kwargs_str = "WHERE " + kwargs_str
+    res = cursor.execute(f"SELECT * FROM {table} {kwargs_str}").fetchall()
+    return query_result_to_json(cursor, res, return_single)
 
 
 def make_unique(dicts: list[dict], key_values: tuple):
@@ -159,6 +156,14 @@ def models_nat(num: str):
     except:
         return False
     return not math.isnan(x) and x >= 0
+
+
+def valid_wahl(wahl: str):
+    return models_nat(wahl) and int(wahl) in [19, 20]
+
+
+def valid_wahlkreis(wknr: str):
+    return models_nat(wknr) and 1 <= int(wknr) <= 299
 
 
 if __name__ == '__main__':

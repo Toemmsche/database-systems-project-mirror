@@ -476,17 +476,12 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
       AND lo.partei = vsll.partei
       AND lo.neue_position <= vsll.verbleibende_sitze;
 
-
-
-CREATE MATERIALIZED VIEW mandat(wahl, vorname, nachname, grund, partei) AS
+CREATE MATERIALIZED VIEW mandat(wahl, kandidat, grund, partei) AS
     SELECT dm.wahl,
-           k.vorname,
-           k.nachname,
+           dm.kandidat,
            'Direktmandat aus Wahlkreis ' || wk.nummer || ' - ' || wk.name AS grund,
-           p.kuerzel                                                      AS partei
-    FROM direktmandat dm
-             LEFT OUTER JOIN
-         kandidat k ON k.kandid = dm.kandidat,
+           p.parteiid                                                     AS partei
+    FROM direktmandat dm,
          wahlkreis wk,
          partei p
     WHERE dm.wahl = wk.wahl
@@ -494,14 +489,12 @@ CREATE MATERIALIZED VIEW mandat(wahl, vorname, nachname, grund, partei) AS
       AND dm.partei = p.parteiid
     UNION
     SELECT lm.wahl,
-           k.vorname,
-           k.nachname,
+           lm.kandidat,
            'Landeslistenmandat von Listenplatz ' || lm.position || ' in ' || bl.name AS grund,
-           p.kuerzel                                                                 AS partei
-    FROM listenmandat lm
-             LEFT OUTER JOIN
-         kandidat k ON lm.kandidat = k.kandid,
+           p.parteiid                                                                AS partei
+    FROM listenmandat lm,
          bundesland bl,
          partei p
     WHERE lm.land = bl.landid
       AND lm.partei = p.parteiid;
+
