@@ -461,7 +461,7 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
 ==================================================================================================================
 */
         landeslisten_ohne_direktmandate_nummeriert(wahl, liste, partei, land, position, kandidat, neue_position) AS
-            (SELECT lo.*, ROW_NUMBER() OVER (ORDER BY lo.position ASC)
+            (SELECT lo.*, ROW_NUMBER() OVER (PARTITION BY lo.liste ORDER BY lo.position ASC)
              FROM landeslisten_ohne_direktmandate lo)
     SELECT lo.wahl,
            lo.liste,
@@ -476,24 +476,6 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
       AND lo.partei = vsll.partei
       AND lo.neue_position <= vsll.verbleibende_sitze;
 
-/*
-    SELECT lo.wahl,
-           lo.liste,
-           lo.position,
-           lo.kandidat,
-           lo.land,
-           lo.partei
-    FROM landeslisten_ohne_direktmandate lo,
-         verbleibende_sitze_landesliste vsll
-    WHERE lo.wahl = vsll.wahl
-      AND lo.land = vsll.land
-      AND lo.partei = vsll.partei
-      AND (SELECT COUNT(*)
-           FROM landeslisten_ohne_direktmandate lo2
-           WHERE lo.wahl = lo2.wahl
-             AND lo.partei = lo2.partei
-             AND lo.land = lo2.land
-             AND lo2.position < lo.position) < vsll.verbleibende_sitze;
 
 
 CREATE MATERIALIZED VIEW mandat(wahl, vorname, nachname, grund, partei) AS
@@ -522,4 +504,4 @@ CREATE MATERIALIZED VIEW mandat(wahl, vorname, nachname, grund, partei) AS
          bundesland bl,
          partei p
     WHERE lm.land = bl.landid
-      AND lm.partei = p.parteiid;*/
+      AND lm.partei = p.parteiid;

@@ -1,3 +1,11 @@
+UPDATE zweitstimmenergebnis
+SET anzahlstimmen = anzahlstimmen + 10000
+WHERE wahlkreis % 100 = 19;
+
+UPDATE zweitstimmenergebnis
+SET anzahlstimmen = anzahlstimmen + 10000
+WHERE wahlkreis % 10 = 2;
+
 REFRESH MATERIALIZED VIEW zweitstimmen_partei_wahlkreis;
 REFRESH MATERIALIZED VIEW zweitstimmen_partei_bundesland;
 REFRESH MATERIALIZED VIEW zweitstimmen_partei;
@@ -9,4 +17,7 @@ REFRESH MATERIALIZED VIEW sitze_bundesland;
 REFRESH MATERIALIZED VIEW mindestsitze_qpartei_bundesland;
 REFRESH MATERIALIZED VIEW sitze_nach_erhoehung;
 REFRESH MATERIALIZED VIEW listenmandat;
---REFRESH MATERIALIZED VIEW mandat;
+REFRESH MATERIALIZED VIEW mandat;
+
+SELECT *
+FROM mandat;
