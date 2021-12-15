@@ -424,9 +424,9 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
         landeslisten_ohne_direktmandate(wahl, liste, partei, land, position, kandidat) AS
             /*
 ==================================================================================================================
-FALLUNTERSCHEIDUNG 2021 VS 2017:
-In 2017 können die Landeslisten ohne direktmandate NICHT ermittelt werden.
-In 2021 können die Landeslisten ohne direktmandate ermittelt werden.
+        FALLUNTERSCHEIDUNG 2021 VS 2017:
+        In 2017 können die Landeslisten ohne direktmandate NICHT ermittelt werden.
+        In 2021 können die Landeslisten ohne direktmandate ermittelt werden.
 ==================================================================================================================
 */
             ((SELECT 20,
@@ -455,11 +455,28 @@ In 2021 können die Landeslisten ohne direktmandate ermittelt werden.
               WHERE ll.wahl = 19
                 AND vsll.wahl = 19
                 AND ll.partei = vsll.partei
-                AND ll.land = vsll.land))
+                AND ll.land = vsll.land)),
         /*
 ==================================================================================================================
 ==================================================================================================================
 */
+        landeslisten_ohne_direktmandate_nummeriert(wahl, liste, partei, land, position, kandidat, neue_position) AS
+            (SELECT lo.*, ROW_NUMBER() OVER (ORDER BY lo.position ASC)
+             FROM landeslisten_ohne_direktmandate lo)
+    SELECT lo.wahl,
+           lo.liste,
+           lo.position,
+           lo.kandidat,
+           lo.land,
+           lo.partei
+    FROM landeslisten_ohne_direktmandate_nummeriert lo,
+         verbleibende_sitze_landesliste vsll
+    WHERE lo.wahl = vsll.wahl
+      AND lo.land = vsll.land
+      AND lo.partei = vsll.partei
+      AND lo.neue_position <= vsll.verbleibende_sitze;
+
+/*
     SELECT lo.wahl,
            lo.liste,
            lo.position,
@@ -505,5 +522,4 @@ CREATE MATERIALIZED VIEW mandat(wahl, vorname, nachname, grund, partei) AS
          bundesland bl,
          partei p
     WHERE lm.land = bl.landid
-      AND lm.partei = p.parteiid;
-
+      AND lm.partei = p.parteiid;*/
