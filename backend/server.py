@@ -2,9 +2,9 @@ import psycopg
 from flask import Flask, abort, request
 from flask_cors import CORS
 
-from main import db_config
-from main import init_backend
-from util import (
+from logic.DatabaseInitialization import db_config
+from logic.DatabaseInitialization import init_backend
+from logic.util import (
     table_to_json,
     single_result_to_json,
     query_result_to_json,

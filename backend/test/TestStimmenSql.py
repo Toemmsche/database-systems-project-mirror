@@ -3,8 +3,8 @@ import unittest
 
 import psycopg
 
-from server.main import db_config
-from server.util import table_to_json
+from logic.DatabaseInitialization import db_config
+from logic.util import table_to_json
 
 
 class TestStimmenSql(unittest.TestCase):

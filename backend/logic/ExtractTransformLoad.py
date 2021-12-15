@@ -1,8 +1,8 @@
 from functional import seq
 from psycopg.types import datetime
 
-from server.links import *
-from server.util import *
+from logic.links import *
+from logic.util import *
 
 
 def load_bundestagswahl_2021(cursor: psycopg.cursor):

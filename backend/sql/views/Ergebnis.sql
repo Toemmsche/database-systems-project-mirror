@@ -14,10 +14,11 @@ CREATE MATERIALIZED VIEW direktmandat(wahl, wahlkreis, land, kandidatur, partei,
     FROM direktkandidatur dk,
          wahlkreis wk
     WHERE dk.wahlkreis = wk.wkid
-      AND dk.anzahlstimmen =
-          (SELECT MAX(dk2.anzahlstimmen)
-           FROM direktkandidatur dk2
-           WHERE dk2.wahlkreis = dk.wahlkreis);
+      AND NOT EXISTS(SELECT *
+                     FROM direktkandidatur dk2
+                     WHERE dk2.wahlkreis = dk.wahlkreis
+                       AND dk2.anzahlstimmen > dk.anzahlstimmen);
+
 
 --Parteien, denen Sitze entsprechend ihres Zweitstimmenanteils zustehen
 CREATE MATERIALIZED VIEW qpartei(wahl, partei) AS
@@ -56,5 +57,3 @@ CREATE VIEW zweitstimmen_qpartei(wahl, partei, anzahlstimmen) AS
     SELECT zpb.wahl, zpb.partei, SUM(anzahlstimmen)
     FROM zweitstimmen_qpartei_bundesland zpb
     GROUP BY zpb.wahl, zpb.partei;
-
-select * from bundesland;

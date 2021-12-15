@@ -39,12 +39,12 @@ def exec_script(cursor: psycopg.cursor, path: str) -> None:
 
 
 def stimmen_generator(cursor: psycopg.cursor) -> None:
-    with open('../sql/init/erststimmengenerator.sql') as stimmen_generator_script:
+    with open('sql/init/erststimmengenerator.sql') as stimmen_generator_script:
         start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
         logger.info(f'Generated Erststimmen in {time.time() - start_time}s')
 
-    with open('../sql/init/zweitstimmengenerator.sql') as stimmen_generator_script:
+    with open('sql/init/zweitstimmengenerator.sql') as stimmen_generator_script:
         start_time = time.time()
         cursor.execute(stimmen_generator_script.read())
         logger.info(f'Generated Zweitstimmen in {time.time() - start_time}s')
