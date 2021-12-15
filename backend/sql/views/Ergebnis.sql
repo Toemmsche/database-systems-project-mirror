@@ -1,10 +1,11 @@
 DROP MATERIALIZED VIEW IF EXISTS direktmandat CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS qpartei CASCADE;
-DROP VIEW IF EXISTS zweitstimmen_qpartei_bundesland CASCADE;
-DROP VIEW IF EXISTS zweitstimmen_qpartei CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_qpartei_bundesland CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_qpartei CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS direktmandate_qpartei_bundesland CASCADE;
 
 --Die Kandidaten bzw. die zugehörigen Parteien, die die Wahlkreise gewonnen haben
-CREATE MATERIALIZED VIEW direktmandat(wahl, wahlkreis, land, kandidatur, partei, kandidaat) AS
+CREATE MATERIALIZED VIEW direktmandat(wahl, wahlkreis, land, kandidatur, partei, kandidat) AS
     SELECT wk.wahl,
            wk.wkid,
            wk.land,
@@ -47,13 +48,21 @@ CREATE MATERIALIZED VIEW qpartei(wahl, partei) AS
     WHERE p.nationaleminderheit;
 
 
-CREATE VIEW zweitstimmen_qpartei_bundesland(wahl, land, partei, anzahlstimmen) AS
+CREATE MATERIALIZED VIEW zweitstimmen_qpartei_bundesland(wahl, land, partei, anzahlstimmen) AS
     SELECT *
     FROM zweitstimmen_partei_bundesland zpb
     WHERE zpb.partei IN (SELECT p.partei FROM qpartei p WHERE zpb.wahl = p.wahl);
 
 
-CREATE VIEW zweitstimmen_qpartei(wahl, partei, anzahlstimmen) AS
+CREATE MATERIALIZED VIEW zweitstimmen_qpartei(wahl, partei, anzahlstimmen) AS
     SELECT zpb.wahl, zpb.partei, SUM(anzahlstimmen)
     FROM zweitstimmen_qpartei_bundesland zpb
     GROUP BY zpb.wahl, zpb.partei;
+
+CREATE MATERIALIZED VIEW direktmandate_qpartei_bundesland(wahl, land, partei, direktmandate) AS
+    SELECT dm.wahl, dm.land, p.partei, COUNT(dm.kandidatur)
+    FROM direktmandat dm,
+         qpartei p
+    WHERE dm.wahl = p.wahl
+      AND dm.partei = p.partei
+    GROUP BY dm.wahl, dm.land, p.partei;

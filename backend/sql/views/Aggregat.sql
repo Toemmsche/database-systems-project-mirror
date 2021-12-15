@@ -15,4 +15,3 @@ SET anzahlstimmen = (
     WHERE es.kandidatur = dk.direktid
 );
  */
-
