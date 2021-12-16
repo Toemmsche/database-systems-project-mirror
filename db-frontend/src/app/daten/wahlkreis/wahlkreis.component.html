@@ -11,7 +11,7 @@
       </td>
       <td class="wahlkreis-card-value">
         <mat-card-content>
-          {{wahlkreis.name}}
+          {{wahlkreis.wk_name}}
         </mat-card-content>
       </td>
     </tr>
@@ -44,7 +44,8 @@
   <!-- hack for empty space-->
   <mat-card-content></mat-card-content>
   <mat-card-subtitle><h1>Erststimmenergebnisse der Parteien</h1></mat-card-subtitle>
-  <chart id="wahlkreis-results-chart" [type]="resultsConfig.type"
-         [data]="resultsConfig.data"
-         [options]="resultsConfig.options"></chart>
+  <chart id="wahlkreis-results-chart"
+          [type]="resultsConfig.type"
+          [data]="resultsConfig.data"
+          [options]="resultsConfig.options"></chart>
 </mat-card>

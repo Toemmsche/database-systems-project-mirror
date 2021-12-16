@@ -29,7 +29,7 @@ export class WahlkreissiegerComponent implements OnInit {
     REST_GET('20/wahlkreissieger')
       .then(response => response.json())
       .then((data: Array<Wahlkreissieger>) => {
-        this.wksData = data.sort((a, b) => a.nummer - b.nummer);
+        this.wksData = data.sort((a, b) => a.wk_nummer - b.wk_nummer);
       })
   }
 

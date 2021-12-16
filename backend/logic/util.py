@@ -106,16 +106,16 @@ def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dic
 
     #### Timed Execution
     start_time = time.perf_counter()
-    res_cursor = cursor.execute(query)
+    cursor.execute(query)
     fetching_time = time.perf_counter()
-    res = res_cursor.fetchall()
+    res = cursor.fetchall()
     logger.info(
         f'Completed query {query[0:100]}..... in ' +
         f'(execution: {(fetching_time - start_time) * 1000 : .2f}ms, ' +
         f'fetching: {(time.perf_counter() - fetching_time) * 1000 : .2f}ms)')
     ####
 
-    col_names = [desc[0] for desc in cursor.description]
+    col_names = [desc.name for desc in cursor.description]
     arr = []
     for r in res:
         arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})

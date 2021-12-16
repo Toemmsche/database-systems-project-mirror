@@ -9,8 +9,6 @@ import {Sitzverteilung} from "../../../model/Sitzverteilung";
 })
 export class SitzverteilungComponent implements OnInit {
 
-  //TODO support for 2017
-
   sitzverteilung !: Array<Sitzverteilung>;
   columnsToDisplay = ['partei', 'sitze'];
   sitzVerteilungConfig = {

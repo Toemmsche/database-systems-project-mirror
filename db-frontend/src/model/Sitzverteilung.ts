@@ -1,5 +1,5 @@
 export class Sitzverteilung {
-  parte !: string;
+  partei !: string;
   partei_farbe !: string;
   sitze !: number;
 }

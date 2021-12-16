@@ -1,7 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {Sitzverteilung} from "../../../model/Sitzverteilung";
-import {Wahlkreis} from "../../../model/Walhkreis";
-import {WahlkreisErststimmenResult} from "../../../model/WahlkreisErststimmenResult";
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {REST_GET} from "../../../util";
 
@@ -39,7 +36,6 @@ export class OstenergebnisComponent implements OnInit {
     }
   }
 
-
   constructor() {
   }
 
@@ -71,7 +67,6 @@ export class OstenergebnisComponent implements OnInit {
         this.ostenData = data;
       });
   }
-
 
   ostenLoaded() {
     return this.ostenData != null && this.ostenData.length > 0;

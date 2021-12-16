@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {REST_GET} from "../../../util";
-import {MDB} from "../../../model/MDB";
 import {Wahlkreis} from "../../../model/Walhkreis";
-import {WahlkreisErststimmenResult} from "../../../model/WahlkreisErststimmenResult";
+import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
+import {WahlSelectionService} from "../../service/wahl-selection.service";
 
 @Component({
   selector: 'app-wahlkreis',
@@ -14,9 +14,10 @@ export class WahlkreisComponent implements OnInit {
 
   @Input()
   nummer !: number;
+  wahl !: number;
 
   wahlkreis !: Wahlkreis;
-  results !: Array<WahlkreisErststimmenResult>
+  results !: Array<ParteiErgebnis>;
   resultsConfig = {
     type: 'bar',
     data: {
@@ -43,7 +44,16 @@ export class WahlkreisComponent implements OnInit {
     }
   }
 
-  constructor(private route: ActivatedRoute) {
+  constructor(
+    private route: ActivatedRoute,
+    wahlservice: WahlSelectionService
+  ) {
+    this.wahl = wahlservice.wahlSubject.getValue() ? 19 : 20;
+    wahlservice.is2017$.subscribe((selected2017: boolean) => {
+      this.wahl = selected2017 ? 19 : 20;
+      this.results = []
+      this.ngOnInit()
+    });
   }
 
   ngOnInit(): void {
@@ -53,14 +63,14 @@ export class WahlkreisComponent implements OnInit {
   }
 
   populate(): void {
-    REST_GET(`20/wahlkreis/${this.nummer}`)
+    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}`)
       .then(response => response.json())
       .then((data: Wahlkreis) => {
         this.wahlkreis = data;
       });
-    REST_GET(`20/wahlkreis/${this.nummer}/results`)
+    REST_GET(`20/wahlkreis/${this.nummer}/erststimmen`)
       .then(response => response.json())
-      .then((data: Array<WahlkreisErststimmenResult>) => {
+      .then((data: Array<ParteiErgebnis>) => {
         data = data.sort((a, b) => {
           if (a.partei == 'Sonstige') {
             return 1;
@@ -79,13 +89,11 @@ export class WahlkreisComponent implements OnInit {
         // Save for later
         this.results = data;
       });
-
-
   }
 
   wahlkreisLoaded(): boolean {
     return this.wahlkreis != null && this.results != null &&
-      this.resultsConfig.data.labels.length > 0;
+      this.results.length > 0;
   }
 
 }

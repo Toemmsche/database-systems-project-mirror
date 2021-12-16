@@ -44,7 +44,7 @@ def get_sitzverteilung(wahl: str):
 def get_mdb(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    return table_to_json(cursor, "mdb", wahl=wahl)
+    return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
 
 
 @app.route("/api/<wahl>/wahlkreis/<wknr>")
@@ -55,15 +55,23 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
     # if specified, reset aggregates
     if request.args.get('einzelstimmen') == 'true':
         reset_aggregates(cursor, wahl, wknr)
-    return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wahlkreis=wknr, single=True)
+    return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wk_nummer=wknr, single=True)
 
 
-@app.route("/api/<wahl>/wahlkreis/<wknr>/results")
-def get_wahlkreis_results(wahl: str, wknr: str):
+@app.route("/api/<wahl>/wahlkreis/<wknr>/erststimmen")
+def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
     exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
-    return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wahlkreis=wknr)
+    return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
+
+
+@app.route("/api/<wahl>/wahlkreis/<wknr>/zweitstimmen")
+def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
+    if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
+        abort(404)
+    exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
+    return table_to_json(cursor, 'zweitstimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
 @app.route("/api/<wahl>/wahlkreissieger")
@@ -95,7 +103,7 @@ def get_osten_ergebnis(wahl: str):
 
 
 if __name__ == '__main__':
-    app.run('localhost', 5000)
+    app.run('localhost', 5000, threaded=False)
 
 # teardown
 cursor.close()

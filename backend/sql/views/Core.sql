@@ -1,1 +1,1 @@
-select * from mandat;
+select * from wahlkreisinformation where wahl = 20 and wk_nummer  = 42;

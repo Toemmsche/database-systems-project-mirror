@@ -10,20 +10,21 @@ import {SitzverteilungComponent} from './bundestag/sitzverteilung/sitzverteilung
 import {HeaderComponent} from './header/header.component';
 import {FooterComponent} from './footer/footer.component';
 import {BundestagComponent} from './bundestag/bundestag.component';
-import {ChartModule} from 'angular2-chartjs';
 import {MatTableModule} from "@angular/material/table";
 import {MitgliederComponent} from './bundestag/mitglieder/mitglieder.component';
 import {WahlkreisComponent} from './daten/wahlkreis/wahlkreis.component';
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
-import { WahlkreissiegerComponent } from './karte/wahlkreissieger/wahlkreissieger.component';
-import { UeberhangComponent } from './stat/ueberhang/ueberhang.component';
+import {WahlkreissiegerComponent} from './karte/wahlkreissieger/wahlkreissieger.component';
+import {UeberhangComponent} from './stat/ueberhang/ueberhang.component';
 import {MatDividerModule} from "@angular/material/divider";
-import { StatComponent } from './stat/stat.component';
+import {StatComponent} from './stat/stat.component';
 import {MatListModule} from "@angular/material/list";
 import {MatGridListModule} from "@angular/material/grid-list";
-import { KnappComponent } from './stat/knapp/knapp.component';
-import { OstenergebnisComponent } from './stat/ostenergebnis/ostenergebnis.component';
+import {KnappComponent} from './stat/knapp/knapp.component';
+import {OstenergebnisComponent} from './stat/ostenergebnis/ostenergebnis.component';
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {ChartModule} from "angular2-chartjs";
 
 @NgModule({
   declarations: [
@@ -39,8 +40,7 @@ import { OstenergebnisComponent } from './stat/ostenergebnis/ostenergebnis.compo
     UeberhangComponent,
     StatComponent,
     KnappComponent,
-    OstenergebnisComponent
-
+    OstenergebnisComponent,
   ],
   imports: [
     BrowserModule,
@@ -53,7 +53,8 @@ import { OstenergebnisComponent } from './stat/ostenergebnis/ostenergebnis.compo
     CommonModule,
     MatDividerModule,
     MatListModule,
-    MatGridListModule
+    MatGridListModule,
+    MatSlideToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]

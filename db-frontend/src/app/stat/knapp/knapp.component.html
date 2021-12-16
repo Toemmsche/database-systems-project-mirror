@@ -1,16 +1,20 @@
 <h1>Knappste Siege oder Niederlagen der Parteien (nach Erststimme)</h1>
 <table id="ueberhang-table" mat-table *ngIf="knappLoaded()" [dataSource]="knappData" class="mat-elevation-z8">
-  <ng-container matColumnDef="partei">
-    <th mat-header-cell *matHeaderCellDef>partei</th>
-    <td mat-cell *matCellDef="let row"> {{row.partei}} </td>
+  <ng-container matColumnDef="sieger_partei">
+    <th mat-header-cell *matHeaderCellDef>Siegerpartei</th>
+    <td mat-cell *matCellDef="let row"> {{row.sieger_partei}} </td>
   </ng-container>
+  <ng-container matColumnDef="verlierer_partei">
+  <th mat-header-cell *matHeaderCellDef>Verliererpartei</th>
+  <td mat-cell *matCellDef="let row"> {{row.verlierer_partei}} </td>
+</ng-container>
   <ng-container matColumnDef="wahlkreis">
     <th mat-header-cell *matHeaderCellDef>Wahlkreis</th>
-    <td mat-cell *matCellDef="let row">{{row.wahlkreis_name}} </td>
+    <td mat-cell *matCellDef="let row">{{row.wk_name}} </td>
   </ng-container>
-  <ng-container matColumnDef="vorsprung_prozent">
-    <th mat-header-cell *matHeaderCellDef>Vorsprung bzw. Rückstand (Prozentpunkte)</th>
-    <td mat-cell *matCellDef="let row"> {{(row.vorsprung_prozent |number: '1.0-2')  + '%'}} </td>
+  <ng-container matColumnDef="differenz_stimmen">
+    <th mat-header-cell *matHeaderCellDef>Vorsprung bzw. Rückstand (Stimmen))</th>
+    <td mat-cell *matCellDef="let row"> {{row.differenz_stimmen}} </td>
   </ng-container>
   <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
   <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>

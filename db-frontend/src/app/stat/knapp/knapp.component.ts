@@ -3,13 +3,18 @@ import {KnapperSiegOderNierderlage} from "../../../model/KnapperSiegOderNierderl
 import {REST_GET} from "../../../util";
 
 @Component({
-             selector   : 'app-knapp',
-             templateUrl: './knapp.component.html',
-             styleUrls  : ['./knapp.component.scss']
-           })
+  selector: 'app-knapp',
+  templateUrl: './knapp.component.html',
+  styleUrls: ['./knapp.component.scss']
+})
 export class KnappComponent implements OnInit {
 
-  columnsToDisplay = ['partei', 'wahlkreis', 'vorsprung_prozent'];
+  columnsToDisplay = [
+    'sieger_partei',
+    'verlierer_partei',
+    'wahlkreis',
+    'differenz_stimmen'
+  ];
   knappData !: Array<KnapperSiegOderNierderlage>;
 
   constructor() {
@@ -24,7 +29,7 @@ export class KnappComponent implements OnInit {
       .then(response => response.json())
       .then((data: Array<KnapperSiegOderNierderlage>) => {
         this.knappData = data.sort((a, b) => {
-          return a.partei.localeCompare(b.partei);
+          return a.sieger_partei.localeCompare(b.sieger_partei);
         })
       })
   }
