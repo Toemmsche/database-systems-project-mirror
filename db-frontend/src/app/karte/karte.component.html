@@ -1,1 +1,5 @@
-<svg #mapContainer height="500" width="1000"></svg>
+<svg *ngIf="bDataLoaded()" height="500" width="1000">
+  <path #begrenzung *ngFor="let b of bData" class="begrenzung" [attr.d]="b.begrenzung" id="{{viewId}}_{{b.wk_nummer}}">
+    <title>{{b.wk_nummer}} - {{b.wk_name}}</title>
+  </path>
+</svg>

@@ -33,6 +33,7 @@ export class WahlkreissiegerComponent implements OnInit {
       .then(response => response.json())
       .then((data: Array<Wahlkreissieger>) => {
         this.wksData = data.sort((a, b) => a.wk_nummer - b.wk_nummer);
+        this.updateWahlkreisColors();
       })
   }
 
