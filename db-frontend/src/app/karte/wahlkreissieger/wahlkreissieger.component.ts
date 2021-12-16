@@ -1,13 +1,13 @@
-import {Component, OnInit} from '@angular/core';
-import {Wahlkreis} from "../../../model/Walhkreis";
-import {Wahlkreissieger} from "../../../model/Wahlkreissieger";
-import {REST_GET} from "../../../util";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Wahlkreissieger } from "../../../model/Wahlkreissieger";
+import { REST_GET } from "../../../util";
+import { KarteComponent } from '../karte.component';
 
 @Component({
-             selector   : 'app-wahlkreissieger',
-             templateUrl: './wahlkreissieger.component.html',
-             styleUrls  : ['./wahlkreissieger.component.scss']
-           })
+  selector: 'app-wahlkreissieger',
+  templateUrl: './wahlkreissieger.component.html',
+  styleUrls: ['./wahlkreissieger.component.scss']
+})
 export class WahlkreissiegerComponent implements OnInit {
 
   columnsToDisplay = [
@@ -18,11 +18,14 @@ export class WahlkreissiegerComponent implements OnInit {
   ]
   wksData !: Array<Wahlkreissieger>
 
+  @ViewChild('karteSieger')
+  karteSieger!: KarteComponent;
+  siegerTyp: number = 1;
+
   constructor() {
   }
 
   ngOnInit(): void {
-    this.populate()
   }
 
   populate(): void {
@@ -30,10 +33,26 @@ export class WahlkreissiegerComponent implements OnInit {
       .then(response => response.json())
       .then((data: Array<Wahlkreissieger>) => {
         this.wksData = data.sort((a, b) => a.nummer - b.nummer);
+        this.updateWahlkreisColors();
       })
   }
 
   wksLoaded(): boolean {
     return this.wksData != null && this.wksData.length > 0;
+  }
+
+  onReady(): void {
+    this.populate();
+  }
+
+  updateWahlkreisColors() {
+    this.wksData.forEach(wks => {
+      const color = this.siegerTyp === 1 ? wks.erststimme_sieger_farbe : wks.zweitstimme_sieger_farbe;
+      this.karteSieger.colorWahlkreis(wks.nummer, color);
+    });
+  }
+
+  onSiegerTypChange() {
+    this.updateWahlkreisColors();
   }
 }

@@ -24,6 +24,9 @@ import {MatListModule} from "@angular/material/list";
 import {MatGridListModule} from "@angular/material/grid-list";
 import { KnappComponent } from './stat/knapp/knapp.component';
 import { OstenergebnisComponent } from './stat/ostenergebnis/ostenergebnis.component';
+import { KarteComponent } from './karte/karte.component';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -39,13 +42,15 @@ import { OstenergebnisComponent } from './stat/ostenergebnis/ostenergebnis.compo
     UeberhangComponent,
     StatComponent,
     KnappComponent,
-    OstenergebnisComponent
+    OstenergebnisComponent,
+    KarteComponent
 
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    FormsModule,
     MatToolbarModule,
     ChartModule,
     MatTableModule,
@@ -53,7 +58,8 @@ import { OstenergebnisComponent } from './stat/ostenergebnis/ostenergebnis.compo
     CommonModule,
     MatDividerModule,
     MatListModule,
-    MatGridListModule
+    MatGridListModule,
+    MatButtonToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]

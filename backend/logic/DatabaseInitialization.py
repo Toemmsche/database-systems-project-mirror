@@ -24,10 +24,22 @@ def init_all() -> None:
             # load data for 2021
             load_bundestagswahl_2021(cursor)
             load_bundeslaender(cursor)
+
+            # Make sure that Wahlkreise and SVG paths are matched correctly
+            begrenzungen_dict = {
+                10: 299
+            }
+            for i in range(1, 10):
+                begrenzungen_dict[i] = i
+            for i in range(11, 300):
+                begrenzungen_dict[i] = i - 1
+
             load_wahlkreise(
                 wahlkreise_2021,
                 20,
                 'Bevölkerung am 31.12.2019 - Deutsche (in 1000)',
+                begrenzungen_2021,
+                begrenzungen_dict,
                 cursor
             )
             load_gemeinden(gemeinden_2021, 20, cursor)
@@ -43,6 +55,8 @@ def init_all() -> None:
                 wahlkreise_2017,
                 19,
                 'Bevölkerung am 31.12.2015 - Deutsche (in 1000)',
+                begrenzungen_2021,
+                begrenzungen_dict,
                 cursor,
                 'cp1252'
             )
