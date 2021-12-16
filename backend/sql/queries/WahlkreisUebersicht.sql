@@ -39,7 +39,14 @@ CREATE VIEW erststimmen_qpartei_wahlkreis_rich(wahl, wahlkreis, partei, partei_f
                    erststimmen_wahlkreis ew
               WHERE wk.wahl = ew.wahl
                 AND wk.wkid = ew.wahlkreis
-                AND wk.wkid = dk.wahlkreis)
+                AND wk.wkid = dk.wahlkreis),
+         nicht_qpartei(wahl, partei) AS
+             (SELECT btw.nummer, p.parteiid
+              FROM partei p,
+                   bundestagswahl btw
+              EXCEPT
+              SELECT *
+              FROM qpartei)
     SELECT wk.wahl, wk.nummer, p.kuerzel AS partei, p.farbe AS partei_farbe, epw.abs_stimmen, epw.rel_stimmen
     FROM erststimmen_partei_wahlkreis epw,
          qpartei qp,
@@ -58,10 +65,10 @@ CREATE VIEW erststimmen_qpartei_wahlkreis_rich(wahl, wahlkreis, partei, partei_f
            SUM(epw.abs_stimmen) AS abs_stimmen,
            SUM(epw.rel_stimmen) AS rel_stimmen
     FROM erststimmen_partei_wahlkreis epw,
-         partei p,
+         nicht_qpartei np,
          wahlkreis wk
     WHERE wk.wahl = epw.wahl
-      AND epw.partei = p.parteiid
+      AND epw.partei = np.partei
       AND epw.wahlkreis = wk.wkid
-      AND p.parteiid NOT IN (SELECT qp.partei FROM qpartei qp WHERE qp.wahl = wk.wahl)
     GROUP BY wk.wahl, wk.nummer;
+

@@ -8,42 +8,42 @@ import psycopg
 import requests
 import simplejson as json
 
-logger = logging.getLogger('ETL')
+logger = logging.getLogger('DB')
 
 
 def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
-    start_time = time.time()
     # recalculate aggregate
-    cursor.execute(
-        f"""
-        UPDATE direktkandidatur
-                SET anzahlstimmen =
-                        (SELECT COUNT(*)
-                        FROM erststimme e
-                        WHERE e.kandidatur = direktid)    
-                WHERE walhkreis = (
-                    SELECT wk.wkid
-                    FROM wahlkreis wk
-                    WHERE wk.nummer = {wknr}
-                    AND wk.wahl = {wahl}
-                )
-        """
-    )
-    logger.info(f'Reset aggregates for wahlkreis in {time.time() - start_time}s')
+    exec_script(cursor,
+                f"""
+                UPDATE direktkandidatur
+                        SET anzahlstimmen =
+                                (SELECT COUNT(*)
+                                FROM erststimme e
+                                WHERE e.kandidatur = direktid)    
+                        WHERE walhkreis = (
+                            SELECT wk.wkid
+                            FROM wahlkreis wk
+                            WHERE wk.nummer = {wknr}
+                            AND wk.wahl = {wahl}
+                        )
+                """
+                , 'ResetAggregates.sql')
 
 
-def exec_script(cursor: psycopg.cursor, path: str) -> None:
+def exec_script(cursor: psycopg.cursor, script: str, script_name: str) -> None:
+    #### Timed Execution
+    start_time = time.perf_counter()
+    cursor.execute(script)
+    truncated_script = script.replace('\n', ' ')[0:50]
+    logger.info(
+        f'Executed script {truncated_script + "....." if script_name is None else script_name} in ' +
+        f'{(time.perf_counter() - start_time) * 1000 : .2f}ms')
+    ####
+
+
+def exec_script_from_file(cursor: psycopg.cursor, path: str) -> None:
     with open(path) as script:
-        start_time = time.time()
-        cursor.execute(script.read())
-        logger.info(f'Executed script {path} in {time.time() - start_time}s')
-
-
-def stimmen_generator(cursor: psycopg.cursor) -> None:
-    with open('sql/init/StimmenGenerator.sql') as stimmen_generator_script:
-        start_time = time.time()
-        cursor.execute(stimmen_generator_script.read())
-        logger.info(f'Generated Einzelstimmen in {time.time() - start_time}s')
+        exec_script(cursor, script.read(), path)
 
 
 def get_column_names(cursor: psycopg.cursor, table: str) -> list[str]:
@@ -53,18 +53,17 @@ def get_column_names(cursor: psycopg.cursor, table: str) -> list[str]:
 
 
 def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
-    '''
-    Loads a list of records into a database table.
-    '''
     col_names = get_column_names(cursor, table)
     record_len = len(records[0])
     # Cut columns if necessary
     col_names = col_names[:record_len]
     with cursor.copy(f'COPY  {table}({",".join(col_names)}) FROM STDIN') as copy:
-        start_time = time.time()
+        #### Timed Execution
+        start_time = time.perf_counter()
         for record in records:
             copy.write_row(record)
-        logger.info(f'Copied {len(records)} rows into {table} in {time.time() - start_time}s')
+        logger.info(f'Copied {len(records)} rows into {table} in {(time.perf_counter() - start_time) * 1000 : .2f}ms')
+        ####
 
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
@@ -99,37 +98,43 @@ def parse_float_de(str: str) -> float:
     return float(str.replace('.', '').replace(',', '.'))
 
 
-def key_dict(cursor: psycopg.cursor, table: str, keys: tuple, target: str):
-    res = cursor.execute('SELECT * FROM %s' % table).fetchall()
+def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dict]:
+    kwargs_str = " AND ".join([key + " = " + value for key, value in kwargs.items()])
+    if len(kwargs) > 0:
+        kwargs_str = "WHERE " + kwargs_str
+    query = f"SELECT * FROM {table} {kwargs_str}"
+
+    #### Timed Execution
+    start_time = time.perf_counter()
+    res_cursor = cursor.execute(query)
+    fetching_time = time.perf_counter()
+    res = res_cursor.fetchall()
+    logger.info(
+        f'Completed query {query[0:100]}..... in ' +
+        f'(execution: {(fetching_time - start_time) * 1000 : .2f}ms, ' +
+        f'fetching: {(time.perf_counter() - fetching_time) * 1000 : .2f}ms)')
+    ####
+
     col_names = [desc[0] for desc in cursor.description]
-    keys = tuple(col_names.index(key.lower()) for key in keys)
-    target = col_names.index(target.lower())
-    d = {}
+    arr = []
     for r in res:
-        t = tuple(r[i] for i in keys)
-        d.update({t: r[target]})
-    return d
+        arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
+    return arr
 
 
-def query_result_to_json(cursor: psycopg.cursor, result: list, single: bool):
-    col_names = [desc[0] for desc in cursor.description]
-    if single:
-        obj = {col_names[i]: result[0][i] for i in range(0, len(col_names))}
-        return json.dumps(obj, use_decimal=True)
-    else:
-        arr = []
-        for r in result:
-            arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
-        return json.dumps(arr, use_decimal=True)
+def key_dict(cursor: psycopg.cursor, table: str, keys: tuple[str], target: str) -> dict:
+    keys = tuple(map(lambda key: key.lower(), keys))
+    target = target.lower()
+    return {tuple(row[key] for key in keys): row[target] for row in table_to_dict_list(cursor, table)}
 
 
 def table_to_json(cursor: psycopg.cursor, table: str, **kwargs):
     return_single = kwargs.pop('single', False)
-    kwargs_str = " AND ".join([key + " = " + value for key, value in kwargs.items()])
-    if len(kwargs) > 0:
-        kwargs_str = "WHERE " + kwargs_str
-    res = cursor.execute(f"SELECT * FROM {table} {kwargs_str}").fetchall()
-    return query_result_to_json(cursor, res, return_single)
+    table = table_to_dict_list(cursor, table, **kwargs)
+    if return_single:
+        return json.dumps(table[0])
+    else:
+        return json.dumps(table)
 
 
 def make_unique(dicts: list[dict], key_values: tuple):

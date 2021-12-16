@@ -19,7 +19,7 @@ def init_all() -> None:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             # reset first
-            exec_script(cursor, 'sql/init/init.sql')
+            exec_script_from_file(cursor, 'sql/init/init.sql')
 
             # load data for 2021
             load_bundestagswahl_2021(cursor)
@@ -51,7 +51,7 @@ def init_all() -> None:
             load_zweitstimmen_2017(cursor)
             load_direktkandidaten_2017(cursor)
 
-            # stimmen_generator(cursor)
+            exec_script_from_file(cursor, 'sql/init/StimmenGenerator.sql')
 
 
 def exec_util_queries():
@@ -59,10 +59,10 @@ def exec_util_queries():
     with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
-           # exec_script(cursor, 'sql/views/Core.sql')
-            exec_script(cursor, 'sql/views/Stimmen.sql')
-            exec_script(cursor, 'sql/views/Ergebnis.sql')
-            exec_script(cursor, 'sql/views/bundestag_with_2017.sql')
+            # exec_script(cursor, 'sql/views/Core.sql')
+            exec_script_from_file(cursor, 'sql/views/Stimmen.sql')
+            exec_script_from_file(cursor, 'sql/views/Ergebnis.sql')
+            exec_script_from_file(cursor, 'sql/views/bundestag_with_2017.sql')
 
 
 def exec_data_queries():
@@ -74,7 +74,7 @@ def exec_data_queries():
             for root, dirs, files in os.walk('sql/queries'):  #
                 for file in files:
                     fullpath = os.path.join(root, file)
-                    exec_script(cursor, fullpath)
+                    exec_script_from_file(cursor, fullpath)
 
 
 def init_backend():

@@ -8,9 +8,9 @@ from logic.util import (
     valid_wahl,
     valid_wahlkreis,
     table_to_json,
-    query_result_to_json,
     models_nat,
-    reset_aggregates
+    reset_aggregates,
+    exec_script_from_file
 )
 
 app = Flask("db-backend")
@@ -51,6 +51,7 @@ def get_mdb(wahl: str):
 def get_wahlkreisinformation(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
+    exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
     # if specified, reset aggregates
     if request.args.get('einzelstimmen') == 'true':
         reset_aggregates(cursor, wahl, wknr)
@@ -61,6 +62,7 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
 def get_wahlkreis_results(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
+    exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
     return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wahlkreis=wknr)
 
 
