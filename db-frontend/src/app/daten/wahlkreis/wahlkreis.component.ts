@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {REST_GET} from "../../../util";
 import {MDB} from "../../../model/MDB";
 import {Wahlkreis} from "../../../model/Walhkreis";
-import {WahlkreisResult} from "../../../model/WahlkreisResult";
+import {WahlkreisErststimmenResult} from "../../../model/WahlkreisErststimmenResult";
 
 @Component({
   selector: 'app-wahlkreis',
@@ -16,7 +16,7 @@ export class WahlkreisComponent implements OnInit {
   nummer !: number;
 
   wahlkreis !: Wahlkreis;
-  results !: Array<WahlkreisResult>
+  results !: Array<WahlkreisErststimmenResult>
   resultsConfig = {
     type: 'bar',
     data: {
@@ -60,7 +60,7 @@ export class WahlkreisComponent implements OnInit {
       });
     REST_GET(`20/wahlkreis/${this.nummer}/results`)
       .then(response => response.json())
-      .then((data: Array<WahlkreisResult>) => {
+      .then((data: Array<WahlkreisErststimmenResult>) => {
         data = data.sort((a, b) => {
           if (a.partei == 'Sonstige') {
             return 1;

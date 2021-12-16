@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Knapp} from "../../../model/Knapp";
+import {KnapperSiegOderNierderlage} from "../../../model/KnapperSiegOderNierderlage";
 import {REST_GET} from "../../../util";
 
 @Component({
@@ -10,7 +10,7 @@ import {REST_GET} from "../../../util";
 export class KnappComponent implements OnInit {
 
   columnsToDisplay = ['partei', 'wahlkreis', 'vorsprung_prozent'];
-  knappData !: Array<Knapp>;
+  knappData !: Array<KnapperSiegOderNierderlage>;
 
   constructor() {
   }
@@ -22,7 +22,7 @@ export class KnappComponent implements OnInit {
   populate(): void {
     REST_GET('20/stat/knapp')
       .then(response => response.json())
-      .then((data: Array<Knapp>) => {
+      .then((data: Array<KnapperSiegOderNierderlage>) => {
         this.knappData = data.sort((a, b) => {
           return a.partei.localeCompare(b.partei);
         })

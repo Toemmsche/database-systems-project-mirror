@@ -27,7 +27,7 @@ CREATE VIEW wahlkreissieger_erststimme(wahl, wahlkreis, partei) AS
     WHERE wk.wkid = dm.wahlkreis;
 
 
-CREATE VIEW wahlkreissieger(wahl, nummer, name, erststimme_sieger, erststimme_sieger_farbe, zweitstimme_sieger, zweitstimme_sieger_farbe) AS
+CREATE VIEW wahlkreissieger(wahl, wk_nummer, wk_name, erststimme_sieger, erststimme_sieger_farbe, zweitstimme_sieger, zweitstimme_sieger_farbe) AS
     SELECT we.wahl,
            wk.nummer,
            wk.name,

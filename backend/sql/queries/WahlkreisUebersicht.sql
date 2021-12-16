@@ -4,7 +4,7 @@ DROP VIEW IF EXISTS zweitstimmen_qpartei_wahlkreis_rich CASCADE;
 
 
 CREATE VIEW wahlkreisinformation
-            (wahl, wk_nummer, name, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
+            (wahl, wk_nummer, wk_name, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
     SELECT wk.wahl,
            wk.nummer,
            wk.name,
