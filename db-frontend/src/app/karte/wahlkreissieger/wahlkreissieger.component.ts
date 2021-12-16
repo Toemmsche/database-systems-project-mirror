@@ -33,7 +33,7 @@ export class WahlkreissiegerComponent implements OnInit {
     REST_GET('20/wahlkreissieger')
       .then(response => response.json())
       .then((data: Array<Wahlkreissieger>) => {
-        this.wksData = data.sort((a, b) => a.nummer - b.nummer);
+        this.wksData = data.sort((a, b) => a.wk_nummer - b.wk_nummer);
       })
   }
 
@@ -48,7 +48,7 @@ export class WahlkreissiegerComponent implements OnInit {
   updateWahlkreisColors() {
     this.wksData.forEach(wks => {
       const color = this.siegerTyp === 1 ? wks.erststimme_sieger_farbe : wks.zweitstimme_sieger_farbe;
-      this.karteSieger.colorWahlkreis(wks.nummer, color);
+      this.karteSieger.colorWahlkreis(wks.wk_nummer, color);
     });
   }
 
