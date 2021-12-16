@@ -70,7 +70,7 @@ def get_wahlkreis_results(wahl: str, wknr: str):
 def get_wahlkreissieger(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    return table_to_json(cursor, 'wahlkreissieger')
+    return table_to_json(cursor, 'wahlkreissieger', wahl=wahl)
 
 
 @app.route("/api/<wahl>/ueberhang")
