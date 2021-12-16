@@ -26,7 +26,6 @@ export class WahlkreissiegerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.populate()
   }
 
   populate(): void {

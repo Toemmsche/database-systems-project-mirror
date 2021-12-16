@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {REST_GET} from "../../../util";
 import {Sitzverteilung} from "../../../model/Sitzverteilung";
 
