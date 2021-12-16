@@ -20,7 +20,7 @@ def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
                                 (SELECT COUNT(*)
                                 FROM erststimme e
                                 WHERE e.kandidatur = direktid)    
-                        WHERE walhkreis = (
+                        WHERE wahlkreis = (
                             SELECT wk.wkid
                             FROM wahlkreis wk
                             WHERE wk.nummer = {wknr}
