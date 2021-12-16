@@ -10,6 +10,7 @@ import {SitzverteilungComponent} from './bundestag/sitzverteilung/sitzverteilung
 import {HeaderComponent} from './header/header.component';
 import {FooterComponent} from './footer/footer.component';
 import {BundestagComponent} from './bundestag/bundestag.component';
+import {ChartModule} from 'angular2-chartjs';
 import {MatTableModule} from "@angular/material/table";
 import {MitgliederComponent} from './bundestag/mitglieder/mitglieder.component';
 import {WahlkreisComponent} from './daten/wahlkreis/wahlkreis.component';
@@ -25,6 +26,11 @@ import {KnappComponent} from './stat/knapp/knapp.component';
 import {OstenergebnisComponent} from './stat/ostenergebnis/ostenergebnis.component';
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ChartModule} from "angular2-chartjs";
+import { KnappComponent } from './stat/knapp/knapp.component';
+import { OstenergebnisComponent } from './stat/ostenergebnis/ostenergebnis.component';
+import { KarteComponent } from './karte/karte.component';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -41,11 +47,14 @@ import {ChartModule} from "angular2-chartjs";
     StatComponent,
     KnappComponent,
     OstenergebnisComponent,
+    KarteComponent
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    FormsModule,
     MatToolbarModule,
     ChartModule,
     MatTableModule,
@@ -55,6 +64,8 @@ import {ChartModule} from "angular2-chartjs";
     MatListModule,
     MatGridListModule,
     MatSlideToggleModule
+    MatGridListModule,
+    MatButtonToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]

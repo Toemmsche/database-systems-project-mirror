@@ -1,24 +1,8 @@
 <h1>Wahlkreissieger nach Erst- und Zweitstimme</h1>
-<table id="wks-table" mat-table *ngIf="wksLoaded()" [dataSource]="wksData" class="mat-elevation-z8">
-  <ng-container matColumnDef="nummer">
-    <th mat-header-cell *matHeaderCellDef>Nummer</th>
-    <td mat-cell *matCellDef="let wks"> {{wks.nummer}} </td>
-  </ng-container>
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef>Name</th>
-    <td mat-cell *matCellDef="let wks">{{wks.name}} </td>
-  </ng-container>
-  <ng-container matColumnDef="erststimme-sieger">
-    <th mat-header-cell *matHeaderCellDef>Sieger (Erststimme)</th>
-    <td mat-cell *matCellDef="let wks"
-        [ngStyle]="{'color': '#' + wks.erststimme_sieger_farbe}">{{wks.erststimme_sieger}} </td>
-  </ng-container>
-  <ng-container matColumnDef="zweitstimme-sieger">
-    <th mat-header-cell *matHeaderCellDef>Sieger (Zweitstimme)</th>
-    <td mat-cell *matCellDef="let wks"
-        [ngStyle]="{'color': '#' + wks.zweitstimme_sieger_farbe}"> {{wks.zweitstimme_sieger}} </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-  <tr mat-row *matRowDef="let wks; columns: columnsToDisplay"></tr>
-</table>
+<mat-button-toggle-group name="siegerTyp" [(ngModel)]="siegerTyp" (change)="onSiegerTypChange()">
+  <mat-button-toggle [value]="1">Erststimme</mat-button-toggle>
+  <mat-button-toggle [value]="2">Zweitstimme</mat-button-toggle>
+</mat-button-toggle-group>
+
+<app-karte #karteSieger (ready)="onReady()" [wahl]="20"></app-karte>
 <span *ngIf="!wksLoaded()">Loading...</span>

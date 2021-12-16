@@ -102,6 +102,13 @@ def get_osten_ergebnis(wahl: str):
     return table_to_json(cursor, 'zweitstimmen_qpartei_osten')
 
 
+@app.route("/api/<wahl>/karte")
+def get_karte(wahl: str):
+    if not valid_wahl(wahl):
+        abort(404)
+    return table_to_json(cursor, 'begrenzungen', wahl=wahl)
+
+
 if __name__ == '__main__':
     app.run('localhost', 5000, threaded=False)
 

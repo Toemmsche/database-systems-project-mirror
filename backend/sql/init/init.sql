@@ -33,7 +33,7 @@ CREATE TABLE wahlkreis
     land       INTEGER REFERENCES bundesland (landid)     NOT NULL,
     wahl       INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
     deutsche   INTEGER                                    NOT NULL,
-    begrenzung bytea,
+    begrenzung TEXT,
     wkid       SERIAL PRIMARY KEY,
     UNIQUE (nummer, wahl),
     UNIQUE (name, wahl)
