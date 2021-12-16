@@ -1,6 +1,8 @@
 DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei_wahlkreis CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei_bundesland CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei CASCADE;
+DROP VIEW IF EXISTS erststimmen_wahlkreis CASCADE;
+DROP VIEW IF EXISTS zweitstimmen_wahlkreis CASCADE;
 
 --Zweitstimmen aggregiert nach Wahl, Walhkreis, und Partei
 CREATE MATERIALIZED VIEW zweitstimmen_partei_wahlkreis(wahl, wahlkreis, partei, anzahlstimmen) AS
@@ -28,4 +30,19 @@ CREATE MATERIALIZED VIEW zweitstimmen_partei(wahl, partei, anzahlstimmen) AS
     SELECT zpb.wahl, zpb.partei, SUM(zpb.anzahlstimmen)
     FROM zweitstimmen_partei_bundesland zpb
     GROUP BY zpb.wahl, zpb.partei;
+
+
+CREATE VIEW erststimmen_wahlkreis(wahlkreis, anzahlstimmen) AS
+    SELECT wk.wkid, SUM(anzahlstimmen)
+    FROM wahlkreis wk,
+         direktkandidatur dk
+    WHERE dk.wahlkreis = wk.wkid
+    GROUP BY wk.wkid;
+
+CREATE VIEW zweitstimmen_wahlkreis(wahlkreis, anzahlstimmen) AS
+    SELECT wk.wkid, SUM(anzahlstimmen)
+    FROM wahlkreis wk,
+         zweitstimmenergebnis ze
+    WHERE ze.wahlkreis = wk.wkid
+    GROUP BY wk.wkid;
 

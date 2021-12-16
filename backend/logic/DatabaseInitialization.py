@@ -51,7 +51,7 @@ def init_all() -> None:
             load_zweitstimmen_2017(cursor)
             load_direktkandidaten_2017(cursor)
 
-            exec_script_from_file(cursor, 'sql/init/StimmenGenerator.sql')
+            # exec_script_from_file(cursor, 'sql/init/StimmenGenerator.sql')
 
 
 def exec_util_queries():

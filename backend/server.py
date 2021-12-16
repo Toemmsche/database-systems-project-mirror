@@ -84,7 +84,7 @@ def get_ueberhang(wahl: str):
 def get_knapp(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    return table_to_json(cursor, 'knappste_siege_oder_niederlagen')
+    return table_to_json(cursor, 'knappste_siege_oder_niederlagen', wahl=wahl)
 
 
 @app.route("/api/<wahl>/ostenergebnis")

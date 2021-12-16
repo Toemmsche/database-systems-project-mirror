@@ -24,13 +24,7 @@ CREATE VIEW wahlkreisinformation
     GROUP BY wk.wahl, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
 
 CREATE VIEW erststimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
-    WITH erststimmen_wahlkreis( wahlkreis, anzahlstimmen) AS
-             (SELECT wk.wkid, SUM(anzahlstimmen)
-              FROM wahlkreis wk,
-                   direktkandidatur dk
-              WHERE dk.wahlkreis = wk.wkid
-              GROUP BY  wk.wkid),
-         erststimmen_partei_wahlkreis(wahlkreis, partei, abs_stimmen, rel_stimmen) AS
+    WITH erststimmen_partei_wahlkreis(wahlkreis, partei, abs_stimmen, rel_stimmen) AS
              (SELECT wk.wkid,
                      dk.partei,
                      dk.anzahlstimmen,
@@ -78,13 +72,7 @@ CREATE VIEW erststimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_f
 
 
 CREATE VIEW zweitstimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
-    WITH zweitstimmen_wahlkreis( wahlkreis, anzahlstimmen) AS
-             (SELECT wk.wkid, SUM(anzahlstimmen)
-              FROM wahlkreis wk,
-                   zweitstimmenergebnis ze
-              WHERE ze.wahlkreis = wk.wkid
-              GROUP BY wk.wkid),
-         zweitstimmen_partei_wahlkreis(wahlkreis, partei, abs_stimmen, rel_stimmen) AS
+    WITH zweitstimmen_partei_wahlkreis(wahlkreis, partei, abs_stimmen, rel_stimmen) AS
              (SELECT wk.wkid,
                      ll.partei,
                      ze.anzahlstimmen,
