@@ -119,3 +119,10 @@ CREATE VIEW zweitstimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_
       AND zpw.partei = np.partei
       AND zpw.wahlkreis = wk.wkid
     GROUP BY wk.wahl, wk.nummer;
+
+CREATE VIEW stimmen_qpartei_wahlkreis_rich(stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
+    SELECT 1, es.*
+    FROM erststimmen_qpartei_wahlkreis_rich es
+    UNION
+    SELECT 2, zs.*
+    FROM zweitstimmen_qpartei_wahlkreis_rich zs

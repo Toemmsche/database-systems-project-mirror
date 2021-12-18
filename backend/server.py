@@ -108,6 +108,12 @@ def get_karte(wahl: str):
         abort(404)
     return table_to_json(cursor, 'begrenzungen', wahl=wahl)
 
+@app.route("/api/<wahl>/wahlkreisergebnisse")
+def get_wahlkreisergebnisse(wahl: str):
+    if not valid_wahl(wahl):
+        abort(404)
+    return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl)
+
 
 if __name__ == '__main__':
     app.run('localhost', 5000, threaded=False)
