@@ -22,8 +22,11 @@
         </mat-card-content>
       </td>
       <td class="wahlkreis-card-value">
-        <mat-card-content>
+        <mat-card-content *ngIf="wahlkreis.sieger_vorname && wahlkreis.sieger_nachname">
           {{wahlkreis.sieger_vorname + " " + wahlkreis.sieger_nachname + ", " + wahlkreis.sieger_partei}}
+        </mat-card-content>
+        <mat-card-content *ngIf="!wahlkreis.sieger_vorname || !wahlkreis.sieger_nachname">
+          {{wahlkreis.sieger_partei}}
         </mat-card-content>
       </td>
     </tr>
