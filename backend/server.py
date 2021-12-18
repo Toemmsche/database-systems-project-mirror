@@ -99,7 +99,7 @@ def get_knapp(wahl: str):
 def get_osten_ergebnis(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    return table_to_json(cursor, 'zweitstimmen_qpartei_osten')
+    return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
 
 
 @app.route("/api/<wahl>/karte")
