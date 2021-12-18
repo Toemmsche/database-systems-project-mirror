@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {REST_GET} from "../../../util";
 
@@ -36,15 +37,19 @@ export class OstenergebnisComponent implements OnInit {
     }
   }
 
-  constructor() {
+  constructor(private readonly wahlSelectionService: WahlSelectionService) {
   }
 
   ngOnInit(): void {
-    this.populate();
+    this.populate(this.wahlSelectionService.wahlSubject.getValue());
+    this.wahlSelectionService.wahlSubject.subscribe((selection: number) => {
+      this.populate(selection);
+    });
   }
 
-  populate() {
-    REST_GET('20/ostenergebnis')
+  populate(wahl: number) {
+    const nummer = this.wahlSelectionService.getWahlNumber(wahl);
+    REST_GET(`${nummer}/ostenergebnis`)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
         data = data.sort((a, b) => {
@@ -62,6 +67,8 @@ export class OstenergebnisComponent implements OnInit {
         chartData.datasets[0].data = data.map((result) => result.abs_stimmen);
         chartData.datasets[0].backgroundColor = data.map((result) => '#' +
           result.partei_farbe);
+        // Make sure chart is refreshed when new data is available
+        this.ostenConfig.data = Object.assign({}, chartData);
 
         // Save for later
         this.ostenData = data;

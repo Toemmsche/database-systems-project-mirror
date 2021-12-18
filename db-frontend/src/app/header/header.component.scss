@@ -1,5 +1,13 @@
-#wahl-toggle {
+#wahl-slider {
   justify-self: end;
   margin-left: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 10px;
 }
 
+#wahl-slider-control.mat-slider-horizontal {
+  width: 63px;
+  min-width: 63px;
+}

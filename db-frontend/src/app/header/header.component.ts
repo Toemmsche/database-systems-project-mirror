@@ -1,6 +1,6 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {WahlSelectionService} from "../service/wahl-selection.service";
-import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {MatSliderChange} from '@angular/material/slider';
 
 @Component({
   selector: 'app-header',
@@ -8,17 +8,17 @@ import {MatSlideToggleChange} from "@angular/material/slide-toggle";
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-
-  wahlService !: WahlSelectionService
-
-  constructor(private ws: WahlSelectionService) {
-    this.wahlService = ws;
-  }
+  wahl !: number;
+  constructor(private readonly wahlService: WahlSelectionService) { }
 
   ngOnInit(): void {
+    this.wahl = this.wahlService.wahlSubject.getValue();
+    this.wahlService.wahlSubject.subscribe((selection: number) => {
+      this.wahl = selection;
+    });
   }
 
-  changeWahlSelection(event: MatSlideToggleChange) {
-    this.wahlService.wahlSubject.next(event.checked)
+  changeWahlSelection(event: MatSliderChange) {
+    this.wahlService.wahlSubject.next(event.value!);
   }
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
 import { Wahlkreissieger } from "../../../model/Wahlkreissieger";
 import { REST_GET } from "../../../util";
 import { KarteComponent } from '../karte.component';
@@ -22,14 +23,15 @@ export class WahlkreissiegerComponent implements OnInit {
   karteSieger!: KarteComponent;
   siegerTyp: number = 1;
 
-  constructor() {
+  constructor(private readonly wahlSelectionservice: WahlSelectionService) {
   }
 
   ngOnInit(): void {
   }
 
-  populate(): void {
-    REST_GET('20/wahlkreissieger')
+  populate(wahl: number): void {
+    const nummer = this.wahlSelectionservice.getWahlNumber(wahl);
+    REST_GET(`${nummer}/wahlkreissieger`)
       .then(response => response.json())
       .then((data: Array<Wahlkreissieger>) => {
         this.wksData = data.sort((a, b) => a.wk_nummer - b.wk_nummer);

@@ -3,5 +3,11 @@
   <app-navitem name="Daten"></app-navitem>
   <app-navitem name="Karte"></app-navitem>
   <app-navitem name="Statistiken"></app-navitem>
-  <mat-slide-toggle id="wahl-toggle" (change)="changeWahlSelection($event)">2017</mat-slide-toggle>
+  <div id="wahl-slider">
+    <span>2017</span>
+    <span>
+      <mat-slider id="wahl-slider-control" [tickInterval]="1" id="wahl-slider-control" (change)="changeWahlSelection($event)" [value]="wahl" [min]="0" [max]="1"></mat-slider>
+    </span>
+    <span>2021</span>
+  </div>
 </mat-toolbar>

@@ -28,6 +28,8 @@ import {ChartModule} from "angular2-chartjs";
 import {KarteComponent} from './karte/karte.component';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
+import {MatSliderModule} from '@angular/material/slider';
+import { WahlSelectionService } from './service/wahl-selection.service';
 
 @NgModule({
   declarations: [
@@ -61,9 +63,12 @@ import {FormsModule} from '@angular/forms';
     MatListModule,
     MatGridListModule,
     MatSlideToggleModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatSliderModule
   ],
-  providers: [],
+  providers: [
+    WahlSelectionService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
 import {KnapperSiegOderNierderlage} from "../../../model/KnapperSiegOderNierderlage";
 import {REST_GET} from "../../../util";
 
@@ -17,19 +18,23 @@ export class KnappComponent implements OnInit {
   ];
   knappData !: Array<KnapperSiegOderNierderlage>;
 
-  constructor() {
+  constructor(private readonly wahlSelectionService: WahlSelectionService) {
   }
 
   ngOnInit(): void {
-    this.populate();
+    this.populate(this.wahlSelectionService.wahlSubject.getValue());
+    this.wahlSelectionService.wahlSubject.subscribe((selection: number) => {
+      this.populate(selection);
+    });
   }
 
-  populate(): void {
-    REST_GET('20/stat/knapp')
+  populate(wahl: number): void {
+    const nummer = this.wahlSelectionService.getWahlNumber(wahl);
+    REST_GET(`${nummer}/stat/knapp`)
       .then(response => response.json())
       .then((data: Array<KnapperSiegOderNierderlage>) => {
         this.knappData = data.sort((a, b) => {
-          return a.sieger_partei.localeCompare(b.sieger_partei);
+          return a.differenz_stimmen - b.differenz_stimmen;
         })
       })
   }

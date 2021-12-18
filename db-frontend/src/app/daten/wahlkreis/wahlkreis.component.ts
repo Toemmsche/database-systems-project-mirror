@@ -46,11 +46,11 @@ export class WahlkreisComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    wahlservice: WahlSelectionService
+    private readonly wahlservice: WahlSelectionService
   ) {
-    this.wahl = wahlservice.wahlSubject.getValue() ? 19 : 20;
-    wahlservice.is2017$.subscribe((selected2017: boolean) => {
-      this.wahl = selected2017 ? 19 : 20;
+    this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
+    wahlservice.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlservice.getWahlNumber(selection);
       this.results = []
       this.ngOnInit()
     });
@@ -68,7 +68,7 @@ export class WahlkreisComponent implements OnInit {
       .then((data: Wahlkreis) => {
         this.wahlkreis = data;
       });
-    REST_GET(`20/wahlkreis/${this.nummer}/erststimmen`)
+    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/erststimmen`)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
         data = data.sort((a, b) => {

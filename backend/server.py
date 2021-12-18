@@ -85,7 +85,7 @@ def get_wahlkreissieger(wahl: str):
 def get_ueberhang(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    return table_to_json(cursor, 'ueberhang_qpartei_bundesland')
+    return table_to_json(cursor, 'ueberhang_qpartei_bundesland', wahl=wahl)
 
 
 @app.route("/api/<wahl>/stat/knapp")
