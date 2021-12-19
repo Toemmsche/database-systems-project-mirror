@@ -55,6 +55,7 @@ def get_sitzverteilung(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     with conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/Sitzverteilung_Refresh.sql')
         return table_to_json(cursor, "sitzverteilung", wahl=wahl)
 
 
@@ -63,6 +64,7 @@ def get_mdb(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     with conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/MDB_Refresh.sql')
         return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
 
 
@@ -107,6 +109,7 @@ def get_wahlkreissieger(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
     with conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/Wahlkreissieger_Refresh.sql')
         return table_to_json(cursor, 'wahlkreissieger', wahl=wahl)
 
 
@@ -115,6 +118,7 @@ def get_ueberhang(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
     with conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/Ueberhang_Refresh.sql')
         return table_to_json(cursor, 'ueberhang_qpartei_bundesland', wahl=wahl)
 
 
@@ -123,6 +127,7 @@ def get_knapp(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
     with conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/KnappsteSieger_Refresh.sql')
         return table_to_json(cursor, 'knappste_siege_oder_niederlagen', wahl=wahl)
 
 
@@ -131,6 +136,7 @@ def get_osten_ergebnis(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
     with conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/OstenErgebnis_Refresh.sql')
         return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
 
 
@@ -147,6 +153,7 @@ def get_wahlkreisergebnisse(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     with conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql')
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl)
 
 

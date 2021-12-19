@@ -90,11 +90,23 @@ def exec_data_queries():
                     fullpath = os.path.join(root, file)
                     exec_script_from_file(cursor, fullpath)
 
+def exec_refresh_scripts():
+    # open database connection
+    with psycopg.connect(**db_config) as conn:
+        # create cursor to perform database operations
+        with conn.cursor() as cursor:
+            # open scritp directory
+            for root, dirs, files in os.walk('sql/refresh'):  #
+                for file in files:
+                    fullpath = os.path.join(root, file)
+                    exec_script_from_file(cursor, fullpath)
+
 
 def init_backend():
     init_all()
     exec_util_queries()
     exec_data_queries()
+    exec_refresh_scripts()
 
 
 if __name__ == '__main__':

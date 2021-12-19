@@ -10,5 +10,3 @@ REFRESH MATERIALIZED VIEW mindestsitze_qpartei_bundesland;
 REFRESH MATERIALIZED VIEW sitze_nach_erhoehung;
 REFRESH MATERIALIZED VIEW listenmandat;
 REFRESH MATERIALIZED VIEW mandat;
-
-SELECT * from listenmandat where wahl = 20;

@@ -227,32 +227,28 @@ CREATE MATERIALIZED VIEW mindestsitze_qpartei_bundesland
                  AND sk.partei = dm.partei
                  AND sk.land = dm.land;
 
-
-CREATE VIEW sitzanspruch_qpartei
-            (wahl, partei, sitzkontingent, mindestsitzanspruch, drohender_ueberhang, anzahlstimmen) AS
-    SELECT zp.wahl,
-           zp.partei,
-           SUM(mp.sitzkontingent)                                 AS sitzkontingent,
-           GREATEST(SUM(mp.sitzkontingent), SUM(mp.mindestsitze)) AS mindestsitzanspruch,
-           SUM(mp.ueberhang)                                      AS drohender_ueberhang,
-           zp.anzahlstimmen
-    FROM zweitstimmen_qpartei zp,
-         mindestsitze_qpartei_bundesland mp
-    WHERE zp.wahl = mp.wahl
-      AND mp.partei = zp.partei
-    GROUP BY zp.wahl, zp.partei, zp.anzahlstimmen;
-
-
 CREATE MATERIALIZED VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
-    WITH divisor_obergrenze(wahl, obergrenze) AS
+    WITH sitzanspruch_qpartei(wahl, partei, sitzkontingent, mindestsitzanspruch, drohender_ueberhang, anzahlstimmen) AS
+             (SELECT zp.wahl,
+                     zp.partei,
+                     SUM(mp.sitzkontingent)                                 AS sitzkontingent,
+                     GREATEST(SUM(mp.sitzkontingent), SUM(mp.mindestsitze)) AS mindestsitzanspruch,
+                     SUM(mp.ueberhang)                                      AS drohender_ueberhang,
+                     zp.anzahlstimmen
+              FROM zweitstimmen_qpartei zp,
+                   mindestsitze_qpartei_bundesland mp
+              WHERE zp.wahl = mp.wahl
+                AND mp.partei = zp.partei
+              GROUP BY zp.wahl, zp.partei, zp.anzahlstimmen),
+         divisor_obergrenze(wahl, obergrenze) AS
              (SELECT btw.nummer,
                   /*
-==================================================================================================================
+    ==================================================================================================================
          FALLUNTERSCHEIDUNG 2021 VS 2017:
          In 2017 werden alle Überhangsmandate ausgeglichen.
          In 2021 werden die ersten drei Überhangsmandate NICHT ausgeglichen und es wird mit dem Mindestsitzanspruch
          gerechnet.
-==================================================================================================================
+    ==================================================================================================================
           */
                      CASE
                          WHEN btw.nummer = 20 THEN
