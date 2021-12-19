@@ -7,7 +7,7 @@
 - Backend, PostgreSQL-Datenbank und Benchmarking-Client laufen auf demselben Host
 
 ### Verwendete Hardware
-- CPU: Intel i5 8400 2.8 GHz (4.2 GHz Boost)
+- CPU: Intel i5 8400 6 x 2.8 GHz (4.2 GHz Boost)
 - Hauptspeicher: 16GB DDR4
 - Hintergrundspeicher: PCIe SSD (Lesen 3100 MB/s und Schreiben 1600 MB/s)
 
