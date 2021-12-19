@@ -12,12 +12,6 @@ import { KarteComponent } from '../karte.component';
 })
 export class WahlkreissiegerComponent implements OnInit {
 
-  columnsToDisplay = [
-    'nummer',
-    'name',
-    'erststimme-sieger',
-    'zweitstimme-sieger'
-  ]
   wksData !: Array<Wahlkreissieger>
   wkpData !: Array<Wahlkreisstimmen>
 

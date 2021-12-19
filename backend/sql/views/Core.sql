@@ -1,1 +1,1 @@
-select * from wahlkreisinformation where wahl = 20 and wk_nummer  = 42;
+select * from knappste_siege_oder_niederlagen;
