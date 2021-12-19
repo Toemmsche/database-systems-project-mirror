@@ -1,8 +1,7 @@
 DROP VIEW IF EXISTS sitzverteilung CASCADE;
 
 CREATE VIEW sitzverteilung(wahl, partei, partei_farbe, sitze) AS
-    SELECT m.wahl, p.kuerzel, p.farbe, COUNT(*) AS sitze
-    FROM mandat m,
+    SELECT se.wahl, p.kuerzel, p.farbe, se.sitze
+    FROM sitzverteilung se,
          partei p
-    WHERE m.partei = p.parteiid
-    GROUP BY m.wahl, p.kuerzel, p.farbe;
+    WHERE se.partei = p.parteiid;

@@ -47,5 +47,4 @@ export class KarteComponent implements OnInit, AfterViewInit {
   colorWahlkreis(nummer: number, color: string): void {
     this.begrenzungElements.find(x => x.nativeElement.id === `${this.viewId}_${nummer}`)?.nativeElement.setAttribute('style', `fill: #${color};`);
   }
-
 }

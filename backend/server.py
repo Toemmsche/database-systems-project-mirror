@@ -71,7 +71,7 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
     with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
+        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql')
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
@@ -86,7 +86,7 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
-        exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
+        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql')
         return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
@@ -98,7 +98,7 @@ def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
-        exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
+        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql')
         return table_to_json(cursor, 'zweitstimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 

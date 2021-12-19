@@ -1,1 +1,0 @@
-select * from knappste_siege_oder_niederlagen;

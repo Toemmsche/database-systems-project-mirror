@@ -1,4 +1,4 @@
---Aggregate zweitstimmen
+-Aggregate zweitstimmen
 DELETE
 FROM zweitstimmenergebnis;
 
