@@ -27,7 +27,6 @@ conn = psycopg.connect(
     autocommit=True
 )
 
-cursor = conn.cursor()
 
 @app.before_request
 def logging_before():
@@ -41,7 +40,8 @@ def logging_after(response):
     total_time = time.perf_counter() - app_ctx.start_time
     time_in_ms = int(total_time * 1000)
     # Log the time taken for the endpoint
-    current_app.logger.info('PROCESSING TIME: %s ms %s %s %s', time_in_ms, request.method, request.path, dict(request.args))
+    current_app.logger.info('PROCESSING TIME: %s ms %s %s %s', time_in_ms, request.method, request.path,
+                            dict(request.args))
     return response
 
 
@@ -54,93 +54,104 @@ def sayHello():
 def get_sitzverteilung(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    return table_to_json(cursor, "sitzverteilung", wahl=wahl)
+    with conn.cursor() as cursor:
+        return table_to_json(cursor, "sitzverteilung", wahl=wahl)
 
 
 @app.route("/api/<wahl>/mdb/")
 def get_mdb(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
+    with conn.cursor() as cursor:
+        return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
 
 
 @app.route("/api/<wahl>/wahlkreis/<wknr>")
 def get_wahlkreisinformation(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
-    exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
-    # if specified, reset aggregates
-    if request.args.get('einzelstimmen') == 'true':
-        reset_aggregates(cursor, wahl, wknr)
-    return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wk_nummer=wknr, single=True)
+    with conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
+        # if specified, reset aggregates
+        if request.args.get('einzelstimmen') == 'true':
+            reset_aggregates(cursor, wahl, wknr)
+        return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wk_nummer=wknr, single=True)
 
 
 @app.route("/api/<wahl>/wahlkreis/<wknr>/erststimmen")
 def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
-    # if specified, reset aggregates
-    if request.args.get('einzelstimmen') == 'true':
-        reset_aggregates(cursor, wahl, wknr)
-    exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
-    return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
+    with conn.cursor() as cursor:
+        # if specified, reset aggregates
+        if request.args.get('einzelstimmen') == 'true':
+            reset_aggregates(cursor, wahl, wknr)
+        exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
+        return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
 @app.route("/api/<wahl>/wahlkreis/<wknr>/zweitstimmen")
 def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
-    # if specified, reset aggregates
-    if request.args.get('einzelstimmen') == 'true':
-        reset_aggregates(cursor, wahl, wknr)
-    exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
-    return table_to_json(cursor, 'zweitstimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
+    with conn.cursor() as cursor:
+        # if specified, reset aggregates
+        if request.args.get('einzelstimmen') == 'true':
+            reset_aggregates(cursor, wahl, wknr)
+        exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
+        return table_to_json(cursor, 'zweitstimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
 @app.route("/api/<wahl>/wahlkreissieger")
 def get_wahlkreissieger(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    return table_to_json(cursor, 'wahlkreissieger', wahl=wahl)
+    with conn.cursor() as cursor:
+        return table_to_json(cursor, 'wahlkreissieger', wahl=wahl)
 
 
 @app.route("/api/<wahl>/ueberhang")
 def get_ueberhang(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    return table_to_json(cursor, 'ueberhang_qpartei_bundesland', wahl=wahl)
+    with conn.cursor() as cursor:
+        return table_to_json(cursor, 'ueberhang_qpartei_bundesland', wahl=wahl)
 
 
 @app.route("/api/<wahl>/stat/knapp")
 def get_knapp(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    return table_to_json(cursor, 'knappste_siege_oder_niederlagen', wahl=wahl)
+    with conn.cursor() as cursor:
+        return table_to_json(cursor, 'knappste_siege_oder_niederlagen', wahl=wahl)
 
 
 @app.route("/api/<wahl>/ostenergebnis")
 def get_osten_ergebnis(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
+    with conn.cursor() as cursor:
+        return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
 
 
 @app.route("/api/<wahl>/karte")
 def get_karte(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    return table_to_json(cursor, 'begrenzungen', wahl=wahl)
+    with conn.cursor() as cursor:
+        return table_to_json(cursor, 'begrenzungen', wahl=wahl)
+
 
 @app.route("/api/<wahl>/wahlkreisergebnisse")
 def get_wahlkreisergebnisse(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl)
+    with conn.cursor() as cursor:
+        return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl)
 
 
 if __name__ == '__main__':
-    app.run('localhost', 5000, threaded=False)
+    app.run('localhost', 5000)
 
 # teardown
-cursor.close()
 conn.close()
