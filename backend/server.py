@@ -26,7 +26,6 @@ conn = psycopg.connect(
     autocommit=True
 )
 
-
 @app.before_request
 def logging_before():
     # Store the start time for the request

@@ -22,7 +22,8 @@ def random_wahlkreis() -> int:
 
 
 class WahlUser(HttpUser):
-    wait_time = between(0.8, 1.2)
+    t = 8 # average wait time in seconds
+    wait_time = between(0.8 * t, 1.2 * t)
     host = "http://localhost:5000"
 
     # Q1
