@@ -4,6 +4,7 @@ REFRESH MATERIALIZED VIEW zweitstimmen_partei;
 REFRESH MATERIALIZED VIEW direktmandat;
 REFRESH MATERIALIZED VIEW qpartei;
 REFRESH MATERIALIZED VIEW zweitstimmen_qpartei_bundesland;
+REFRESH MATERIALIZED VIEW zweitstimmen_qpartei;
 REFRESH MATERIALIZED VIEW direktmandate_qpartei_bundesland;
 REFRESH MATERIALIZED VIEW sitze_bundesland;
 REFRESH MATERIALIZED VIEW mindestsitze_qpartei_bundesland;

@@ -32,6 +32,7 @@ Anzahl Terminals n = 20
 [Report](https://toemmsche.github.io/DB-Project-Benchmark-Results/Messreihe_n20_t8.html)
 
 ### 4. Messreihe
+
 Wartezeit t = 8
 Anzahl Terminals n = 50
 

@@ -73,10 +73,10 @@ def exec_util_queries():
     with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
-            exec_script_from_file(cursor, 'sql/views/Einzelstimmen222.sql')
-            exec_script_from_file(cursor, 'sql/views/Stimmen.sql')
-            exec_script_from_file(cursor, 'sql/views/Ergebnis.sql')
-            exec_script_from_file(cursor, 'sql/views/bundestag_with_2017.sql')
+            exec_script_from_file(cursor, 'sql/core/Einzelstimmen222.sql')
+            exec_script_from_file(cursor, 'sql/core/Stimmen.sql')
+            exec_script_from_file(cursor, 'sql/core/Ergebnis.sql')
+            exec_script_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
 
 
 def exec_data_queries():

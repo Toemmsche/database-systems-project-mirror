@@ -71,7 +71,7 @@ CREATE VIEW knappste_siege_oder_niederlagen
               FROM bundestagswahl btw,
                    partei p
               EXCEPT
-              SELECT dm.wahl, dm.partei
+              SELECT distinct dm.wahl, dm.partei
               FROM direktmandat dm)
     SELECT TRUE, kvp.wahl, wk.nummer, wk.name, sp.kuerzel, vp.kuerzel, kvp.differenz_stimmen
     FROM kleinster_vorsprung_partei kvp,

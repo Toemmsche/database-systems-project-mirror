@@ -11,7 +11,6 @@ CREATE VIEW wahlkreissieger_zweitstimme(wahl, wahlkreis, partei) AS
         FROM zweitstimmenergebnis ze,
              landesliste ll
         WHERE ll.listenid = ze.liste)
-
     SELECT ze.wahl,
            ze.wahlkreis,
            ze.partei

@@ -1,7 +1,6 @@
 DROP VIEW IF EXISTS divisor_kandidat CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS sitze_bundesland CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mindestsitze_qpartei_bundesland CASCADE;
-DROP VIEW IF EXISTS sitzanspruch_qpartei CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS sitze_nach_erhoehung CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS listenmandat CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mandat CASCADE;
@@ -282,11 +281,11 @@ CREATE MATERIALIZED VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
               FROM bundestagswahl btw),
          divisor_untergrenze(wahl, untergrenze) AS
              (SELECT btw.nummer,
-                     (SELECT zs.anzahlstimmen / (ROUND(zs.anzahlstimmen / d.obergrenze) + 0.5) AS untergrenze
-                      FROM zweitstimmen_qpartei zs,
+                     (SELECT zp.anzahlstimmen / (ROUND(zp.anzahlstimmen / d.obergrenze) + 0.5) AS untergrenze
+                      FROM zweitstimmen_qpartei zp,
                            divisor_obergrenze d
-                      WHERE zs.wahl = btw.nummer
-                        AND zs.wahl = d.wahl
+                      WHERE zp.wahl = btw.nummer
+                        AND zp.wahl = d.wahl
                       ORDER BY untergrenze DESC
                       LIMIT 1) AS untergrenze
               FROM bundestagswahl btw),
