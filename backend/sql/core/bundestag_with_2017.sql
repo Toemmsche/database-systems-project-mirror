@@ -318,9 +318,9 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
              WHERE zp.wahl = zpb.wahl
                AND zp.wahl = svl.wahl
                AND zp.wahl = mp.wahl
-               AND zpb.partei = zp.partei
+               AND zp.partei = zpb.partei
                AND zp.partei = svl.partei
-               AND mp.partei = zp.partei
+               AND zp.partei = mp.partei
                AND mp.land = zpb.land
              GROUP BY zp.wahl,
                       zp.partei,
@@ -479,8 +479,7 @@ CREATE MATERIALIZED VIEW mandat(wahl, kandidat, grund, partei) AS
     FROM direktmandat dm,
          wahlkreis wk,
          partei p
-    WHERE dm.wahl = wk.wahl
-      AND dm.wahlkreis = wk.wkid
+    WHERE dm.wahlkreis = wk.wkid
       AND dm.partei = p.parteiid
     UNION
     SELECT lm.wahl,
