@@ -25,6 +25,8 @@ conn = psycopg.connect(
     **db_config,
     autocommit=True
 )
+conn.read_only = True
+
 
 @app.before_request
 def logging_before():
@@ -41,6 +43,7 @@ def logging_after(response):
     current_app.logger.info('PROCESSING TIME: %s ms %s %s %s', time_in_ms, request.method, request.path,
                             dict(request.args))
     return response
+
 
 
 @app.route("/api/")

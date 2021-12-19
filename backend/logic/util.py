@@ -8,6 +8,9 @@ import psycopg
 import requests
 import simplejson as json
 
+# adjust logger config
+logging.basicConfig()
+logging.root.setLevel(logging.NOTSET)
 logger = logging.getLogger('DB')
 
 

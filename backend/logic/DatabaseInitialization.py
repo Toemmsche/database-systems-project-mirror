@@ -1,17 +1,12 @@
 import os
-
 from logic.ExtractTransformLoad import *
 
-# adjust logger config
-logging.basicConfig()
-logging.root.setLevel(logging.NOTSET)
 
 db_config = {
     'dbname': 'wahl',
-    'user': 'postgres',
+    'user': 'tom',
     'password': os.environ.get('POSTGRES_PWD')
 }
-
 
 def init_all() -> None:
     # open database connection
