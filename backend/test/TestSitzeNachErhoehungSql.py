@@ -35,7 +35,7 @@ class TestSitzeNachErhoehungSql(unittest.TestCase):
             else:
                 self.fail(f"Unexpected key for 'wahl': {row['wahl']}")
         self.assertEqual(sum_20, expected_20)
-        self.assertEquals(sum_19, expected_19)
+        self.assertEqual(sum_19, expected_19)
 
 
 if __name__ == '__main__':
