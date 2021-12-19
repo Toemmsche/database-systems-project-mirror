@@ -1,7 +1,7 @@
 export class Wahlkreisstimmen {
-  stimmentyp !: number;
   wahl !: number;
   wk_nummer!: number;
+  stimmentyp !: number;
   partei !: string;
   partei_farbe !: string;
   abs_stimmen !: number;

@@ -1,4 +1,6 @@
 export class Wahlkreis {
+  wahl !: number;
+  wk_nummer !: number;
   wk_name !: string;
   sieger_vorname !: string;
   sieger_nachname !: String;

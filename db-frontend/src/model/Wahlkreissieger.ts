@@ -1,4 +1,5 @@
 export class Wahlkreissieger {
+  wahl !: number;
   wk_nummer !: number;
   wk_name !: string;
   erststimme_sieger!: string;

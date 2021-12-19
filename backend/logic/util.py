@@ -36,8 +36,8 @@ def exec_script(cursor: psycopg.cursor, script: str, script_name: str) -> None:
     cursor.execute(script)
     truncated_script = script.replace('\n', ' ')[0:50]
     logger.info(
-        f'Executed script {truncated_script + "....." if script_name is None else script_name} in ' +
-        f'{(time.perf_counter() - start_time) * 1000 : .2f}ms')
+        f'Executed script {truncated_script + "....." if script_name is None else script_name} ' +
+        f'(execution: {(time.perf_counter() - start_time) * 1000 : .2f}ms)')
     ####
 
 
@@ -62,7 +62,8 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
         start_time = time.perf_counter()
         for record in records:
             copy.write_row(record)
-        logger.info(f'Copied {len(records)} rows into {table} in {(time.perf_counter() - start_time) * 1000 : .2f}ms')
+        logger.info(f'Copied {len(records)} rows into {table} ' +
+                    f'(execution: {(time.perf_counter() - start_time) * 1000 : .2f}ms)')
         ####
 
 
