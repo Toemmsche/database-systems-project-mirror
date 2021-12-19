@@ -1,5 +1,7 @@
+import time
+
 import psycopg
-from flask import Flask, abort, request
+from flask import Flask, abort, request, current_app, g as app_ctx
 from flask_cors import CORS
 
 from logic.DatabaseInitialization import db_config
@@ -26,6 +28,21 @@ conn = psycopg.connect(
 )
 
 cursor = conn.cursor()
+
+@app.before_request
+def logging_before():
+    # Store the start time for the request
+    app_ctx.start_time = time.perf_counter()
+
+
+@app.after_request
+def logging_after(response):
+    # Get total time in milliseconds
+    total_time = time.perf_counter() - app_ctx.start_time
+    time_in_ms = int(total_time * 1000)
+    # Log the time taken for the endpoint
+    current_app.logger.info('PROCESSING TIME: %s ms %s %s %s', time_in_ms, request.method, request.path, dict(request.args))
+    return response
 
 
 @app.route("/api/")
@@ -62,6 +79,9 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
 def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
+    # if specified, reset aggregates
+    if request.args.get('einzelstimmen') == 'true':
+        reset_aggregates(cursor, wahl, wknr)
     exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
     return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
@@ -70,6 +90,9 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
 def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
+    # if specified, reset aggregates
+    if request.args.get('einzelstimmen') == 'true':
+        reset_aggregates(cursor, wahl, wknr)
     exec_script_from_file(cursor, 'sql/queries/WahlkreisUebersicht_Refresh.sql')
     return table_to_json(cursor, 'zweitstimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
