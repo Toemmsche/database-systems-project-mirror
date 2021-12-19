@@ -59,3 +59,9 @@ Wartezeit t = 8, Anzahl Terminals n = 20
 Wartezeit t = 8, Anzahl Terminals n = 5
 
 [Report](https://toemmsche.github.io/DB-Project-Benchmark-Results/Messreihe_n5_t8_Linux.html)
+
+### 5. Messreihe
+
+Wartezeit t = 2, Anzahl Terminals n = 10
+
+[Report](https://toemmsche.github.io/DB-Project-Benchmark-Results/Messreihe_n10_t2_Linux.html)
