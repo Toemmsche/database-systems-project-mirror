@@ -9,13 +9,17 @@ idna==3.3
 itsdangerous==2.0.1
 Jinja2==3.0.3
 MarkupSafe==2.0.1
+numpy==1.21.4
 psycopg==3.0.4
 psycopg-binary==3.0.4
 psycopg2==2.9.2
 pyfunctional==1.4.3
 requests==2.26.0
+scipy==1.7.3
 simplejson==3.17.6
 six==1.16.0
+svgpathtools==1.4.4
+svgwrite==1.4.1
 tabulate==0.8.9
 urllib3==1.26.7
 Werkzeug==2.0.2
