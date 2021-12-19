@@ -1,5 +1,4 @@
 import time
-
 import psycopg
 from flask import Flask, abort, request, current_app, g as app_ctx
 from flask_cors import CORS
@@ -160,5 +159,6 @@ def get_wahlkreisergebnisse(wahl: str):
 if __name__ == '__main__':
     app.run('localhost', 5000)
 
-# teardown
-conn.close()
+    # teardown
+    conn.close()
+
