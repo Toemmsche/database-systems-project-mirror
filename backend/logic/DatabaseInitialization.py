@@ -1,12 +1,7 @@
 import os
 from logic.ExtractTransformLoad import *
+from logic.config import db_config
 
-
-db_config = {
-    'dbname': 'wahl',
-    'user': 'tom',
-    'password': os.environ.get('POSTGRES_PWD')
-}
 
 def init_all() -> None:
     # open database connection
@@ -100,8 +95,8 @@ def exec_refresh_scripts():
 def init_backend():
     init_all()
     exec_util_queries()
-    exec_data_queries()
-    exec_refresh_scripts()
+    #exec_data_queries()
+     #exec_refresh_scripts()
 
 
 if __name__ == '__main__':

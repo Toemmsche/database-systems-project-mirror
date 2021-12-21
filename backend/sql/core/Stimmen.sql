@@ -1,11 +1,11 @@
-DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei_wahlkreis CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei_bundesland CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS zweitstimmen_partei CASCADE;
+DROP VIEW IF EXISTS zweitstimmen_partei_wahlkreis CASCADE;
+DROP VIEW IF EXISTS zweitstimmen_partei_bundesland CASCADE;
+DROP VIEW IF EXISTS zweitstimmen_partei CASCADE;
 DROP VIEW IF EXISTS erststimmen_wahlkreis CASCADE;
 DROP VIEW IF EXISTS zweitstimmen_wahlkreis CASCADE;
 
 --Zweitstimmen aggregiert nach Wahl, Walhkreis, und Partei
-CREATE MATERIALIZED VIEW zweitstimmen_partei_wahlkreis(wahl, wahlkreis, partei, anzahlstimmen) AS
+CREATE VIEW zweitstimmen_partei_wahlkreis(wahl, wahlkreis, partei, anzahlstimmen) AS
     SELECT wk.wahl, wk.wkid, ll.partei, SUM(ze.anzahlstimmen)
     FROM wahlkreis wk,
          landesliste ll,
@@ -15,7 +15,7 @@ CREATE MATERIALIZED VIEW zweitstimmen_partei_wahlkreis(wahl, wahlkreis, partei, 
     GROUP BY wk.wahl, wk.wkid, ll.partei;
 
 --Zweitstimmen aggregiert nach Wahl, Bundesland, und Partei
-CREATE MATERIALIZED VIEW zweitstimmen_partei_bundesland(wahl, land, partei, anzahlstimmen) AS
+CREATE VIEW zweitstimmen_partei_bundesland(wahl, land, partei, anzahlstimmen) AS
     SELECT zpw.wahl, wk.land, zpw.partei, SUM(zpw.anzahlstimmen)
     FROM wahlkreis wk,
          zweitstimmen_partei_wahlkreis zpw
@@ -23,7 +23,7 @@ CREATE MATERIALIZED VIEW zweitstimmen_partei_bundesland(wahl, land, partei, anza
     GROUP BY zpw.wahl, wk.land, zpw.partei;
 
 --Zweitstimmen aggregiert nach Wahl und Partei
-CREATE MATERIALIZED VIEW zweitstimmen_partei(wahl, partei, anzahlstimmen) AS
+CREATE VIEW zweitstimmen_partei(wahl, partei, anzahlstimmen) AS
     SELECT zpb.wahl, zpb.partei, SUM(zpb.anzahlstimmen)
     FROM zweitstimmen_partei_bundesland zpb
     GROUP BY zpb.wahl, zpb.partei;

@@ -1,17 +1,67 @@
 DROP VIEW IF EXISTS divisor_kandidat CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS sitze_bundesland CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS mindestsitze_qpartei_bundesland CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS sitze_nach_erhoehung CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS listenmandat CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS mandat CASCADE;
+DROP VIEW IF EXISTS sitze_nach_erhoehung CASCADE;
 
 CREATE VIEW divisor_kandidat(divisor) AS
     VALUES (0),
            (1);
 
---Anzahl an sitze, die dem jeweiligen Bundesland zustehen
-CREATE MATERIALIZED VIEW sitze_bundesland(wahl, land, sitze, divisor) AS
+CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
     WITH RECURSIVE
+        direktmandat(wahl, wahlkreis, land, kandidatur, partei, kandidat) AS
+            (SELECT wk.wahl,
+                    wk.wkid,
+                    wk.land,
+                    dk.direktid,
+                    dk.partei,
+                    dk.kandidat
+             FROM direktkandidatur dk,
+                  wahlkreis wk
+             WHERE dk.wahlkreis = wk.wkid
+               AND NOT EXISTS(SELECT *
+                              FROM direktkandidatur dk2
+                              WHERE dk2.wahlkreis = dk.wahlkreis
+                                AND dk2.anzahlstimmen > dk.anzahlstimmen)),
+        zweitstimmen_partei(wahl, partei, anzahlstimmen) AS
+            (SELECT zpb.wahl, zpb.partei, SUM(zpb.anzahlstimmen)
+             FROM zweitstimmen_partei_bundesland zpb
+             GROUP BY zpb.wahl, zpb.partei),
+        qpartei(wahl, partei) AS
+            --5% Hürde
+            (SELECT zp.wahl, zp.partei
+             FROM zweitstimmen_partei zp
+             WHERE zp.anzahlstimmen >=
+                   0.05 * (SELECT SUM(zp2.anzahlstimmen) FROM zweitstimmen_partei zp2 WHERE zp2.wahl = zp.wahl)
+             UNION
+             --3 Direktmandate
+             SELECT dm.wahl, p.parteiid
+             FROM partei p,
+                  direktmandat dm
+             WHERE p.parteiid = dm.partei
+             GROUP BY dm.wahl, p.parteiid
+             HAVING COUNT(*) >= 3
+             UNION
+             --Nationale Minderheit
+             SELECT btw.nummer, p.parteiid
+             FROM bundestagswahl btw,
+                  partei p
+             WHERE p.nationaleminderheit),
+        zweitstimmen_qpartei_bundesland
+            (wahl, land, partei, anzahlstimmen)
+            AS
+            (SELECT *
+             FROM zweitstimmen_partei_bundesland zpb
+             WHERE zpb.partei IN (SELECT p.partei FROM qpartei p WHERE zpb.wahl = p.wahl)),
+        zweitstimmen_qpartei(wahl, partei, anzahlstimmen) AS
+            (SELECT zpb.wahl, zpb.partei, SUM(anzahlstimmen)
+             FROM zweitstimmen_qpartei_bundesland zpb
+             GROUP BY zpb.wahl, zpb.partei),
+        direktmandate_qpartei_bundesland(wahl, land, partei, direktmandate) AS
+            (SELECT dm.wahl, dm.land, p.partei, COUNT(dm.kandidatur)
+             FROM direktmandat dm,
+                  qpartei p
+             WHERE dm.wahl = p.wahl
+               AND dm.partei = p.partei
+             GROUP BY dm.wahl, dm.land, p.partei),
         gesamtsitze(wahl, anzahlsitze) AS
             (SELECT wahl, 2 * COUNT(*)
              FROM wahlkreis
@@ -56,9 +106,9 @@ CREATE MATERIALIZED VIEW sitze_bundesland(wahl, land, sitze, divisor) AS
              GROUP BY wahl),
         sitzverteilung(wahl, sitze, divisor, next_divisor) AS
             (SELECT b.wahl,
-                    SUM(ROUND(b.bevoelkerung / (gb.bevoelkerung::decimal / gs.anzahlsitze))),
-                    SUM(b.bevoelkerung)::decimal / gs.anzahlsitze,
-                    SUM(b.bevoelkerung)::decimal / gs.anzahlsitze
+                    SUM(ROUND(b.bevoelkerung / (gb.bevoelkerung::DECIMAL / gs.anzahlsitze))),
+                    SUM(b.bevoelkerung)::DECIMAL / gs.anzahlsitze,
+                    SUM(b.bevoelkerung)::DECIMAL / gs.anzahlsitze
              FROM bundesland_bevoelkerung b,
                   gesamtsitze gs,
                   gesamtbevoelkerung gb
@@ -101,18 +151,12 @@ CREATE MATERIALIZED VIEW sitze_bundesland(wahl, land, sitze, divisor) AS
              FROM sitzverteilung sv,
                   gesamtsitze gs
              WHERE sv.wahl = gs.wahl
-               AND sv.sitze = gs.anzahlsitze)
-    SELECT b.wahl, b.land, ROUND(b.bevoelkerung::DECIMAL / d.divisor) AS sitze, d.divisor
-    FROM bundesland_bevoelkerung b,
-         divisor d
-    WHERE d.wahl = b.wahl;
-
-
---Anzahl der Sitze die einer Partei mindestens pro Bundesland zustehen.
---Zusätzlich dazu wird das Sitzekontingent (nach Zweitstimmen) und der Überhang berechnet
-CREATE MATERIALIZED VIEW mindestsitze_qpartei_bundesland
-            (wahl, land, partei, sitzkontingent, direktmandate, mindestsitze, ueberhang) AS
-    WITH RECURSIVE
+               AND sv.sitze = gs.anzahlsitze),
+        sitze_bundesland(wahl, land, sitze, divisor) AS
+            (SELECT b.wahl, b.land, ROUND(b.bevoelkerung::DECIMAL / d.divisor) AS sitze, d.divisor
+             FROM bundesland_bevoelkerung b,
+                  divisor d
+             WHERE d.wahl = b.wahl),
         zweitstimmen_bundesland(wahl, land, anzahlstimmen) AS
             (SELECT zpb.wahl, zpb.land, SUM(zpb.anzahlstimmen)
              FROM zweitstimmen_qpartei_bundesland zpb
@@ -120,9 +164,9 @@ CREATE MATERIALIZED VIEW mindestsitze_qpartei_bundesland
         laender_divisor(wahl, land, sitze_ld, divisor, next_divisor) AS
             (SELECT zbl.wahl,
                     zbl.land                                                                 AS land,
-                    SUM(ROUND(zpb.anzahlstimmen / (zbl.anzahlstimmen::numeric / sbl.sitze))) AS sitze_ld,
-                    zbl.anzahlstimmen::numeric / sbl.sitze                                   AS divisor,
-                    zbl.anzahlstimmen::numeric / sbl.sitze                                   AS next_divisor
+                    SUM(ROUND(zpb.anzahlstimmen / (zbl.anzahlstimmen::NUMERIC / sbl.sitze))) AS sitze_ld,
+                    zbl.anzahlstimmen::NUMERIC / sbl.sitze                                   AS divisor,
+                    zbl.anzahlstimmen::NUMERIC / sbl.sitze                                   AS next_divisor
              FROM zweitstimmen_qpartei_bundesland zpb,
                   zweitstimmen_bundesland zbl,
                   sitze_bundesland sbl
@@ -191,109 +235,109 @@ CREATE MATERIALIZED VIEW mindestsitze_qpartei_bundesland
                AND zpb.wahl = sbl.wahl
                AND ld.land = zpb.land
                AND zpb.land = sbl.land
-               AND sbl.sitze = ld.sitze_ld)
-    SELECT sk.wahl,
-           sk.land,
-           sk.partei,
-           sk.sitzkontingent,
-           COALESCE(dm.direktmandate, 0) AS direktmandate,
-        /*
-==================================================================================================================
-        FALLUNTERSCHEIDUNG 2021 VS 2017:
-        In 2017 wird die Mindestsitzzahl als das Maximum aus Direktmandate und Sitzkontingente gebildet.
-        In 2021 wird die Mindestsitzzahl als Durchschnitt aus Direktmandate und Sitzkontingente gebildet.
-==================================================================================================================
-         */
-           CASE
-               WHEN sk.wahl = 20
-                   THEN GREATEST(COALESCE(dm.direktmandate, 0),
-                                 ROUND((sk.sitzkontingent + COALESCE(dm.direktmandate, 0)) / 2))
-               ELSE GREATEST(COALESCE(dm.direktmandate, 0), (sk.sitzkontingent))
-           END                           AS mindestsitze,
+               AND sbl.sitze = ld.sitze_ld),
+        mindestsitze_qpartei_bundesland
+            (wahl, land, partei, sitzkontingent, direktmandate, mindestsitze, ueberhang) AS
+            (SELECT sk.wahl,
+                    sk.land,
+                    sk.partei,
+                    sk.sitzkontingent,
+                    COALESCE(dm.direktmandate, 0) AS direktmandate,
+                 /*
+         ==================================================================================================================
+                 FALLUNTERSCHEIDUNG 2021 VS 2017:
+                 In 2017 wird die Mindestsitzzahl als das Maximum aus Direktmandate und Sitzkontingente gebildet.
+                 In 2021 wird die Mindestsitzzahl als Durchschnitt aus Direktmandate und Sitzkontingente gebildet.
+         ==================================================================================================================
+                  */
+                    CASE
+                        WHEN sk.wahl = 20
+                            THEN GREATEST(COALESCE(dm.direktmandate, 0),
+                                          ROUND((sk.sitzkontingent + COALESCE(dm.direktmandate, 0)) / 2))
+                        ELSE GREATEST(COALESCE(dm.direktmandate, 0), (sk.sitzkontingent))
+                    END                           AS mindestsitze,
 /*
 ==================================================================================================================
 ==================================================================================================================
 */
-           CASE
-               WHEN COALESCE(dm.direktmandate, 0) > sk.sitzkontingent
-                   THEN COALESCE(dm.direktmandate, 0) - sk.sitzkontingent
-               ELSE 0
-           END                           AS ueberhang
-    FROM sitzkontingent_qpartei_bundesland sk
-             LEFT OUTER JOIN
-         direktmandate_qpartei_bundesland dm ON
-                     sk.wahl = dm.wahl
-                 AND sk.partei = dm.partei
-                 AND sk.land = dm.land;
-
-CREATE MATERIALIZED VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
-    WITH sitzanspruch_qpartei(wahl, partei, sitzkontingent, mindestsitzanspruch, drohender_ueberhang, anzahlstimmen) AS
-             (SELECT zp.wahl,
-                     zp.partei,
-                     SUM(mp.sitzkontingent)                                 AS sitzkontingent,
-                     GREATEST(SUM(mp.sitzkontingent), SUM(mp.mindestsitze)) AS mindestsitzanspruch,
-                     SUM(mp.ueberhang)                                      AS drohender_ueberhang,
-                     zp.anzahlstimmen
-              FROM zweitstimmen_qpartei zp,
-                   mindestsitze_qpartei_bundesland mp
-              WHERE zp.wahl = mp.wahl
-                AND mp.partei = zp.partei
-              GROUP BY zp.wahl, zp.partei, zp.anzahlstimmen),
-         divisor_obergrenze(wahl, obergrenze) AS
-             (SELECT btw.nummer,
-                  /*
+                    CASE
+                        WHEN COALESCE(dm.direktmandate, 0) > sk.sitzkontingent
+                            THEN COALESCE(dm.direktmandate, 0) - sk.sitzkontingent
+                        ELSE 0
+                    END                           AS ueberhang
+             FROM sitzkontingent_qpartei_bundesland sk
+                      LEFT OUTER JOIN
+                  direktmandate_qpartei_bundesland dm ON
+                              sk.wahl = dm.wahl
+                          AND sk.partei = dm.partei
+                          AND sk.land = dm.land),
+        sitzanspruch_qpartei(wahl, partei, sitzkontingent, mindestsitzanspruch, drohender_ueberhang, anzahlstimmen) AS
+            (SELECT zp.wahl,
+                    zp.partei,
+                    SUM(mp.sitzkontingent)                                 AS sitzkontingent,
+                    GREATEST(SUM(mp.sitzkontingent), SUM(mp.mindestsitze)) AS mindestsitzanspruch,
+                    SUM(mp.ueberhang)                                      AS drohender_ueberhang,
+                    zp.anzahlstimmen
+             FROM zweitstimmen_qpartei zp,
+                  mindestsitze_qpartei_bundesland mp
+             WHERE zp.wahl = mp.wahl
+               AND mp.partei = zp.partei
+             GROUP BY zp.wahl, zp.partei, zp.anzahlstimmen),
+        divisor_obergrenze(wahl, obergrenze) AS
+            (SELECT btw.nummer,
+                 /*
     ==================================================================================================================
-         FALLUNTERSCHEIDUNG 2021 VS 2017:
-         In 2017 werden alle Überhangsmandate ausgeglichen.
-         In 2021 werden die ersten drei Überhangsmandate NICHT ausgeglichen und es wird mit dem Mindestsitzanspruch
-         gerechnet.
+        FALLUNTERSCHEIDUNG 2021 VS 2017:
+        In 2017 werden alle Überhangsmandate ausgeglichen.
+        In 2021 werden die ersten drei Überhangsmandate NICHT ausgeglichen und es wird mit dem Mindestsitzanspruch
+        gerechnet.
     ==================================================================================================================
-          */
-                     CASE
-                         WHEN btw.nummer = 20 THEN
-                             LEAST(
-                                     (SELECT sp.anzahlstimmen / (sp.sitzkontingent::numeric - 0.5) AS divisor
-                                      FROM sitzanspruch_qpartei sp
-                                      WHERE sp.wahl = btw.nummer
-                                      ORDER BY divisor ASC
-                                      LIMIT 1),
-                                     (WITH ueberhang(ueberhang)
-                                               AS (VALUES (0.0), (1.0), (2.0), (3.0))
-                                      SELECT sp.anzahlstimmen /
-                                             (sp.mindestsitzanspruch::numeric - u.ueberhang - 0.5) AS divisor
-                                      FROM sitzanspruch_qpartei sp,
-                                           ueberhang u
-                                      WHERE sp.wahl = btw.nummer
-                                        AND sp.drohender_ueberhang > u.ueberhang
-                                      ORDER BY divisor ASC
-                                      OFFSET 3 LIMIT 1)
-                                 )
-                         ELSE (SELECT sp.anzahlstimmen / (sp.mindestsitzanspruch::NUMERIC - 0.5) AS divisor
-                               FROM sitzanspruch_qpartei sp
-                               WHERE sp.wahl = btw.nummer
-                               ORDER BY divisor ASC
-                               LIMIT 1)
-                     END AS obergrenze
-                  /*
-      ==================================================================================================================
-      ==================================================================================================================
-                */
-              FROM bundestagswahl btw),
-         divisor_untergrenze(wahl, untergrenze) AS
-             (SELECT btw.nummer,
-                     (SELECT zp.anzahlstimmen / (ROUND(zp.anzahlstimmen / d.obergrenze) + 0.5) AS untergrenze
-                      FROM zweitstimmen_qpartei zp,
-                           divisor_obergrenze d
-                      WHERE zp.wahl = btw.nummer
-                        AND zp.wahl = d.wahl
-                      ORDER BY untergrenze DESC
-                      LIMIT 1) AS untergrenze
-              FROM bundestagswahl btw),
-         endgueltiger_divisor(wahl, divisor) AS
-             (SELECT ud.wahl, (ud.untergrenze + od.obergrenze) / 2 AS divisor
-              FROM divisor_untergrenze ud,
-                   divisor_obergrenze od
-              WHERE ud.wahl = od.wahl)
+         */
+                    CASE
+                        WHEN btw.nummer = 20 THEN
+                            LEAST(
+                                    (SELECT sp.anzahlstimmen / (sp.sitzkontingent::NUMERIC - 0.5) AS divisor
+                                     FROM sitzanspruch_qpartei sp
+                                     WHERE sp.wahl = btw.nummer
+                                     ORDER BY divisor ASC
+                                     LIMIT 1),
+                                    (WITH ueberhang(ueberhang)
+                                              AS (VALUES (0.0), (1.0), (2.0), (3.0))
+                                     SELECT sp.anzahlstimmen /
+                                            (sp.mindestsitzanspruch::NUMERIC - u.ueberhang - 0.5) AS divisor
+                                     FROM sitzanspruch_qpartei sp,
+                                          ueberhang u
+                                     WHERE sp.wahl = btw.nummer
+                                       AND sp.drohender_ueberhang > u.ueberhang
+                                     ORDER BY divisor ASC
+                                     OFFSET 3 LIMIT 1)
+                                )
+                        ELSE (SELECT sp.anzahlstimmen / (sp.mindestsitzanspruch::NUMERIC - 0.5) AS divisor
+                              FROM sitzanspruch_qpartei sp
+                              WHERE sp.wahl = btw.nummer
+                              ORDER BY divisor ASC
+                              LIMIT 1)
+                    END AS obergrenze
+                 /*
+     ==================================================================================================================
+     ==================================================================================================================
+               */
+             FROM bundestagswahl btw),
+        divisor_untergrenze(wahl, untergrenze) AS
+            (SELECT btw.nummer,
+                    (SELECT zp.anzahlstimmen / (ROUND(zp.anzahlstimmen / d.obergrenze) + 0.5) AS untergrenze
+                     FROM zweitstimmen_qpartei zp,
+                          divisor_obergrenze d
+                     WHERE zp.wahl = btw.nummer
+                       AND zp.wahl = d.wahl
+                     ORDER BY untergrenze DESC
+                     LIMIT 1) AS untergrenze
+             FROM bundestagswahl btw),
+        endgueltiger_divisor(wahl, divisor) AS
+            (SELECT ud.wahl, (ud.untergrenze + od.obergrenze) / 2 AS divisor
+             FROM divisor_untergrenze ud,
+                  divisor_obergrenze od
+             WHERE ud.wahl = od.wahl)
     SELECT sp.wahl,
            sp.partei,
            GREATEST(ROUND(sp.anzahlstimmen / ed.divisor),
@@ -302,6 +346,7 @@ CREATE MATERIALIZED VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
          endgueltiger_divisor ed
     WHERE sp.wahl = ed.wahl;
 
+/*
 CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, partei) AS
     WITH RECURSIVE
         landeslisten_divisor(wahl, partei, sitze_ll_sum, divisor, next_divisor) AS (
@@ -492,3 +537,4 @@ CREATE MATERIALIZED VIEW mandat(wahl, kandidat, grund, partei) AS
     WHERE lm.land = bl.landid
       AND lm.partei = p.parteiid;
 
+*/

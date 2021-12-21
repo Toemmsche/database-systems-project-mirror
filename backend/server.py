@@ -1,10 +1,12 @@
+import os
 import time
-import psycopg
+
 from flask import Flask, abort, request, current_app, g as app_ctx
 from flask_cors import CORS
+from psycopg_pool import ConnectionPool
 
-from logic.DatabaseInitialization import db_config
 from logic.DatabaseInitialization import init_backend
+from logic.config import db_config, conn_string
 from logic.util import (
     valid_wahl,
     valid_wahlkreis,
@@ -18,14 +20,12 @@ app = Flask("db-backend")
 CORS(app)
 
 # Database initialization
-init_backend()
+# init_backend()
 
 # new database connection
-conn = psycopg.connect(
-    **db_config,
-    autocommit=True
-)
-conn.read_only = True
+
+conn_pool = ConnectionPool(conn_string,
+                           min_size=6)
 
 
 @app.before_request
@@ -45,7 +45,6 @@ def logging_after(response):
     return response
 
 
-
 @app.route("/api/")
 def sayHello():
     return "Hello World"
@@ -55,8 +54,8 @@ def sayHello():
 def get_sitzverteilung(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/refresh/Sitzverteilung_Refresh.sql')
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/Sitzverteilung_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, "sitzverteilung", wahl=wahl)
 
 
@@ -64,8 +63,8 @@ def get_sitzverteilung(wahl: str):
 def get_mdb(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/refresh/MDB_Refresh.sql')
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/MDB_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
 
 
@@ -73,8 +72,8 @@ def get_mdb(wahl: str):
 def get_wahlkreisinformation(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
-    with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql')
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql', is_refresh=True)
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
@@ -85,11 +84,11 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
 def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
-    with conn.cursor() as cursor:
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
-        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql')
+        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
@@ -97,11 +96,11 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
 def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
-    with conn.cursor() as cursor:
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
-        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql')
+        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, 'zweitstimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
@@ -109,8 +108,8 @@ def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
 def get_wahlkreissieger(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/refresh/Wahlkreissieger_Refresh.sql')
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/Wahlkreissieger_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, 'wahlkreissieger', wahl=wahl)
 
 
@@ -118,8 +117,8 @@ def get_wahlkreissieger(wahl: str):
 def get_ueberhang(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/refresh/Ueberhang_Refresh.sql')
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/Ueberhang_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, 'ueberhang_qpartei_bundesland', wahl=wahl)
 
 
@@ -127,8 +126,8 @@ def get_ueberhang(wahl: str):
 def get_knapp(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/refresh/KnappsteSieger_Refresh.sql')
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/KnappsteSieger_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, 'knappste_siege_oder_niederlagen', wahl=wahl)
 
 
@@ -136,8 +135,8 @@ def get_knapp(wahl: str):
 def get_osten_ergebnis(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
-    with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/refresh/OstenErgebnis_Refresh.sql')
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/OstenErgebnis_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
 
 
@@ -145,7 +144,7 @@ def get_osten_ergebnis(wahl: str):
 def get_karte(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    with conn.cursor() as cursor:
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'begrenzungen', wahl=wahl)
 
 
@@ -153,8 +152,8 @@ def get_karte(wahl: str):
 def get_wahlkreisergebnisse(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    with conn.cursor() as cursor:
-        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql')
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        exec_script_from_file(cursor, 'sql/refresh/WahlkreisUebersicht_Refresh.sql', is_refresh=True)
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl)
 
 
@@ -162,5 +161,4 @@ if __name__ == '__main__':
     app.run('localhost', 5000)
 
     # teardown
-    conn.close()
-
+    conn_pool.close()
