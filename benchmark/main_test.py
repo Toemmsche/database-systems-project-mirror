@@ -28,8 +28,8 @@ class WahlUser(HttpUser):
 
     # Q1
     @task(100)
-    def query_sitzverteilung(self):
-        self.query_random_wahlen(["/api/{wahl}/sitzverteilung"])
+    def query_mdb(self):
+        self.query_random_wahlen(["/api/{wahl}/mdb"])
 
     def query_random_wahlen(self, requests: list[str]):
         wahlen = random_wahlen()

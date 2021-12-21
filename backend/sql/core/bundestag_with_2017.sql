@@ -1,43 +1,62 @@
 DROP VIEW IF EXISTS divisor_kandidat CASCADE;
-DROP VIEW IF EXISTS sitze_nach_erhoehung CASCADE;
 
 CREATE VIEW divisor_kandidat(divisor) AS
     VALUES (0),
            (1);
 
-CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
+
+CREATE VIEW mandat (wahl, kandidat, grund, partei, land) AS
     WITH RECURSIVE
-        direktmandat(wahl, wahlkreis, land, kandidatur, partei, kandidat) AS
-            (SELECT wk.wahl,
-                    wk.wkid,
-                    wk.land,
-                    dk.direktid,
+        direktkandidatur_nummeriert(wahlkreis, kandidat, partei, wk_rang) AS
+            (SELECT dk.wahlkreis,
+                    dk.kandidat,
                     dk.partei,
-                    dk.kandidat
-             FROM direktkandidatur dk,
+                    ROW_NUMBER() OVER (PARTITION BY dk.wahlkreis ORDER BY dk.anzahlstimmen DESC)
+             FROM direktkandidatur dk),
+        direktmandat(wahl, land, partei, wahlkreis, kandidat) AS
+            (SELECT wk.wahl,
+                    wk.land,
+                    dkn.partei,
+                    wk.wkid,
+                    dkn.kandidat
+             FROM direktkandidatur_nummeriert dkn,
                   wahlkreis wk
-             WHERE dk.wahlkreis = wk.wkid
-               AND NOT EXISTS(SELECT *
-                              FROM direktkandidatur dk2
-                              WHERE dk2.wahlkreis = dk.wahlkreis
-                                AND dk2.anzahlstimmen > dk.anzahlstimmen)),
+             WHERE dkn.wahlkreis = wk.wkid
+               AND dkn.wk_rang = 1),
+        zweitstimmen_partei_wahlkreis(wahl, wahlkreis, partei, anzahlstimmen) AS
+            (SELECT wk.wahl, wk.wkid, ll.partei, SUM(ze.anzahlstimmen)
+             FROM wahlkreis wk,
+                  landesliste ll,
+                  zweitstimmenergebnis ze
+             WHERE wk.wkid = ze.wahlkreis
+               AND ze.liste = ll.listenid
+             GROUP BY wk.wahl, wk.wkid, ll.partei),
+        zweitstimmen_partei_bundesland(wahl, land, partei, anzahlstimmen) AS
+            (SELECT zpw.wahl, wk.land, zpw.partei, SUM(zpw.anzahlstimmen)
+             FROM wahlkreis wk,
+                  zweitstimmen_partei_wahlkreis zpw
+             WHERE wk.wkid = zpw.wahlkreis
+             GROUP BY zpw.wahl, wk.land, zpw.partei),
         zweitstimmen_partei(wahl, partei, anzahlstimmen) AS
             (SELECT zpb.wahl, zpb.partei, SUM(zpb.anzahlstimmen)
              FROM zweitstimmen_partei_bundesland zpb
              GROUP BY zpb.wahl, zpb.partei),
+        zweitstimmen(wahl, anzahlstimmen) AS
+            (SELECT zp.wahl, SUM(zp.anzahlstimmen)
+             FROM zweitstimmen_partei zp
+             GROUP BY zp.wahl),
         qpartei(wahl, partei) AS
             --5% Hürde
             (SELECT zp.wahl, zp.partei
-             FROM zweitstimmen_partei zp
-             WHERE zp.anzahlstimmen >=
-                   0.05 * (SELECT SUM(zp2.anzahlstimmen) FROM zweitstimmen_partei zp2 WHERE zp2.wahl = zp.wahl)
+             FROM zweitstimmen_partei zp,
+                  zweitstimmen z
+             WHERE zp.wahl = z.wahl
+               AND zp.anzahlstimmen >= 0.05 * z.anzahlstimmen
              UNION
              --3 Direktmandate
-             SELECT dm.wahl, p.parteiid
-             FROM partei p,
-                  direktmandat dm
-             WHERE p.parteiid = dm.partei
-             GROUP BY dm.wahl, p.parteiid
+             SELECT dm.wahl, dm.partei
+             FROM direktmandat dm
+             GROUP BY dm.wahl, dm.partei
              HAVING COUNT(*) >= 3
              UNION
              --Nationale Minderheit
@@ -56,7 +75,7 @@ CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
              FROM zweitstimmen_qpartei_bundesland zpb
              GROUP BY zpb.wahl, zpb.partei),
         direktmandate_qpartei_bundesland(wahl, land, partei, direktmandate) AS
-            (SELECT dm.wahl, dm.land, p.partei, COUNT(dm.kandidatur)
+            (SELECT dm.wahl, dm.land, p.partei, COUNT(*)
              FROM direktmandat dm,
                   qpartei p
              WHERE dm.wahl = p.wahl
@@ -141,7 +160,7 @@ CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
                                     ORDER BY divisor
                                     LIMIT 2) AS d)
                          ELSE sv.next_divisor
-                     END
+                         END
               FROM sitzverteilung sv,
                    gesamtsitze gs
               WHERE sv.wahl = gs.wahl
@@ -209,7 +228,7 @@ CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
                                     ORDER BY divisor DESC
                                     LIMIT 2) AS d)
                          ELSE ld.next_divisor
-                     END
+                         END
               FROM zweitstimmen_bundesland zbl,
                    laender_divisor ld,
                    sitze_bundesland sbl
@@ -255,7 +274,7 @@ CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
                             THEN GREATEST(COALESCE(dm.direktmandate, 0),
                                           ROUND((sk.sitzkontingent + COALESCE(dm.direktmandate, 0)) / 2))
                         ELSE GREATEST(COALESCE(dm.direktmandate, 0), (sk.sitzkontingent))
-                    END                           AS mindestsitze,
+                        END                       AS mindestsitze,
 /*
 ==================================================================================================================
 ==================================================================================================================
@@ -264,7 +283,7 @@ CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
                         WHEN COALESCE(dm.direktmandate, 0) > sk.sitzkontingent
                             THEN COALESCE(dm.direktmandate, 0) - sk.sitzkontingent
                         ELSE 0
-                    END                           AS ueberhang
+                        END                       AS ueberhang
              FROM sitzkontingent_qpartei_bundesland sk
                       LEFT OUTER JOIN
                   direktmandate_qpartei_bundesland dm ON
@@ -317,7 +336,7 @@ CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
                               WHERE sp.wahl = btw.nummer
                               ORDER BY divisor ASC
                               LIMIT 1)
-                    END AS obergrenze
+                        END AS obergrenze
                  /*
      ==================================================================================================================
      ==================================================================================================================
@@ -337,18 +356,15 @@ CREATE VIEW sitze_nach_erhoehung(wahl, partei, sitze) AS
             (SELECT ud.wahl, (ud.untergrenze + od.obergrenze) / 2 AS divisor
              FROM divisor_untergrenze ud,
                   divisor_obergrenze od
-             WHERE ud.wahl = od.wahl)
-    SELECT sp.wahl,
-           sp.partei,
-           GREATEST(ROUND(sp.anzahlstimmen / ed.divisor),
-                    sp.mindestsitzanspruch) AS sitze
-    FROM sitzanspruch_qpartei sp,
-         endgueltiger_divisor ed
-    WHERE sp.wahl = ed.wahl;
-
-/*
-CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, partei) AS
-    WITH RECURSIVE
+             WHERE ud.wahl = od.wahl),
+        sitze_nach_erhoehung(wahl, partei, sitze) AS
+            (SELECT sp.wahl,
+                    sp.partei,
+                    GREATEST(ROUND(sp.anzahlstimmen / ed.divisor),
+                             sp.mindestsitzanspruch) AS sitze
+             FROM sitzanspruch_qpartei sp,
+                  endgueltiger_divisor ed
+             WHERE sp.wahl = ed.wahl),
         landeslisten_divisor(wahl, partei, sitze_ll_sum, divisor, next_divisor) AS (
             (SELECT zp.wahl,
                     zp.partei,
@@ -397,21 +413,21 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
                                       AND lld.partei = mp.partei
                                       AND mp.land = zpb.land
                                         /*
-==================================================================================================================
+    ==================================================================================================================
                                         FALLUNTERSCHEIDUNG 2021 VS 2017:
                                         In 2017 muss die Anzahl der gewonnen Direktmandate berücksichtigt werden
                                         In 2021 muss die Anzahl der Mindestsitze berücksichtigt werden.
-==================================================================================================================
-*/
+    ==================================================================================================================
+    */
                                       AND ((lld.wahl = 20 AND
                                             ROUND(zpb.anzahlstimmen / lld.next_divisor) - mp.mindestsitze >
                                             dk.divisor) OR (lld.wahl = 19 AND
                                                             ROUND(zpb.anzahlstimmen / lld.next_divisor) -
                                                             mp.direktmandate > dk.divisor))
                                         /*
-==================================================================================================================
-==================================================================================================================
-*/
+    ==================================================================================================================
+    ==================================================================================================================
+    */
                                     ORDER BY divisor
                                     LIMIT 2)
                                        AS dk)
@@ -426,7 +442,7 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
                                     ORDER BY divisor DESC
                                     LIMIT 2) AS dk)
                          ELSE lld.next_divisor
-                     END)
+                        END)
              FROM landeslisten_divisor lld,
                   sitze_nach_erhoehung svl
              WHERE lld.wahl = svl.wahl
@@ -463,12 +479,12 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
                           AND sll.partei = dm.partei),
         landeslisten_ohne_direktmandate(wahl, liste, partei, land, position, kandidat) AS
             /*
-==================================================================================================================
+    ==================================================================================================================
         FALLUNTERSCHEIDUNG 2021 VS 2017:
         In 2017 können die Landeslisten ohne direktmandate NICHT ermittelt werden.
         In 2021 können die Landeslisten ohne direktmandate ermittelt werden.
-==================================================================================================================
-*/
+    ==================================================================================================================
+    */
             ((SELECT 20,
                      ll.listenid,
                      ll.partei,
@@ -497,30 +513,30 @@ CREATE MATERIALIZED VIEW listenmandat (wahl, liste, position, kandidat, land, pa
                 AND ll.partei = vsll.partei
                 AND ll.land = vsll.land)),
         /*
-==================================================================================================================
-==================================================================================================================
-*/
+    ==================================================================================================================
+    ==================================================================================================================
+    */
         landeslisten_ohne_direktmandate_nummeriert(wahl, liste, partei, land, position, kandidat, neue_position) AS
             (SELECT lo.*, ROW_NUMBER() OVER (PARTITION BY lo.liste ORDER BY lo.position ASC)
-             FROM landeslisten_ohne_direktmandate lo)
-    SELECT lo.wahl,
-           lo.liste,
-           lo.position,
-           lo.kandidat,
-           lo.land,
-           lo.partei
-    FROM landeslisten_ohne_direktmandate_nummeriert lo,
-         verbleibende_sitze_landesliste vsll
-    WHERE lo.wahl = vsll.wahl
-      AND lo.land = vsll.land
-      AND lo.partei = vsll.partei
-      AND lo.neue_position <= vsll.verbleibende_sitze;
-
-CREATE MATERIALIZED VIEW mandat(wahl, kandidat, grund, partei) AS
+             FROM landeslisten_ohne_direktmandate lo),
+        listenmandat (wahl, liste, position, kandidat, land, partei) AS
+            (SELECT lo.wahl,
+                    lo.liste,
+                    lo.position,
+                    lo.kandidat,
+                    lo.land,
+                    lo.partei
+             FROM landeslisten_ohne_direktmandate_nummeriert lo,
+                  verbleibende_sitze_landesliste vsll
+             WHERE lo.wahl = vsll.wahl
+               AND lo.land = vsll.land
+               AND lo.partei = vsll.partei
+               AND lo.neue_position <= vsll.verbleibende_sitze)
     SELECT dm.wahl,
            dm.kandidat,
            'Direktmandat aus Wahlkreis ' || wk.nummer || ' - ' || wk.name AS grund,
-           p.parteiid                                                     AS partei
+           p.parteiid                                                     AS partei,
+           dm.land
     FROM direktmandat dm,
          wahlkreis wk,
          partei p
@@ -530,11 +546,10 @@ CREATE MATERIALIZED VIEW mandat(wahl, kandidat, grund, partei) AS
     SELECT lm.wahl,
            lm.kandidat,
            'Landeslistenmandat von Listenplatz ' || lm.position || ' in ' || bl.name AS grund,
-           p.parteiid                                                                AS partei
+           p.parteiid                                                                AS partei,
+           bl.landid
     FROM listenmandat lm,
          bundesland bl,
          partei p
     WHERE lm.land = bl.landid
       AND lm.partei = p.parteiid;
-
-*/

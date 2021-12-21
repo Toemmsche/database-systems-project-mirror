@@ -3,11 +3,11 @@ DROP VIEW IF EXISTS wahlkreissieger_erststimme CASCADE;
 DROP VIEW IF EXISTS wahlkreissieger CASCADE;
 
 CREATE VIEW wahlkreissieger_zweitstimme(wahl, wahlkreis, partei) AS
-    WITH zweitstimmenergebnis_nummeriert(platz, wahl, wahlkreis, partei) AS (
-        SELECT ROW_NUMBER() OVER (PARTITION BY ll.wahl, ze.wahlkreis ORDER BY ze.anzahlstimmen DESC) AS platz,
-               ll.wahl,
+    WITH zweitstimmenergebnis_nummeriert(wahl, wahlkreis, partei, wk_rang) AS (
+        SELECT ll.wahl,
                ze.wahlkreis,
-               ll.partei
+               ll.partei,
+               ROW_NUMBER() OVER (PARTITION BY ll.wahl, ze.wahlkreis ORDER BY ze.anzahlstimmen DESC) AS wk_rang
         FROM zweitstimmenergebnis ze,
              landesliste ll
         WHERE ll.listenid = ze.liste)
@@ -15,18 +15,28 @@ CREATE VIEW wahlkreissieger_zweitstimme(wahl, wahlkreis, partei) AS
            ze.wahlkreis,
            ze.partei
     FROM zweitstimmenergebnis_nummeriert ze
-    WHERE ze.platz = 1;
+    WHERE ze.wk_rang = 1;
 
 CREATE VIEW wahlkreissieger_erststimme(wahl, wahlkreis, partei) AS
+    WITH direktkandidatur_nummeriert(partei, wahlkreis, wk_rang) AS
+             (SELECT dk.partei,
+                     dk.wahlkreis,
+                     dk.kandidat,
+                     ROW_NUMBER() OVER (PARTITION BY dk.wahlkreis ORDER BY dk.anzahlstimmen DESC)
+              FROM direktkandidatur dk)
     SELECT wk.wahl,
-           wk.wkid AS wahlkreis,
-           dm.partei
-    FROM wahlkreis wk,
-         direktmandat dm
-    WHERE wk.wkid = dm.wahlkreis;
+           wk.wkid,
+           dkn.partei
+    FROM direktkandidatur_nummeriert dkn,
+         wahlkreis wk
+    WHERE dkn.wahlkreis = wk.wkid
+      AND dkn.wk_rang = 1;
 
 
-CREATE VIEW wahlkreissieger(wahl, wk_nummer, wk_name, erststimme_sieger, erststimme_sieger_farbe, zweitstimme_sieger, zweitstimme_sieger_farbe) AS
+CREATE VIEW wahlkreissieger
+            (wahl, wk_nummer, wk_name, erststimme_sieger, erststimme_sieger_farbe, zweitstimme_sieger,
+             zweitstimme_sieger_farbe)
+AS
     SELECT we.wahl,
            wk.nummer,
            wk.name,

@@ -24,7 +24,7 @@ class TestSitzeNachErhoehungSql(unittest.TestCase):
         expected_19 = 709
         expected_20 = 736
 
-        table = json.loads(table_to_json(self.cursor, 'sitze_nach_erhoehung'))
+        table = json.loads(table_to_json(self.cursor, 'sitzverteilung'))
         sum_19 = 0
         sum_20 = 0
         for row in table:

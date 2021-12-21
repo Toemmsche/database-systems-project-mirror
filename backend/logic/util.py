@@ -44,9 +44,7 @@ def exec_script(cursor: psycopg.cursor, script: str, script_name: str) -> None:
     ####
 
 
-def exec_script_from_file(cursor: psycopg.cursor, path: str, **kwargs) -> None:
-    if 'is_refresh' in kwargs and kwargs['is_refresh']:
-        return
+def exec_script_from_file(cursor: psycopg.cursor, path: str) -> None:
     with open(path) as script:
         exec_script(cursor, script.read(), path)
 

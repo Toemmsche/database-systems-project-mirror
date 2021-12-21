@@ -1,6 +1,0 @@
-REFRESH MATERIALIZED VIEW zweitstimmen_partei_wahlkreis;
-REFRESH MATERIALIZED VIEW zweitstimmen_partei_bundesland;
-REFRESH MATERIALIZED VIEW zweitstimmen_partei;
-REFRESH MATERIALIZED VIEW direktmandat;
-REFRESH MATERIALIZED VIEW qpartei;
-REFRESH MATERIALIZED VIEW zweitstimmen_qpartei_bundesland;

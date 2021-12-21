@@ -64,8 +64,6 @@ def exec_util_queries():
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             exec_script_from_file(cursor, 'sql/core/Einzelstimmen222.sql')
-            exec_script_from_file(cursor, 'sql/core/Stimmen.sql')
-            exec_script_from_file(cursor, 'sql/core/Ergebnis.sql')
             exec_script_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
 
 
@@ -95,8 +93,8 @@ def exec_refresh_scripts():
 def init_backend():
     init_all()
     exec_util_queries()
-    #exec_data_queries()
-     #exec_refresh_scripts()
+    exec_data_queries()
+    #exec_refresh_scripts()
 
 
 if __name__ == '__main__':
