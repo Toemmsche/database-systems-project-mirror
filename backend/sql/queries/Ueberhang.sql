@@ -286,5 +286,6 @@ CREATE VIEW ueberhang_qpartei_bundesland(wahl, land, partei, partei_farbe, ueber
          bundesland bl,
          partei p
     WHERE mpb.land = bl.landid
-      AND mpb.partei = p.parteiid;
+      AND mpb.partei = p.parteiid
+      AND mpb.ueberhang > 0;
 

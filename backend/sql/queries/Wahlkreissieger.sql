@@ -2,30 +2,26 @@ DROP VIEW IF EXISTS wahlkreissieger_zweitstimme CASCADE;
 DROP VIEW IF EXISTS wahlkreissieger_erststimme CASCADE;
 DROP VIEW IF EXISTS wahlkreissieger CASCADE;
 
-CREATE VIEW wahlkreissieger_zweitstimme(wahl, wahlkreis, partei) AS
-    WITH zweitstimmenergebnis_nummeriert(wahl, wahlkreis, partei, wk_rang) AS (
-        SELECT ll.wahl,
-               ze.wahlkreis,
+CREATE VIEW wahlkreissieger_zweitstimme(wahlkreis, partei) AS
+    WITH zweitstimmenergebnis_nummeriert(wahlkreis, partei, wk_rang) AS (
+        SELECT ze.wahlkreis,
                ll.partei,
-               ROW_NUMBER() OVER (PARTITION BY ll.wahl, ze.wahlkreis ORDER BY ze.anzahlstimmen DESC) AS wk_rang
+               ROW_NUMBER() OVER (PARTITION BY ze.wahlkreis ORDER BY ze.anzahlstimmen DESC) AS wk_rang
         FROM zweitstimmenergebnis ze,
              landesliste ll
         WHERE ll.listenid = ze.liste)
-    SELECT ze.wahl,
-           ze.wahlkreis,
+    SELECT ze.wahlkreis,
            ze.partei
     FROM zweitstimmenergebnis_nummeriert ze
     WHERE ze.wk_rang = 1;
 
-CREATE VIEW wahlkreissieger_erststimme(wahl, wahlkreis, partei) AS
+CREATE VIEW wahlkreissieger_erststimme(wahlkreis, partei) AS
     WITH direktkandidatur_nummeriert(partei, wahlkreis, wk_rang) AS
              (SELECT dk.partei,
                      dk.wahlkreis,
-                     dk.kandidat,
                      ROW_NUMBER() OVER (PARTITION BY dk.wahlkreis ORDER BY dk.anzahlstimmen DESC)
               FROM direktkandidatur dk)
-    SELECT wk.wahl,
-           wk.wkid,
+    SELECT wk.wkid,
            dkn.partei
     FROM direktkandidatur_nummeriert dkn,
          wahlkreis wk
@@ -37,7 +33,7 @@ CREATE VIEW wahlkreissieger
             (wahl, wk_nummer, wk_name, erststimme_sieger, erststimme_sieger_farbe, zweitstimme_sieger,
              zweitstimme_sieger_farbe)
 AS
-    SELECT we.wahl,
+    SELECT wk.wahl,
            wk.nummer,
            wk.name,
            we.partei AS erststimme_sieger,
@@ -50,7 +46,6 @@ AS
          partei pe,
          partei pz
     WHERE wk.wkid = we.wahlkreis
-      AND we.wahl = wz.wahl
-      AND we.wahlkreis = wz.wahlkreis
+      AND wk.wkid = wz.wahlkreis
       AND pe.parteiid = we.partei
       AND pz.parteiid = wz.partei

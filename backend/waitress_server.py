@@ -1,3 +1,8 @@
+from logic.DatabaseInitialization import init_backend
+
+# Database initialization
+init_backend()
+
 from waitress import serve
 import server
 from server import conn_pool

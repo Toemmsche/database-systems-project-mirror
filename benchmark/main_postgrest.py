@@ -22,42 +22,44 @@ def random_wahlkreis() -> int:
 
 
 class WahlUser(HttpUser):
-    t = 1 # average wait time in seconds
+    t = 1  # average wait time in seconds
     wait_time = between(0.8 * t, 1.2 * t)
-    host = "http://localhost:5000"
+    host = "http://localhost:3000"
 
     # Q1
     @task(25)
     def query_sitzverteilung(self):
-        self.query_random_wahlen(["/api/{wahl}/sitzverteilung"])
+        self.query_random_wahlen(["/sitzverteilung?wahl=eq.{wahl}"])
 
     # Q2
     @task(10)
     def query_mdb(self):
         wahl = random_wahl()
-        self.query_random_wahlen([f"/api/{wahl}/mdb"])
+        self.query_random_wahlen([f"/mitglieder_bundestag?wahl=eq.{wahl}"])
 
     # Q3
     @task(25)
     def query_wahlkreisuebersicht(self):
-        wahlkreis = 22
+        wahlkreis = 222
         self.query_random_wahlen(
-            [f"/api/{{wahl}}/wahlkreis/{wahlkreis}", f"/api/{{wahl}}/wahlkreis/{wahlkreis}/erststimmen", f"/api/{{wahl}}/wahlkreis/{wahlkreis}/zweitstimmen"])
+            [f"/wahlkreisinformation?wk_nummer=eq.{wahlkreis}&wahl=eq.{{wahl}}",
+             f"/erststimmen_qpartei_wahlkreis_rich?wk_nummer=eq.{wahlkreis}&wahl=eq.{{wahl}}",
+             f"/zweitstimmen_qpartei_wahlkreis_rich?wk_nummer=eq.{wahlkreis}&wahl=eq.{{wahl}}"])
 
     # Q4
     @task(10)
     def query_stimmkreissieger(self):
-        self.query_random_wahlen(["/api/{wahl}/wahlkreissieger"])
+        self.query_random_wahlen(["/wahlkreissieger?wahl=eq.{wahl}"])
 
     # Q5
     @task(10)
     def query_ueberhang(self):
-        self.query_random_wahlen(["/api/{wahl}/ueberhang"])
+        self.query_random_wahlen(["/ueberhang_qpartei_bundesland?wahl=eq.{wahl}"])
 
     # Q6
     @task(20)
     def query_knappste_sieger(self):
-        self.query_random_wahlen(["/api/{wahl}/stat/knapp"])
+        self.query_random_wahlen(["/knappste_siege_oder_niederlagen?wahl=eq.{wahl}"])
 
     def query_random_wahlen(self, requests: list[str]):
         wahlen = random_wahlen()

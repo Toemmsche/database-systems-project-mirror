@@ -5,7 +5,6 @@ from flask_cors import CORS
 from psycopg_pool import ConnectionPool
 
 from logic.config import conn_string
-from logic.DatabaseInitialization import init_backend
 from logic.util import (
     valid_wahl,
     valid_wahlkreis,
@@ -18,14 +17,8 @@ from logic.util import (
 app = Flask("db-backend")
 CORS(app)
 
-# Database initialization
-# init_backend()
-
-# new database connection
-
-conn_pool = ConnectionPool(conn_string,
-                           min_size=6)
-
+# new database connection pool
+conn_pool = ConnectionPool(conn_string)
 
 @app.before_request
 def logging_before():
