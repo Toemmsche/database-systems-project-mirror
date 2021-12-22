@@ -34,14 +34,7 @@ def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
 
 
 def exec_script(cursor: psycopg.cursor, script: str, script_name: str) -> None:
-    #### Timed Execution
-    start_time = time.perf_counter()
     cursor.execute(script)
-    truncated_script = script.replace('\n', ' ')[0:50]
-    logger.info(
-        f'Executed script {truncated_script + "....." if script_name is None else script_name} ' +
-        f'(execution: {(time.perf_counter() - start_time) * 1000 : .2f}ms)')
-    ####
 
 
 def exec_script_from_file(cursor: psycopg.cursor, path: str) -> None:
@@ -61,13 +54,10 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
     # Cut columns if necessary
     col_names = col_names[:record_len]
     with cursor.copy(f'COPY  {table}({",".join(col_names)}) FROM STDIN') as copy:
-        #### Timed Execution
-        start_time = time.perf_counter()
+
         for record in records:
             copy.write_row(record)
-        logger.info(f'Copied {len(records)} rows into {table} ' +
-                    f'(execution: {(time.perf_counter() - start_time) * 1000 : .2f}ms)')
-        ####
+
 
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
@@ -108,16 +98,8 @@ def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dic
         kwargs_str = "WHERE " + kwargs_str
     query = f"SELECT * FROM {table} {kwargs_str}"
 
-    #### Timed Execution
-    start_time = time.perf_counter()
-    cursor.execute(query)
-    fetching_time = time.perf_counter()
-    res = cursor.fetchall()
-    logger.info(
-        f'Completed query {query[0:100]}..... in ' +
-        f'(execution: {(fetching_time - start_time) * 1000 : .2f}ms, ' +
-        f'fetching: {(time.perf_counter() - fetching_time) * 1000 : .2f}ms)')
-    ####
+    res = cursor.execute(query).fetchall()
+
 
     col_names = [desc.name for desc in cursor.description]
     arr = []

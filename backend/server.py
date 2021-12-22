@@ -20,23 +20,6 @@ CORS(app)
 # new database connection pool
 conn_pool = ConnectionPool(conn_string)
 
-@app.before_request
-def logging_before():
-    # Store the start time for the request
-    app_ctx.start_time = time.perf_counter()
-
-
-@app.after_request
-def logging_after(response):
-    # Get total time in milliseconds
-    total_time = time.perf_counter() - app_ctx.start_time
-    time_in_ms = int(total_time * 1000)
-    # Log the time taken for the endpoint
-    current_app.logger.info('PROCESSING TIME: %s ms %s %s %s', time_in_ms, request.method, request.path,
-                            dict(request.args))
-    return response
-
-
 @app.route("/api/")
 def sayHello():
     return "Hello World"

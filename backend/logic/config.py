@@ -36,4 +36,8 @@ avg = 1300
 postgrest at n = 500 t = 1
 rps = 220
 avg = 1800
+
+gunicorn (without logging) * 12 at n = 200 t = 1
+rps = 300
+avg = 200
 """
