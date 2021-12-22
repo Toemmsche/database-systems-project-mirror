@@ -16,17 +16,9 @@ CREATE VIEW wahlkreissieger_zweitstimme(wahlkreis, partei) AS
     WHERE ze.wk_rang = 1;
 
 CREATE VIEW wahlkreissieger_erststimme(wahlkreis, partei) AS
-    WITH direktkandidatur_nummeriert(partei, wahlkreis, wk_rang) AS
-             (SELECT dk.partei,
-                     dk.wahlkreis,
-                     ROW_NUMBER() OVER (PARTITION BY dk.wahlkreis ORDER BY dk.anzahlstimmen DESC)
-              FROM direktkandidatur dk)
-    SELECT wk.wkid,
-           dkn.partei
-    FROM direktkandidatur_nummeriert dkn,
-         wahlkreis wk
-    WHERE dkn.wahlkreis = wk.wkid
-      AND dkn.wk_rang = 1;
+    SELECT m.wahlkreis, m.partei
+    FROM mandat m
+    WHERE m.ist_direktmandat;
 
 
 CREATE VIEW wahlkreissieger

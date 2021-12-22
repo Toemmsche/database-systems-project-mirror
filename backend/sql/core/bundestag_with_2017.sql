@@ -1,23 +1,28 @@
 DROP VIEW IF EXISTS divisor_kandidat CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mandat CASCADE;
+
 
 CREATE VIEW divisor_kandidat(divisor) AS
     VALUES (0),
            (1);
 
-
-CREATE VIEW mandat (wahl, kandidat, grund, partei, land) AS
+--Mit 'Ueberhang' wird die 2. Normalform bewusst verletzt, damit Informationen kompakter abgespeichert werden können
+CREATE MATERIALIZED VIEW mandat
+            (wahl, land, partei, ist_direktmandat, wahlkreis, kandidatur, liste, position, kandidat, ueberhang_land) AS
     WITH RECURSIVE
-        direktkandidatur_nummeriert(wahlkreis, kandidat, partei, wk_rang) AS
+        direktkandidatur_nummeriert(wahlkreis, partei, kandidatur, kandidat, wk_rang) AS
             (SELECT dk.wahlkreis,
-                    dk.kandidat,
                     dk.partei,
+                    dk.direktid,
+                    dk.kandidat,
                     ROW_NUMBER() OVER (PARTITION BY dk.wahlkreis ORDER BY dk.anzahlstimmen DESC)
              FROM direktkandidatur dk),
-        direktmandat(wahl, land, partei, wahlkreis, kandidat) AS
+        direktmandat(wahl, land, partei, wahlkreis, kandidatur, kandidat) AS
             (SELECT wk.wahl,
                     wk.land,
                     dkn.partei,
                     wk.wkid,
+                    dkn.kandidatur,
                     dkn.kandidat
              FROM direktkandidatur_nummeriert dkn,
                   wahlkreis wk
@@ -519,13 +524,13 @@ CREATE VIEW mandat (wahl, kandidat, grund, partei, land) AS
         landeslisten_ohne_direktmandate_nummeriert(wahl, liste, partei, land, position, kandidat, neue_position) AS
             (SELECT lo.*, ROW_NUMBER() OVER (PARTITION BY lo.liste ORDER BY lo.position ASC)
              FROM landeslisten_ohne_direktmandate lo),
-        listenmandat (wahl, liste, position, kandidat, land, partei) AS
+        listenmandat (wahl, land, partei, liste, position, kandidat) AS
             (SELECT lo.wahl,
+                    lo.land,
+                    lo.partei,
                     lo.liste,
                     lo.position,
-                    lo.kandidat,
-                    lo.land,
-                    lo.partei
+                    lo.kandidat
              FROM landeslisten_ohne_direktmandate_nummeriert lo,
                   verbleibende_sitze_landesliste vsll
              WHERE lo.wahl = vsll.wahl
@@ -533,23 +538,33 @@ CREATE VIEW mandat (wahl, kandidat, grund, partei, land) AS
                AND lo.partei = vsll.partei
                AND lo.neue_position <= vsll.verbleibende_sitze)
     SELECT dm.wahl,
+           dm.land,
+           dm.partei,
+           TRUE,
+           dm.wahlkreis,
+           dm.kandidatur,
+           NULL,
+           NULL,
            dm.kandidat,
-           'Direktmandat aus Wahlkreis ' || wk.nummer || ' - ' || wk.name AS grund,
-           p.parteiid                                                     AS partei,
-           dm.land
+           mp.ueberhang
     FROM direktmandat dm,
-         wahlkreis wk,
-         partei p
-    WHERE dm.wahlkreis = wk.wkid
-      AND dm.partei = p.parteiid
+         mindestsitze_qpartei_bundesland mp
+    WHERE dm.wahl = mp.wahl
+      AND dm.land = mp.land
+      AND dm.partei = mp.partei
     UNION
     SELECT lm.wahl,
-           lm.kandidat,
-           'Landeslistenmandat von Listenplatz ' || lm.position || ' in ' || bl.name AS grund,
-           p.parteiid                                                                AS partei,
-           bl.landid
+           lm.land,
+           lm.partei,
+           FALSE,
+           NULL,
+           NULL,
+           lm.liste,
+           lm.position,
+           lm.land,
+           mp.ueberhang
     FROM listenmandat lm,
-         bundesland bl,
-         partei p
-    WHERE lm.land = bl.landid
-      AND lm.partei = p.parteiid;
+         mindestsitze_qpartei_bundesland mp
+    WHERE lm.wahl = mp.wahl
+      AND lm.land = mp.land
+      AND lm.partei = mp.partei;

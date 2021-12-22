@@ -5,21 +5,6 @@ DROP VIEW IF EXISTS zweitstimmen_qpartei_wahlkreis_rich CASCADE;
 
 CREATE VIEW wahlkreisinformation
             (wahl, wk_nummer, wk_name, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
-    WITH direktkandidatur_nummeriert(partei, wahlkreis, kandidat,  wk_rang) AS
-             (SELECT  dk.partei,
-                     dk.wahlkreis,
-                     dk.kandidat,
-                     ROW_NUMBER() OVER (PARTITION BY dk.wahlkreis ORDER BY dk.anzahlstimmen DESC)
-              FROM direktkandidatur dk),
-         direktmandat(wahl, partei, wahlkreis, kandidat) AS
-             (SELECT wk.wahl,
-                     dkn.partei,
-                     wk.wkid,
-                     dkn.kandidat
-              FROM direktkandidatur_nummeriert dkn,
-                   wahlkreis wk
-              WHERE dkn.wahlkreis = wk.wkid
-                AND dkn.wk_rang = 1)
     SELECT wk.wahl,
            wk.nummer,
            wk.name,
@@ -28,14 +13,15 @@ CREATE VIEW wahlkreisinformation
            p.kuerzel                                          AS sieger_partei,
            SUM(ze.anzahlstimmen)::decimal * 100 / wk.deutsche AS wahlbeteiligung_prozent
     FROM wahlkreis wk,
-         direktmandat dm
+         mandat m
              LEFT OUTER JOIN
-         kandidat k ON k.kandid = dm.kandidat,
+         kandidat k ON k.kandid = m.kandidat,
          zweitstimmenergebnis ze,
          partei p
-    WHERE dm.wahlkreis = wk.wkid
-      AND dm.partei = p.parteiid
-      AND ze.wahlkreis = wk.wkid
+    WHERE m.ist_direktmandat
+      AND wk.wkid = m.wahlkreis
+      AND wk.wkid = ze.wahlkreis
+      AND m.partei = p.parteiid
     GROUP BY wk.wahl, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
 
 CREATE VIEW erststimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
