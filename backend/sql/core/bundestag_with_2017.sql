@@ -561,7 +561,7 @@ CREATE MATERIALIZED VIEW mandat
            NULL,
            lm.liste,
            lm.position,
-           lm.land,
+           lm.kandidat,
            mp.ueberhang
     FROM listenmandat lm,
          mindestsitze_qpartei_bundesland mp
