@@ -20,12 +20,13 @@ CORS(app)
 # new database connection pool
 conn_pool = ConnectionPool(conn_string)
 
-@app.route("/api/")
+
+@app.route("/api/", methods=['GET'])
 def sayHello():
     return "Hello World"
 
 
-@app.route("/api/<wahl>/sitzverteilung")
+@app.route("/api/<wahl>/sitzverteilung", methods=['GET'])
 def get_sitzverteilung(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
@@ -33,7 +34,7 @@ def get_sitzverteilung(wahl: str):
         return table_to_json(cursor, "sitzverteilung", wahl=wahl)
 
 
-@app.route("/api/<wahl>/mdb/")
+@app.route("/api/<wahl>/mdb/", methods=['GET'])
 def get_mdb(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
@@ -41,7 +42,7 @@ def get_mdb(wahl: str):
         return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
 
 
-@app.route("/api/<wahl>/wahlkreis/<wknr>")
+@app.route("/api/<wahl>/wahlkreis/<wknr>", methods=['GET'])
 def get_wahlkreisinformation(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
@@ -51,7 +52,7 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
         return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wk_nummer=wknr, single=True)
 
 
-@app.route("/api/<wahl>/wahlkreis/<wknr>/erststimmen")
+@app.route("/api/<wahl>/wahlkreis/<wknr>/erststimmen", methods=['GET'])
 def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
@@ -62,7 +63,7 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
         return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
-@app.route("/api/<wahl>/wahlkreis/<wknr>/zweitstimmen")
+@app.route("/api/<wahl>/wahlkreis/<wknr>/zweitstimmen", methods=['GET'])
 def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
@@ -73,7 +74,7 @@ def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
         return table_to_json(cursor, 'zweitstimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
-@app.route("/api/<wahl>/wahlkreissieger")
+@app.route("/api/<wahl>/wahlkreissieger", methods=['GET'])
 def get_wahlkreissieger(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
@@ -81,7 +82,7 @@ def get_wahlkreissieger(wahl: str):
         return table_to_json(cursor, 'wahlkreissieger', wahl=wahl)
 
 
-@app.route("/api/<wahl>/ueberhang")
+@app.route("/api/<wahl>/ueberhang", methods=['GET'])
 def get_ueberhang(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
@@ -89,7 +90,7 @@ def get_ueberhang(wahl: str):
         return table_to_json(cursor, 'ueberhang_qpartei_bundesland', wahl=wahl)
 
 
-@app.route("/api/<wahl>/stat/knapp")
+@app.route("/api/<wahl>/stat/knapp", methods=['GET'])
 def get_knapp(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
@@ -97,7 +98,7 @@ def get_knapp(wahl: str):
         return table_to_json(cursor, 'knappste_siege_oder_niederlagen', wahl=wahl)
 
 
-@app.route("/api/<wahl>/ostenergebnis")
+@app.route("/api/<wahl>/ostenergebnis", methods=['GET'])
 def get_osten_ergebnis(wahl: str):
     if not models_nat(wahl) or int(wahl) not in [19, 20]:
         abort(404)
@@ -105,7 +106,7 @@ def get_osten_ergebnis(wahl: str):
         return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
 
 
-@app.route("/api/<wahl>/karte")
+@app.route("/api/<wahl>/karte", methods=['GET'])
 def get_karte(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
@@ -113,12 +114,27 @@ def get_karte(wahl: str):
         return table_to_json(cursor, 'begrenzungen', wahl=wahl)
 
 
-@app.route("/api/<wahl>/wahlkreisergebnisse")
+@app.route("/api/<wahl>/wahlkreisergebnisse", methods=['GET'])
 def get_wahlkreisergebnisse(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl)
+
+# Voting is only available for the latest election
+@app.route("/api/20/wahlkreis/<wknr>/stimmzettel", methods=['GET'])
+def get_stimmzettel(wknr: str):
+    if not valid_wahlkreis(wknr):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return table_to_json(cursor, 'stimmzettel_2021', wk_nummer=wknr)
+
+@app.route("/api/20/wahlkreis/<wknr>/stimmenabgabe", methods=['POST'])
+def cast_vote(wknr: str):
+    if not valid_wahlkreis(wknr):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return ''
 
 
 if __name__ == '__main__':

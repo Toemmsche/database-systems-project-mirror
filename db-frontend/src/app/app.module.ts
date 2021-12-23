@@ -30,6 +30,8 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
 import {MatSliderModule} from '@angular/material/slider';
 import { WahlSelectionService } from './service/wahl-selection.service';
+import { StimmzettelComponent } from './stimmabgabe/stimmzettel/stimmzettel.component';
+import {MatRadioButton, MatRadioModule} from "@angular/material/radio";
 
 @NgModule({
   declarations: [
@@ -46,7 +48,8 @@ import { WahlSelectionService } from './service/wahl-selection.service';
     StatComponent,
     KnappComponent,
     OstenergebnisComponent,
-    KarteComponent
+    KarteComponent,
+    StimmzettelComponent
 
   ],
   imports: [
@@ -64,7 +67,8 @@ import { WahlSelectionService } from './service/wahl-selection.service';
     MatGridListModule,
     MatSlideToggleModule,
     MatButtonToggleModule,
-    MatSliderModule
+    MatSliderModule,
+    MatRadioModule
   ],
   providers: [
     WahlSelectionService

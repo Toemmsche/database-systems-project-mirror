@@ -94,7 +94,7 @@ def load_parteien(cursor: psycopg.cursor) -> None:
         'GRÜNE': '64A12D'
     }
 
-    nationale_minderheiten = set(['SSW'])
+    nationale_minderheiten = {'SSW'}
 
     records = local_csv(parteien)
     records = list(
