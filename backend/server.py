@@ -11,7 +11,10 @@ from logic.util import (
     table_to_json,
     models_nat,
     reset_aggregates,
-    exec_script_from_file
+    exec_script_from_file,
+    table_to_dict_list,
+    load_into_db, logger
+
 )
 
 app = Flask("db-backend")
@@ -121,6 +124,7 @@ def get_wahlkreisergebnisse(wahl: str):
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl)
 
+
 # Voting is only available for the latest election
 @app.route("/api/20/wahlkreis/<wknr>/stimmzettel", methods=['GET'])
 def get_stimmzettel(wknr: str):
@@ -129,12 +133,29 @@ def get_stimmzettel(wknr: str):
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'stimmzettel_2021', wk_nummer=wknr)
 
+
 @app.route("/api/20/wahlkreis/<wknr>/stimmenabgabe", methods=['POST'])
-def cast_vote(wknr: str):
+def cast_vote(wknr: str, ):
     if not valid_wahlkreis(wknr):
         abort(404)
+
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        return ''
+        # Verify vode validity
+        stimmzettel = table_to_dict_list(cursor, 'stimmzettel_2021', wk_nummer=wknr)
+        stimmen = request.json
+        if 'erststimme' in stimmen:
+            erststimme = stimmen['erststimme']
+            legalErststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
+            if erststimme in legalErststimmen:
+                load_into_db(cursor, [(erststimme,)], 'erststimme', )
+                logger.info(f"Cast 'erststimme' for {erststimme} in {wknr}")
+        if 'zweitstimme' in stimmen:
+            zweitstimme = stimmen['zweitstimme']
+            legalZweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
+            if zweitstimme in legalZweitstimmen:
+                load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
+                logger.info(f"Cast 'zweitstimme' for {zweitstimme} in {wknr}")
+    return 'success'
 
 
 if __name__ == '__main__':

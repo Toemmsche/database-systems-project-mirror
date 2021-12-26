@@ -1,3 +1,6 @@
+@import "~@angular/material/theming";
+@import "../../../theme_variables.scss";
+
 :host {
   margin-top: 50px;
   margin-bottom: 100px;
@@ -16,4 +19,11 @@
 
 .mat-column-erststimme {
   border-right: 5px solid black;
+}
+
+#cast-vote-btn {
+  background: mat-color($primaryPalette);
+  color: white;
+  width: 100%;
+  margin-top: 1rem;
 }

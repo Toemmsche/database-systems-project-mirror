@@ -1,11 +1,10 @@
 export class StimmzettelEintrag {
-  wahl !: number;
-  land !: string;
   wk_nummer !: number;
-  wk_name !: string;
   position !: number;
+  kandidatur !: number;
   dk_vorname !: string;
   dk_nachname !: string;
+  liste !: number;
   partei !: string;
   partei_farbe !: string;
 }

@@ -1,32 +1,37 @@
-<h1>{{'Stimmzettel für Wahlkreis ' + this.stimmzettel[0].wk_nummer + '-' + this.stimmzettel[0].wk_name}}</h1>
-<table id="mdb-table" mat-table *ngIf="stimmzettelLoaded()" [dataSource]="stimmzettel" class="mat-elevation-z8">
-  <ng-container matColumnDef="erststimme_selection">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let row">
-      <mat-radio-button *ngIf="row.dk_nachname" name=erststimme_selection></mat-radio-button>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="erststimme">
-    <th mat-header-cell *matHeaderCellDef>ERSTSTIMME</th>
-    <td mat-cell *matCellDef="let row">
-      <div *ngIf="row.dk_nachname">
-        {{row.dk_vorname + ' ' + row.dk_nachname}}
-      </div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="zweitstimme">
-    <th mat-header-cell *matHeaderCellDef>ZWEITSTIMME</th>
-    <td mat-cell *matCellDef="let row"> {{row.partei}} </td>
-  </ng-container>
-  <ng-container matColumnDef="zweitstimme_selection">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let row">
-      <mat-radio-button name=zweitstimme_selection></mat-radio-button>
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-  <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
-  <!--[ngStyle]="{'background': '#' +  mdb.partei_farbe + '60'}" -->
-</table>
+<div *ngIf="stimmzettelLoaded"><h1>{{'Stimmzettel für Wahlkreis ' + this.nummer}}</h1>
+  <table id="mdb-table" mat-table [dataSource]="stimmzettel" class="mat-elevation-z8">
+    <ng-container matColumnDef="erststimme_selection">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <mat-radio-button *ngIf="row.dk_nachname" name=erststimme_selection (change)="erststimmeChanged($event)"
+                          id="{{'erststimme_' + row.kandidatur}}}"></mat-radio-button>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="erststimme">
+      <th mat-header-cell *matHeaderCellDef>ERSTSTIMME</th>
+      <td mat-cell *matCellDef="let row">
+        <div *ngIf="row.dk_nachname">
+          {{row.dk_vorname}} {{row.dk_nachname}}
+        </div>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="zweitstimme">
+      <th mat-header-cell *matHeaderCellDef>ZWEITSTIMME</th>
+      <td mat-cell *matCellDef="let row"> {{row.partei}} </td>
+    </ng-container>
+    <ng-container matColumnDef="zweitstimme_selection">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <mat-radio-button name=zweitstimme_selection (change)="zweitstimmeChanged($event)"
+                          id="{{'zweitstimme_' + row.liste}}}"></mat-radio-button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
+    <!--[ngStyle]="{'background': '#' +  mdb.partei_farbe + '60'}" -->
+  </table>
+  <button *ngIf="stimmzettelLoaded()" id="cast-vote-btn" mat-button (click)="stimmeAbgeben()">Stimmen Abgeben</button>
+</div>
 <span *ngIf="!stimmzettelLoaded()">Loading...</span>
+
 
