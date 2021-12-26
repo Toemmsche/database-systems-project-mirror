@@ -8,10 +8,11 @@ import {StatComponent} from "./stat/stat.component";
 import {KnappComponent} from "./stat/knapp/knapp.component";
 import {OstenergebnisComponent} from "./stat/ostenergebnis/ostenergebnis.component";
 import {StimmzettelComponent} from "./stimmabgabe/stimmzettel/stimmzettel.component";
+import {WahlkreislisteComponent} from "./daten/wahlkreisliste/wahlkreisliste.component";
 
 const routes: Routes = [
   {path: 'Bundestag', component: BundestagComponent, pathMatch: 'full'},
-  {path: 'Daten', redirectTo: 'Daten/Wahlkreis/42', pathMatch: 'full'}, //TODO
+  {path: 'Daten',component: WahlkreislisteComponent, pathMatch: 'full'}, //TODO
   {path: 'Daten/Wahlkreis/:nummer', component: WahlkreisComponent, pathMatch: 'full'},
   {path: 'Karte', component: WahlkreissiegerComponent, pathMatch: 'full'},
   {path: 'Statistiken', component: StatComponent, pathMatch: 'full'},

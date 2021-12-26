@@ -45,6 +45,14 @@ def get_mdb(wahl: str):
         return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
 
 
+@app.route("/api/<wahl>/wahlkreis", methods= ["GET"])
+def get_wahlkreise(wahl: str):
+    if not valid_wahl(wahl):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return table_to_json(cursor, 'wahlkreis', wahl=wahl)
+
+
 @app.route("/api/<wahl>/wahlkreis/<wknr>", methods=['GET'])
 def get_wahlkreisinformation(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):

@@ -33,6 +33,7 @@ import { WahlSelectionService } from './service/wahl-selection.service';
 import { StimmzettelComponent } from './stimmabgabe/stimmzettel/stimmzettel.component';
 import {MatRadioButton, MatRadioModule} from "@angular/material/radio";
 import {MatButtonModule} from "@angular/material/button";
+import { WahlkreislisteComponent } from './daten/wahlkreisliste/wahlkreisliste.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import {MatButtonModule} from "@angular/material/button";
     KnappComponent,
     OstenergebnisComponent,
     KarteComponent,
-    StimmzettelComponent
+    StimmzettelComponent,
+    WahlkreislisteComponent
 
   ],
   imports: [

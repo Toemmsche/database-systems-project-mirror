@@ -1,0 +1,7 @@
+<div *ngIf="wahlkreiseLoaded">
+  <h1>Wahlkreise</h1>
+  <mat-nav-list>
+    <a mat-list-item href="{{'Daten/Wahlkreis/' + wk.nummer}}" *ngFor="let wk of wahlkreise"> {{ wk.nummer }}-{{wk.name}}</a>
+  </mat-nav-list>
+</div>
+
