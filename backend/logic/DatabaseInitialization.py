@@ -1,5 +1,8 @@
 import os
-from logic.ExtractTransformLoad import *
+
+from logic.ETL_2017 import *
+from logic.ETL_2021 import *
+from logic.ETL_general import *
 from logic.config import db_config
 
 
@@ -12,7 +15,7 @@ def init_all() -> None:
             exec_script_from_file(cursor, 'sql/init/init.sql')
 
             # load data for 2021
-            load_bundestagswahl_2021(cursor)
+            load_bundestagswahl(cursor)
             load_bundeslaender(cursor)
 
             # Make sure that Wahlkreise and SVG paths are matched correctly
@@ -65,6 +68,7 @@ def exec_util_queries():
         with conn.cursor() as cursor:
             exec_script_from_file(cursor, 'sql/core/Einzelstimmen222.sql')
             exec_script_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
+            exec_script_from_file(cursor, 'sql/core/Triggers.sql')
 
 
 def exec_data_queries():
@@ -78,23 +82,11 @@ def exec_data_queries():
                     fullpath = os.path.join(root, file)
                     exec_script_from_file(cursor, fullpath)
 
-def exec_refresh_scripts():
-    # open database connection
-    with psycopg.connect(**db_config) as conn:
-        # create cursor to perform database operations
-        with conn.cursor() as cursor:
-            # open scritp directory
-            for root, dirs, files in os.walk('sql/refresh'):  #
-                for file in files:
-                    fullpath = os.path.join(root, file)
-                    exec_script_from_file(cursor, fullpath)
-
 
 def init_backend():
     init_all()
     exec_util_queries()
     exec_data_queries()
-    #exec_refresh_scripts()
 
 
 if __name__ == '__main__':

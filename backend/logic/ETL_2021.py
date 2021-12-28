@@ -1,116 +1,5 @@
-from functional import seq
-from psycopg.types import datetime
-from svgpathtools import svg2paths2
-
 from logic.links import *
 from logic.util import *
-
-
-def load_bundestagswahl_2021(cursor: psycopg.cursor):
-    load_into_db(
-        cursor,
-        [
-            (datetime.date(2017, 9, 24), 19),
-            (datetime.date(2021, 9, 26), 20),
-        ],
-        'Bundestagswahl'
-    )
-
-
-def load_bundeslaender(cursor: psycopg.cursor) -> None:
-    records = download_csv(bundeslaender)
-    osten_bundeslaender = ['BB', 'SN', 'MV', 'TH', 'ST'] # no berlin
-    records = list(
-        map(
-            lambda row: (
-                row['label'],
-                row['name_de'],
-                row['label'] in osten_bundeslaender, # osten
-                None,
-                row['id']),
-            records,
-        )
-    )
-    load_into_db(cursor, records, 'Bundesland')
-
-
-def load_wahlkreise(
-        url: str, wahl: int, deutsche_key: str, begrenzungen_url: str, begrenzungen_dict: dict[int, int], cursor: psycopg.cursor,
-        encoding: str = 'utf-8-sig'
-) -> None:
-    records = download_csv(url, delimiter=';', skip=1, encoding=encoding)
-    bundesland_mapping = key_dict(cursor, 'bundesland', ('name',), 'landId')
-    _, attributes, _ = svg2paths2(begrenzungen_url)
-
-    records = list(
-        map(
-            lambda row: (
-                row['Wahlkreis-Nr.'],
-                row['Wahlkreis-Name'],
-                bundesland_mapping[(row['Land'],)],
-                wahl,
-                int(parse_float_de(row[deutsche_key]) * 1000),
-                attributes[begrenzungen_dict[int(row['Wahlkreis-Nr.'])]]['d'].strip().replace(',', ' ')
-            ),
-            filter(
-                lambda row: row['Land'] != 'Deutschland' and
-                            row['Wahlkreis-Name'] != 'Land insgesamt',
-                records
-            )
-        )
-    )
-    load_into_db(cursor, records, 'Wahlkreis')
-
-
-def load_gemeinden(
-        url: str,
-        wahl: int,
-        cursor: psycopg.cursor,
-        encoding: str = 'utf-8-sig'
-) -> None:
-    records = local_csv(url, delimiter=';', encoding=encoding)
-    wk_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl'), 'wkid')
-    records = list(
-        map(
-            lambda row: (
-                row['Gemeindename'],
-                row['PLZ-GemVerwaltung'],
-                wk_mapping[(int(row['Wahlkreis-Nr']), wahl)],
-                None),
-            records,
-        )
-    )
-    load_into_db(cursor, records, 'Gemeinde')
-
-
-def load_parteien(cursor: psycopg.cursor) -> None:
-    parteifarben_dict = {
-        'CDU': '000000',
-        'SPD': 'EB001F',
-        'AfD': '00ADEF',
-        'CSU': '0077B3',
-        'FDP': 'FFED00',
-        'DIE LINKE': 'BE3075',
-        'GRÜNE': '64A12D'
-    }
-
-    nationale_minderheiten = {'SSW'}
-
-    records = local_csv(parteien)
-    records = list(
-        map(
-            lambda row: (
-                row['Name'],
-                row['Kurzbezeichnung'],
-                row['Kurzbezeichnung'] in nationale_minderheiten,
-                notFalsy(row['Gründungsdatum'][-4:], None),
-                parteifarben_dict[row['Kurzbezeichnung']] if row['Kurzbezeichnung'] in parteifarben_dict else 'DDDDDD',
-                None
-            ),
-            records,
-        )
-    )
-    load_into_db(cursor, records, 'Partei')
 
 
 def load_landeslisten_2021(cursor: psycopg.cursor) -> None:
@@ -226,70 +115,6 @@ def load_listenplaetze_2021(cursor: psycopg.cursor) -> None:
     )
 
 
-def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
-    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
-
-    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
-    partei_mapping.update({('Neue Liberale',): partei_mapping[('SL',)]})
-    partei_mapping.update({('MG',): partei_mapping[('Gartenpartei',)]})
-    wahlkreis_mapping = key_dict(
-        cursor,
-        'wahlkreis',
-        ('nummer', 'wahl',),
-        'wkId'
-    )
-
-    ergebnisse_partei = list(
-        filter(
-            lambda row: row['Gebietsart'] == 'Wahlkreis' and
-                        row['Gruppenart'] == 'Partei' and
-                        row['Stimme'] == '1' and
-                        row['Anzahl'] != '',
-            ergebnisse
-        )
-    )
-    direktkandidaten_partei = list(
-        map(
-            lambda row: (
-                partei_mapping[(row['Gruppenname'],)],
-                None,
-                None,
-                wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
-                int(row['Anzahl'])
-            ),
-            ergebnisse_partei
-        )
-    )
-
-    ergebnisse_parteilos = list(
-        filter(
-            lambda row: row['Gebietsart'] == 'Wahlkreis' and
-                        row['Gruppenart'] == 'Einzelbewerber/Wählergruppe' and
-                        row['Stimme'] == '1' and
-                        row['Anzahl'] != '',
-            ergebnisse
-        )
-    )
-    direktkandidaten_parteilos = list(
-        map(
-            lambda row: (
-                None,
-                row['Gruppenname'],
-                None,
-                wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
-                int(row['Anzahl'])
-            ),
-            ergebnisse_parteilos
-        )
-    )
-
-    load_into_db(
-        cursor,
-        direktkandidaten_partei + direktkandidaten_parteilos,
-        'Direktkandidatur'
-    )
-
-
 def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = False) -> None:
     records = local_csv(kandidaten_2021, delimiter=';')
     ergebnisse = download_csv(ergebnisse_2021, delimiter=';', skip=9)
@@ -390,7 +215,7 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
     )
 
 
-def load_zweitstimmen_2021(cursor: psycopg.cursor, generate_stimmen: bool = False) -> None:
+def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
     records = download_csv(ergebnisse_2021, delimiter=';', skip=9)
 
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
@@ -434,71 +259,6 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor, generate_stimmen: bool = Fals
     )
     load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
 
-
-def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
-    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
-    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
-    partei_mapping.update({('MG',): partei_mapping[('Gartenpartei',)]})
-    landeslisten = list(
-        seq(ergebnisse)
-            .filter(
-            lambda row: row['Gebietsart'] == 'Land' and
-                        row['Gruppenart'] == 'Partei' and
-                        row['Stimme'] == '2' and
-                        row['Anzahl'] != ''
-        )
-            .map(
-            lambda row: (
-                partei_mapping[(row['Gruppenname'],)],
-                19,
-                row['Gebietsnummer'],
-                -1
-            )
-        )
-    )
-    load_into_db(cursor, landeslisten, 'Landesliste')
-
-
-def load_zweitstimmen_2017(cursor: psycopg.cursor) -> None:
-    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
-    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
-    partei_mapping.update({('MG',): partei_mapping[('Gartenpartei',)]})
-    listen_mapping = key_dict(
-        cursor,
-        'landesliste',
-        ('partei', 'land', 'wahl'),
-        'listenId',
-    )
-    wahlkreis_mapping = key_dict(
-        cursor,
-        'Wahlkreis',
-        ('nummer', 'wahl'),
-        'wkId'
-    )
-    zweitstimmenergebnisse = list(
-        seq(ergebnisse)
-            .filter(
-            lambda row: row['Gebietsart'] == 'Wahlkreis' and
-                        row['Gruppenart'] == 'Partei' and
-                        row['Stimme'] == '2' and
-                        row['Anzahl'] != ''
-        )
-            .map(
-            lambda row: (
-                listen_mapping[(
-                    partei_mapping[(row['Gruppenname']),],
-                    int(row['UegGebietsnummer']),
-                    19,
-                )],
-                wahlkreis_mapping[(
-                    int(row['Gebietsnummer']),
-                    19
-                )],
-                row['Anzahl'],
-            )
-        )
-    )
-    load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
 
 if __name__ == '__main__':
     load_landeslisten_2021(None)

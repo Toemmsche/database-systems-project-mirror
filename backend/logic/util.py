@@ -2,7 +2,6 @@ import csv
 import itertools
 import logging
 import math
-import time
 
 import psycopg
 import requests
@@ -54,10 +53,8 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
     # Cut columns if necessary
     col_names = col_names[:record_len]
     with cursor.copy(f'COPY  {table}({",".join(col_names)}) FROM STDIN') as copy:
-
         for record in records:
             copy.write_row(record)
-
 
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
@@ -99,7 +96,6 @@ def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dic
     query = f"SELECT * FROM {table} {kwargs_str}"
 
     res = cursor.execute(query).fetchall()
-
 
     col_names = [desc.name for desc in cursor.description]
     arr = []

@@ -1,10 +1,4 @@
-DROP VIEW IF EXISTS divisor_kandidat CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mandat CASCADE;
-
-
-CREATE VIEW divisor_kandidat(divisor) AS
-    VALUES (0),
-           (1);
 
 --Mit 'Ueberhang' wird die 2. Normalform bewusst verletzt, damit Informationen kompakter abgespeichert werden können
 CREATE MATERIALIZED VIEW mandat
@@ -128,6 +122,8 @@ CREATE MATERIALIZED VIEW mandat
             (SELECT wahl, SUM(bevoelkerung)
              FROM bundesland_bevoelkerung
              GROUP BY wahl),
+        divisor_kandidat(divisor) AS
+                (VALUES (0), (1)),
         sitzverteilung(wahl, sitze, divisor, next_divisor) AS
             (SELECT b.wahl,
                     SUM(ROUND(b.bevoelkerung / (gb.bevoelkerung::DECIMAL / gs.anzahlsitze))),
