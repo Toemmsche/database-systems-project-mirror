@@ -17,14 +17,41 @@ export class WahlkreisComponent implements OnInit {
   wahl !: number;
 
   wahlkreis !: Wahlkreis;
-  results !: Array<ParteiErgebnis>;
-  resultsConfig = {
+  erststimmenergebnisse !: Array<ParteiErgebnis>;
+  erststimmenConfig = {
     type: 'bar',
     data: {
       labels: [] as Array<string>,
       datasets: [
         {
           label: "Erststimmen",
+          borderWidth: 1,
+          data: [] as Array<number>,
+          backgroundColor: [] as Array<string>,
+        }
+      ]
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
+          }
+        ]
+      }
+    }
+  }
+
+  zweitstimmenergebnisse !: Array<ParteiErgebnis>;
+  zweitstimmenConfig = {
+    type: 'bar',
+    data: {
+      labels: [] as Array<string>,
+      datasets: [
+        {
+          label: "Zweitstimmen",
           borderWidth: 1,
           data: [] as Array<number>,
           backgroundColor: [] as Array<string>,
@@ -51,7 +78,8 @@ export class WahlkreisComponent implements OnInit {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
     wahlservice.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlservice.getWahlNumber(selection);
-      this.results = []
+      this.erststimmenergebnisse = [];
+      this.zweitstimmenergebnisse = [];
       this.ngOnInit()
     });
   }
@@ -80,20 +108,44 @@ export class WahlkreisComponent implements OnInit {
           return b.abs_stimmen - a.abs_stimmen;
         });
         // Populate bar chart
-        const chartData = this.resultsConfig.data;
+        const chartData = this.erststimmenConfig.data;
         chartData.labels = data.map((result) => result.partei);
         chartData.datasets[0].data = data.map((result) => result.abs_stimmen);
         chartData.datasets[0].backgroundColor = data.map((result) => '#' +
           result.partei_farbe);
 
         // Save for later
-        this.results = data;
+        this.erststimmenergebnisse = data;
+      });
+    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/zweitstimmen`)
+      .then(response => response.json())
+      .then((data: Array<ParteiErgebnis>) => {
+        data = data.sort((a, b) => {
+          if (a.partei == 'Sonstige') {
+            return 1;
+          } else if (b.partei == 'Sonstige') {
+            return -1;
+          }
+          return b.abs_stimmen - a.abs_stimmen;
+        });
+        // Populate bar chart
+        const chartData = this.zweitstimmenConfig.data;
+        chartData.labels = data.map((result) => result.partei);
+        chartData.datasets[0].data = data.map((result) => result.abs_stimmen);
+        chartData.datasets[0].backgroundColor = data.map((result) => '#' +
+          result.partei_farbe);
+
+        // Save for later
+        this.zweitstimmenergebnisse = data;
       });
   }
 
   wahlkreisLoaded(): boolean {
-    return this.wahlkreis != null && this.results != null &&
-      this.results.length > 0;
+    return this.wahlkreis != null &&
+      this.erststimmenergebnisse != null &&
+      this.erststimmenergebnisse.length > 0 &&
+      this.zweitstimmenergebnisse != null &&
+      this.zweitstimmenergebnisse.length > 0;
   }
 
 }

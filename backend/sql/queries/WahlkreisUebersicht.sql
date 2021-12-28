@@ -2,10 +2,10 @@ DROP VIEW IF EXISTS wahlkreisinformation CASCADE;
 DROP VIEW IF EXISTS erststimmen_qpartei_wahlkreis_rich CASCADE;
 DROP VIEW IF EXISTS zweitstimmen_qpartei_wahlkreis_rich CASCADE;
 
-
 CREATE VIEW wahlkreisinformation
-            (wahl, wk_nummer, wk_name, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
+            (wahl, land, wk_nummer, wk_name, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
     SELECT wk.wahl,
+           bl.name,
            wk.nummer,
            wk.name,
            k.vorname                                          AS sieger_vorname,
@@ -17,12 +17,14 @@ CREATE VIEW wahlkreisinformation
              LEFT OUTER JOIN
          kandidat k ON k.kandid = m.kandidat,
          zweitstimmenergebnis ze,
-         partei p
+         partei p,
+         bundesland bl
     WHERE m.ist_direktmandat
       AND wk.wkid = m.wahlkreis
       AND wk.wkid = ze.wahlkreis
       AND m.partei = p.parteiid
-    GROUP BY wk.wahl, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
+      AND wk.land = bl.landid
+    GROUP BY wk.wahl, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
 
 CREATE VIEW erststimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
     WITH erststimmen_wahlkreis(wahlkreis, anzahlstimmen) AS

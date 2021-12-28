@@ -124,7 +124,7 @@ CREATE MATERIALIZED VIEW mandat
              GROUP BY wahl),
         divisor_kandidat(divisor) AS
                 (VALUES (0), (1)),
-        sitzverteilung(wahl, sitze, divisor, next_divisor) AS
+        bund_divisor(wahl, sitze, divisor, next_divisor) AS
             (SELECT b.wahl,
                     SUM(ROUND(b.bevoelkerung / (gb.bevoelkerung::DECIMAL / gs.anzahlsitze))),
                     SUM(b.bevoelkerung)::DECIMAL / gs.anzahlsitze,
@@ -162,13 +162,13 @@ CREATE MATERIALIZED VIEW mandat
                                     LIMIT 2) AS d)
                          ELSE sv.next_divisor
                          END
-              FROM sitzverteilung sv,
+              FROM bund_divisor sv,
                    gesamtsitze gs
               WHERE sv.wahl = gs.wahl
                 AND sv.sitze != gs.anzahlsitze)),
         divisor AS
             (SELECT sv.wahl, sv.divisor
-             FROM sitzverteilung sv,
+             FROM bund_divisor sv,
                   gesamtsitze gs
              WHERE sv.wahl = gs.wahl
                AND sv.sitze = gs.anzahlsitze),

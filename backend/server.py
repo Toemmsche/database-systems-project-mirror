@@ -50,7 +50,7 @@ def get_wahlkreise(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        return table_to_json(cursor, 'wahlkreis', wahl=wahl)
+        return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl)
 
 
 @app.route("/api/<wahl>/wahlkreis/<wknr>", methods=['GET'])

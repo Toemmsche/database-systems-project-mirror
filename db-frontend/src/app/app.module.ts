@@ -29,11 +29,15 @@ import {KarteComponent} from './karte/karte.component';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
 import {MatSliderModule} from '@angular/material/slider';
-import { WahlSelectionService } from './service/wahl-selection.service';
-import { StimmzettelComponent } from './stimmabgabe/stimmzettel/stimmzettel.component';
-import {MatRadioButton, MatRadioModule} from "@angular/material/radio";
+import {WahlSelectionService} from './service/wahl-selection.service';
+import {StimmzettelComponent} from './stimmabgabe/stimmzettel/stimmzettel.component';
+import {MatRadioModule} from "@angular/material/radio";
 import {MatButtonModule} from "@angular/material/button";
-import { WahlkreislisteComponent } from './daten/wahlkreisliste/wahlkreisliste.component';
+import {WahlkreislisteComponent} from './daten/wahlkreisliste/wahlkreisliste.component';
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatOptionModule} from "@angular/material/core";
+import {MatSelectModule} from "@angular/material/select";
 
 @NgModule({
   declarations: [
@@ -72,7 +76,11 @@ import { WahlkreislisteComponent } from './daten/wahlkreisliste/wahlkreisliste.c
     MatButtonToggleModule,
     MatSliderModule,
     MatRadioModule,
-    MatButtonModule
+    MatButtonModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatOptionModule,
+    MatSelectModule
   ],
   providers: [
     WahlSelectionService

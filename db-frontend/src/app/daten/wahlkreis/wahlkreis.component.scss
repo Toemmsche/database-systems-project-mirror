@@ -5,3 +5,15 @@
 .wahlkreis-card-key mat-card-content {
   font-weight: bold;
 }
+
+#wahlkreis-chart-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.wahlkreis-chart-titled {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
