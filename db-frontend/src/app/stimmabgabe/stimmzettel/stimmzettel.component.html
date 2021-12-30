@@ -1,4 +1,5 @@
-<div *ngIf="stimmzettelLoaded"><h1>{{'Stimmzettel für Wahlkreis ' + this.nummer}}</h1>
+<div *ngIf="stimmzettelLoaded()">
+  <h1>{{'Stimmzettel für Wahlkreis ' + this.nummer}}</h1>
   <table id="mdb-table" mat-table [dataSource]="stimmzettel" class="mat-elevation-z8">
     <ng-container matColumnDef="erststimme_selection">
       <th mat-header-cell *matHeaderCellDef></th>
@@ -32,6 +33,6 @@
   </table>
   <button *ngIf="stimmzettelLoaded()" id="cast-vote-btn" mat-button (click)="stimmeAbgeben()">Stimmen Abgeben</button>
 </div>
-<span *ngIf="!stimmzettelLoaded()">Loading...</span>
+<mat-spinner *ngIf="!stimmzettelLoaded()"></mat-spinner>
 
 

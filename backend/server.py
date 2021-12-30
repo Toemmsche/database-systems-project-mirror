@@ -1,5 +1,4 @@
 import time
-
 from flask import Flask, abort, request, current_app, g as app_ctx
 from flask_cors import CORS
 from psycopg_pool import ConnectionPool
@@ -8,6 +7,7 @@ from logic.config import conn_string
 from logic.util import (
     valid_wahl,
     valid_wahlkreis,
+    valid_stimme,
     table_to_json,
     models_nat,
     reset_aggregates,
@@ -45,7 +45,7 @@ def get_mdb(wahl: str):
         return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
 
 
-@app.route("/api/<wahl>/wahlkreis", methods= ["GET"])
+@app.route("/api/<wahl>/wahlkreis", methods=["GET"])
 def get_wahlkreise(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
@@ -150,20 +150,31 @@ def cast_vote(wknr: str, ):
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         # Verify vode validity
         stimmzettel = table_to_dict_list(cursor, 'stimmzettel_2021', wk_nummer=wknr)
-        stimmen = request.json
-        if 'erststimme' in stimmen:
-            erststimme = stimmen['erststimme']
-            legalErststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
-            if erststimme in legalErststimmen:
-                load_into_db(cursor, [(erststimme,)], 'erststimme', )
-                logger.info(f"Cast 'erststimme' for {erststimme} in {wknr}")
-        if 'zweitstimme' in stimmen:
-            zweitstimme = stimmen['zweitstimme']
-            legalZweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
-            if zweitstimme in legalZweitstimmen:
-                load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
-                logger.info(f"Cast 'zweitstimme' for {zweitstimme} in {wknr}")
-    return 'success'
+        try:
+            stimmen = request.json
+            if 'erststimme' in stimmen:
+                erststimme = stimmen['erststimme']
+                legalErststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
+                if valid_stimme(erststimme) and erststimme in legalErststimmen:
+                    load_into_db(cursor, [(erststimme,)], 'erststimme', )
+                    logger.info(f"Received first vote for {erststimme} in {wknr}")
+                else:
+                    err_str = f"Invalid first vote for wahlkreis {wknr}: {str(erststimme)}"
+                    logger.error(err_str)
+            if 'zweitstimme' in stimmen:
+                zweitstimme = stimmen['zweitstimme']
+                legalZweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
+                if valid_stimme(zweitstimme) and zweitstimme in legalZweitstimmen:
+                    load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
+                    logger.info(f"Received second vote for {zweitstimme} in {wknr}")
+                else:
+                    err_str = f"Invalid second vote for wahlkreis {wknr}: {str(zweitstimme)}"
+                    logger.error(err_str)
+            return 'processed\n'
+        except:
+            err_str = f"Bad request: {request.data}"
+            logger.error(err_str)
+            abort(400)
 
 
 if __name__ == '__main__':

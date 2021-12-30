@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {BundestagComponent} from "./bundestag/bundestag.component";
 import {WahlkreisComponent} from "./daten/wahlkreis/wahlkreis.component";
 import {WahlkreissiegerComponent} from "./karte/wahlkreissieger/wahlkreissieger.component";
 import {UeberhangComponent} from "./stat/ueberhang/ueberhang.component";
@@ -9,10 +8,13 @@ import {KnappComponent} from "./stat/knapp/knapp.component";
 import {OstenergebnisComponent} from "./stat/ostenergebnis/ostenergebnis.component";
 import {StimmzettelComponent} from "./stimmabgabe/stimmzettel/stimmzettel.component";
 import {WahlkreislisteComponent} from "./daten/wahlkreisliste/wahlkreisliste.component";
+import {MitgliederComponent} from "./bundestag/mitglieder/mitglieder.component";
+import {SitzverteilungComponent} from "./bundestag/sitzverteilung/sitzverteilung.component";
 
 const routes: Routes = [
-  {path: 'Bundestag', component: BundestagComponent, pathMatch: 'full'},
-  {path: 'Daten',component: WahlkreislisteComponent, pathMatch: 'full'}, //TODO
+  {path: 'Bundestag', component: SitzverteilungComponent, pathMatch: 'full'},
+  {path: 'Bundestag/Mitglieder', component: MitgliederComponent, pathMatch: 'full'},
+  {path: 'Daten', component: WahlkreislisteComponent, pathMatch: 'full'}, //TODO
   {path: 'Daten/Wahlkreis/:nummer', component: WahlkreisComponent, pathMatch: 'full'},
   {path: 'Karte', component: WahlkreissiegerComponent, pathMatch: 'full'},
   {path: 'Statistiken', component: StatComponent, pathMatch: 'full'},
@@ -21,7 +23,7 @@ const routes: Routes = [
   {path: 'Statistiken/OstenErgebnis', component: OstenergebnisComponent, pathMatch: 'full'},
   {path: 'Stimmabgabe', redirectTo: 'Stimmabgabe/222', pathMatch: 'full'}, //TODO
   {path: 'Stimmabgabe/:nummer', component: StimmzettelComponent, pathMatch: 'full'},
-  {path: '', component: BundestagComponent, pathMatch: 'full'}
+  {path: '', component: SitzverteilungComponent, pathMatch: 'full'}
 ];
 
 @NgModule({
