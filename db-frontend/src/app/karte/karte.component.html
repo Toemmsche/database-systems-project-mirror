@@ -1,7 +1,25 @@
-<svg *ngIf="bDataLoaded()" height="500" width="1000">
-  <a *ngFor="let b of bData" routerLink="/Daten/Wahlkreis/{{b.wk_nummer}}">
-    <path #begrenzung class="begrenzung" [attr.d]="b.begrenzung" id="{{viewId}}_{{b.wk_nummer}}">
-      <title>{{b.wk_nummer}} - {{b.wk_name}}</title>
-    </path>
-  </a>
-</svg>
+<div>
+  <h1>Wahlkreissieger nach Erst- und Zweitstimme</h1>
+  <div id="karte-toggle-container">
+    <mat-button-toggle-group name="partei" [(ngModel)]="partei" (change)="onParteiChange()">
+      <mat-button-toggle value="Gewinner">Gewinner</mat-button-toggle>
+      <mat-button-toggle *ngFor="let partei of parteien" [value]="partei">{{partei}}</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-button-toggle-group name="siegerTyp" [(ngModel)]="siegerTyp" (change)="onSiegerTypChange()">
+      <mat-button-toggle [value]="1">Erststimme</mat-button-toggle>
+      <mat-button-toggle [value]="2">Zweitstimme</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+  <svg *ngIf="bDataLoaded()" height="500" width="1000">
+    <a *ngFor="let b of bData" routerLink="/Daten/Wahlkreis/{{b.wk_nummer}}">
+      <path #begrenzung class="begrenzung" [attr.d]="b.begrenzung" id="karte_{{b.wk_nummer}}">
+        <title>{{b.wk_nummer}} - {{b.wk_name}}</title>
+      </path>
+    </a>
+  </svg>
+</div>
+<mat-spinner *ngIf="!wksLoaded()"></mat-spinner>
+
+
+

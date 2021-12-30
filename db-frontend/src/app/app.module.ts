@@ -14,7 +14,6 @@ import {MitgliederComponent} from './bundestag/mitglieder/mitglieder.component';
 import {WahlkreisComponent} from './daten/wahlkreis/wahlkreis.component';
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
-import {WahlkreissiegerComponent} from './karte/wahlkreissieger/wahlkreissieger.component';
 import {UeberhangComponent} from './stat/ueberhang/ueberhang.component';
 import {MatDividerModule} from "@angular/material/divider";
 import {StatComponent} from './stat/stat.component';
@@ -48,7 +47,6 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     FooterComponent,
     MitgliederComponent,
     WahlkreisComponent,
-    WahlkreissiegerComponent,
     UeberhangComponent,
     StatComponent,
     KnappComponent,
