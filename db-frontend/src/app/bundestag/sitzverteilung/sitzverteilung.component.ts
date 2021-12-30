@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {REST_GET} from "../../../util";
 import {Sitzverteilung} from "../../../model/Sitzverteilung";
+import {WahlSelectionService} from "../../service/wahl-selection.service";
 
 @Component({
   selector: 'app-sitzverteilung',
@@ -9,6 +10,7 @@ import {Sitzverteilung} from "../../../model/Sitzverteilung";
 })
 export class SitzverteilungComponent implements OnInit {
 
+  wahl !: number;
   sitzverteilung !: Array<Sitzverteilung>;
   columnsToDisplay = ['partei', 'sitze'];
   sitzVerteilungConfig = {
@@ -33,7 +35,14 @@ export class SitzverteilungComponent implements OnInit {
   }
 
 
-  constructor() {
+  constructor(    private readonly wahlservice: WahlSelectionService
+  ) {
+    this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
+    wahlservice.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlservice.getWahlNumber(selection);
+      this.sitzverteilung = [];
+      this.ngOnInit()
+    });
   }
 
   ngOnInit(): void {
@@ -41,7 +50,7 @@ export class SitzverteilungComponent implements OnInit {
   }
 
   populate() {
-    REST_GET('20/sitzverteilung')
+    REST_GET(`${this.wahl}/sitzverteilung`)
       .then(response => response.json())
       .then((data: Array<Sitzverteilung>) => {
         // Populate half-pie chart

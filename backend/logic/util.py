@@ -152,6 +152,9 @@ def valid_wahl(wahl: str):
 def valid_wahlkreis(wknr: str):
     return models_nat(wknr) and 1 <= int(wknr) <= 299
 
+def valid_stimme(stimme):
+    return models_nat(stimme)
+
 
 if __name__ == '__main__':
     download_csv(

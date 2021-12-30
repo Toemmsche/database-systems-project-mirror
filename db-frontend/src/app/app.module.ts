@@ -9,7 +9,6 @@ import {NavitemComponent} from './header/navigation/navitem/navitem.component';
 import {SitzverteilungComponent} from './bundestag/sitzverteilung/sitzverteilung.component';
 import {HeaderComponent} from './header/header.component';
 import {FooterComponent} from './footer/footer.component';
-import {BundestagComponent} from './bundestag/bundestag.component';
 import {MatTableModule} from "@angular/material/table";
 import {MitgliederComponent} from './bundestag/mitglieder/mitglieder.component';
 import {WahlkreisComponent} from './daten/wahlkreis/wahlkreis.component';
@@ -38,6 +37,7 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -46,7 +46,6 @@ import {MatSelectModule} from "@angular/material/select";
     SitzverteilungComponent,
     HeaderComponent,
     FooterComponent,
-    BundestagComponent,
     MitgliederComponent,
     WahlkreisComponent,
     WahlkreissiegerComponent,
@@ -57,7 +56,6 @@ import {MatSelectModule} from "@angular/material/select";
     KarteComponent,
     StimmzettelComponent,
     WahlkreislisteComponent
-
   ],
   imports: [
     BrowserModule,
@@ -80,7 +78,8 @@ import {MatSelectModule} from "@angular/material/select";
     MatPaginatorModule,
     MatFormFieldModule,
     MatOptionModule,
-    MatSelectModule
+    MatSelectModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     WahlSelectionService

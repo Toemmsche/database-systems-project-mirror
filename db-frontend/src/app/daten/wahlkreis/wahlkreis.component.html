@@ -1,5 +1,10 @@
 <mat-card id="wahlkreis-card" *ngIf="wahlkreisLoaded()">
-  <mat-card-title>{{"Wahlkreis " + nummer}}</mat-card-title>
+  <div id="wahlkreis-card-header">
+    <mat-card-title>{{"Wahlkreis " + nummer}}</mat-card-title>
+    <mat-slide-toggle id="einzelstimmen-toggle" (change)="onEinzelstimmenToggleChanged($event)"
+                      checked="{{useEinzelstimmen}}">Neuberechnung mit Einzelstimmen
+    </mat-slide-toggle>
+  </div>
   <mat-divider inset></mat-divider>
   <mat-card-content></mat-card-content>
   <table>
@@ -63,3 +68,4 @@
     </div>
   </div>
 </mat-card>
+<mat-spinner *ngIf="!wahlkreisLoaded()"></mat-spinner>
