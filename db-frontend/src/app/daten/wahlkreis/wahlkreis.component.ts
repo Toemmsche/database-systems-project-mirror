@@ -98,7 +98,7 @@ export class WahlkreisComponent implements OnInit {
       .then((data: Wahlkreis) => {
         this.wahlkreis = data;
       });
-    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/erststimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
+    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
         data = data.sort((a, b) => {
@@ -109,36 +109,28 @@ export class WahlkreisComponent implements OnInit {
           }
           return b.abs_stimmen - a.abs_stimmen;
         });
+
         // Populate bar chart
-        const chartData = this.erststimmenConfig.data;
-        chartData.labels = data.map((result) => result.partei);
-        chartData.datasets[0].data = data.map((result) => result.abs_stimmen);
-        chartData.datasets[0].backgroundColor = data.map((result) => '#' +
+        const esData = data.filter(pe => pe.stimmentyp == 1);
+        const esChartData = this.erststimmenConfig.data;
+        esChartData.labels = esData.map((result) => result.partei);
+        esChartData.datasets[0].data = esData.map((result) => result.abs_stimmen);
+        esChartData.datasets[0].backgroundColor = esData.map((result) => '#' +
           result.partei_farbe);
 
         // Save for later
-        this.erststimmenergebnisse = data;
-      });
-    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/zweitstimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
-      .then(response => response.json())
-      .then((data: Array<ParteiErgebnis>) => {
-        data = data.sort((a, b) => {
-          if (a.partei == 'Sonstige') {
-            return 1;
-          } else if (b.partei == 'Sonstige') {
-            return -1;
-          }
-          return b.abs_stimmen - a.abs_stimmen;
-        });
+        this.erststimmenergebnisse = esData;
+
         // Populate bar chart
-        const chartData = this.zweitstimmenConfig.data;
-        chartData.labels = data.map((result) => result.partei);
-        chartData.datasets[0].data = data.map((result) => result.abs_stimmen);
-        chartData.datasets[0].backgroundColor = data.map((result) => '#' +
+        const zsData = data.filter(pe => pe.stimmentyp == 2);
+        const zsChartData = this.zweitstimmenConfig.data;
+        zsChartData.labels = zsData.map((result) => result.partei);
+        zsChartData.datasets[0].data = zsData.map((result) => result.abs_stimmen);
+        zsChartData.datasets[0].backgroundColor = zsData.map((result) => '#' +
           result.partei_farbe);
 
         // Save for later
-        this.zweitstimmenergebnisse = data;
+        this.zweitstimmenergebnisse = zsData;
       });
   }
 

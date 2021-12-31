@@ -1,4 +1,4 @@
-<div *ngIf="mdbLoaded()">
+<div id="mdb-container" *ngIf="mdbLoaded()">
   <h1>Mitglieder des Deutschen Bundestages</h1>
   <table id="mdb-table" mat-table  [dataSource]="mdbDataSource" class="mat-elevation-z8">
     <ng-container matColumnDef="vorname">

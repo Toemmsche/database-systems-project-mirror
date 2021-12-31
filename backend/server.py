@@ -14,7 +14,6 @@ from logic.util import (
     exec_script_from_file,
     table_to_dict_list,
     load_into_db, logger
-
 )
 
 app = Flask("db-backend")
@@ -63,7 +62,7 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
         return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wk_nummer=wknr, single=True)
 
 
-@app.route("/api/<wahl>/wahlkreis/<wknr>/erststimmen", methods=['GET'])
+@app.route("/api/<wahl>/wahlkreis/<wknr>/stimmen", methods=['GET'])
 def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
@@ -71,19 +70,7 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
-        return table_to_json(cursor, 'erststimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
-
-
-@app.route("/api/<wahl>/wahlkreis/<wknr>/zweitstimmen", methods=['GET'])
-def get_wahlkreisergebnis_zweitstimmen(wahl: str, wknr: str):
-    if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
-        abort(404)
-    with conn_pool.connection() as conn, conn.cursor() as cursor:
-        # if specified, reset aggregates
-        if request.args.get('einzelstimmen') == 'true':
-            reset_aggregates(cursor, wahl, wknr)
-        return table_to_json(cursor, 'zweitstimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
-
+        return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 @app.route("/api/<wahl>/wahlkreissieger", methods=['GET'])
 def get_wahlkreissieger(wahl: str):

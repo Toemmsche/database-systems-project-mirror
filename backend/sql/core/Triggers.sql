@@ -6,7 +6,6 @@ DROP FUNCTION IF EXISTS refresh_mandat CASCADE;
 DROP TRIGGER IF EXISTS mandat_erststimmen_refresh ON direktkandidatur CASCADE;
 DROP TRIGGER IF EXISTS mandat_zweitimmen_refresh ON direktkandidatur CASCADE;
 
-
 --ERSTSTIMMENAGGREGAT
 CREATE FUNCTION update_erststimmen_aggregate()
     RETURNS trigger
