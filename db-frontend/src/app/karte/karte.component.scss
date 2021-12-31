@@ -12,6 +12,13 @@
   stroke-width: 1;
 }
 
+#karte-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 #karte-toggle-container {
   display: flex;
   flex-direction: column;

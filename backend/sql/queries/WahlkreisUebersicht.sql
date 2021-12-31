@@ -26,8 +26,19 @@ CREATE VIEW wahlkreisinformation
       AND wk.land = bl.landid
     GROUP BY wk.wahl, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
 
-CREATE VIEW erststimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
-    WITH erststimmen_wahlkreis(wahlkreis, anzahlstimmen) AS
+CREATE VIEW stimmen_qpartei_wahlkreis_rich
+            (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
+    WITH qpartei(wahl, partei) AS
+             (SELECT DISTINCT m.wahl, m.partei
+              FROM mandat m),
+         nicht_qpartei(wahl, partei) AS
+             (SELECT btw.nummer, p.parteiid
+              FROM bundestagswahl btw,
+                   partei p
+                  EXCEPT
+              SELECT *
+              FROM qpartei),
+         erststimmen_wahlkreis(wahlkreis, anzahlstimmen) AS
              (SELECT dk.wahlkreis, SUM(dk.anzahlstimmen)
               FROM direktkandidatur dk
               GROUP BY dk.wahlkreis),
@@ -40,36 +51,8 @@ CREATE VIEW erststimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_f
                    direktkandidatur dk,
                    erststimmen_wahlkreis ew
               WHERE wk.wkid = ew.wahlkreis
-                AND wk.wkid = dk.wahlkreis)
-    SELECT wk.wahl,
-           wk.nummer,
-           p.kuerzel,
-           p.farbe,
-           epw.abs_stimmen,
-           epw.rel_stimmen
-    FROM erststimmen_partei_wahlkreis epw,
-         partei p,
-         wahlkreis wk
-    WHERE epw.partei = p.parteiid
-      AND epw.wahlkreis = wk.wkid
-      --Nur Parteien, die die 5% Hürde "im Wahlkreis" erreicht haben
-      AND rel_stimmen >= 0.05
-    UNION
-    SELECT wk.wahl,
-           wk.nummer,
-           'Sonstige',
-           'DDDDDD',
-           SUM(epw.abs_stimmen) AS abs_stimmen,
-           SUM(epw.rel_stimmen) AS rel_stimmen
-    FROM erststimmen_partei_wahlkreis epw,
-         wahlkreis wk
-    WHERE epw.wahlkreis = wk.wkid
-      AND epw.rel_stimmen < 0.05
-    GROUP BY wk.wahl, wk.nummer;
-
-
-CREATE VIEW zweitstimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
-    WITH zweitstimmen_wahlkreis(wahlkreis, anzahlstimmen) AS
+                AND wk.wkid = dk.wahlkreis),
+         zweitstimmen_wahlkreis(wahlkreis, anzahlstimmen) AS
              (SELECT ze.wahlkreis, SUM(ze.anzahlstimmen)
               FROM zweitstimmenergebnis ze
               GROUP BY ze.wahlkreis),
@@ -85,7 +68,38 @@ CREATE VIEW zweitstimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_
               WHERE wk.wkid = zw.wahlkreis
                 AND wk.wkid = ze.wahlkreis
                 AND ze.liste = ll.listenid)
-    SELECT wk.wahl,
+    SELECT 1,
+           wk.wahl,
+           wk.nummer,
+           p.kuerzel,
+           p.farbe,
+           epw.abs_stimmen,
+           epw.rel_stimmen
+    FROM erststimmen_partei_wahlkreis epw,
+         partei p,
+         qpartei qp,
+         wahlkreis wk
+    WHERE epw.partei = p.parteiid
+      AND p.parteiid = qp.partei
+      AND wk.wahl = qp.wahl
+      AND epw.wahlkreis = wk.wkid
+    UNION
+    SELECT 1,
+           wk.wahl,
+           wk.nummer,
+           'Sonstige',
+           'DDDDDD',
+           SUM(epw.abs_stimmen) AS abs_stimmen,
+           SUM(epw.rel_stimmen) AS rel_stimmen
+    FROM erststimmen_partei_wahlkreis epw,
+         wahlkreis wk,
+         nicht_qpartei nqp
+    WHERE epw.wahlkreis = wk.wkid
+      AND epw.partei = nqp.partei
+    GROUP BY wk.wahl, wk.nummer
+    UNION
+    SELECT 2,
+           wk.wahl,
            wk.nummer,
            p.kuerzel AS partei,
            p.farbe   AS partei_farbe,
@@ -93,27 +107,24 @@ CREATE VIEW zweitstimmen_qpartei_wahlkreis_rich(wahl, wk_nummer, partei, partei_
            zpw.rel_stimmen
     FROM zweitstimmen_partei_wahlkreis zpw,
          partei p,
+         qpartei qp,
          wahlkreis wk
     WHERE zpw.partei = p.parteiid
+      AND p.parteiid = qp.partei
+      AND wk.wahl = qp.wahl
       AND zpw.wahlkreis = wk.wkid
       AND zpw.rel_stimmen >= 0.05
     UNION
-    SELECT wk.wahl,
+    SELECT 2,
+           wk.wahl,
            wk.nummer,
            'Sonstige',
            'DDDDDD',
            SUM(zpw.abs_stimmen) AS abs_stimmen,
            SUM(zpw.rel_stimmen) AS rel_stimmen
     FROM zweitstimmen_partei_wahlkreis zpw,
-         wahlkreis wk
+         wahlkreis wk,
+         nicht_qpartei nqp
     WHERE zpw.wahlkreis = wk.wkid
-      AND zpw.rel_stimmen < 0.05
+      AND zpw.partei = nqp.partei
     GROUP BY wk.wahl, wk.nummer;
-
-CREATE VIEW stimmen_qpartei_wahlkreis_rich
-            (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
-    SELECT 1, es.*
-    FROM erststimmen_qpartei_wahlkreis_rich es
-    UNION
-    SELECT 2, zs.*
-    FROM zweitstimmen_qpartei_wahlkreis_rich zs
