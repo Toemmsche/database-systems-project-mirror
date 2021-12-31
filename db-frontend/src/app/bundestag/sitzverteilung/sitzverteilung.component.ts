@@ -1,12 +1,12 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {REST_GET} from "../../../util";
 import {Sitzverteilung} from "../../../model/Sitzverteilung";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 
 @Component({
-  selector: 'app-sitzverteilung',
+  selector   : 'app-sitzverteilung',
   templateUrl: './sitzverteilung.component.html',
-  styleUrls: ['./sitzverteilung.component.scss']
+  styleUrls  : ['./sitzverteilung.component.scss']
 })
 export class SitzverteilungComponent implements OnInit {
 
@@ -14,29 +14,28 @@ export class SitzverteilungComponent implements OnInit {
   sitzverteilung !: Array<Sitzverteilung>;
   columnsToDisplay = ['partei', 'sitze'];
   sitzVerteilungConfig = {
-    type: 'doughnut',
-    data: {
-      labels: [] as Array<string>,
+    type   : 'doughnut',
+    data   : {
+      labels  : [] as Array<string>,
       datasets: [
         {
-          label: "Sitze",
-          hoverOffset: 4,
-          data: [] as Array<number>,
+          label          : "Sitze",
+          hoverOffset    : 4,
+          data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
         }
       ]
     },
     options: {
-      rotation: Math.PI,
-      circumference: Math.PI,
-      responsive: true,
+      rotation           : Math.PI,
+      circumference      : Math.PI,
+      responsive         : true,
       maintainAspectRatio: true
     }
   }
 
 
-  constructor(    private readonly wahlservice: WahlSelectionService
-  ) {
+  constructor(private readonly wahlservice: WahlSelectionService) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
     wahlservice.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlservice.getWahlNumber(selection);

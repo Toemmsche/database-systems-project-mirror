@@ -2,12 +2,11 @@ import {Component, Input, OnInit} from '@angular/core';
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {REST_GET} from "../../../util";
 import {Wahlkreis} from "../../../model/Walhkreis";
-import {MatSelectChange} from "@angular/material/select";
 
 @Component({
-  selector: 'app-wahlkreisliste',
+  selector   : 'app-wahlkreisliste',
   templateUrl: './wahlkreisliste.component.html',
-  styleUrls: ['./wahlkreisliste.component.scss']
+  styleUrls  : ['./wahlkreisliste.component.scss']
 })
 export class WahlkreislisteComponent implements OnInit {
 
@@ -16,8 +15,10 @@ export class WahlkreislisteComponent implements OnInit {
 
   wahl !: number;
   wahlkreise !: Array<Wahlkreis>;
-  wahlkreise_filtered !: Array<Wahlkreis>;
+  filteredWahlkreise !: Array<Wahlkreis>;
+
   laender !: Set<String>;
+  landFilter !: string;
 
   constructor(private readonly wahlservice: WahlSelectionService) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
@@ -39,13 +40,12 @@ export class WahlkreislisteComponent implements OnInit {
         this.wahlkreise = data.sort((a, b) => a.wk_nummer - b.wk_nummer);
         this.laender = new Set(this.wahlkreise.map(wk => wk.land));
         this.laender.add("Alle");
-
-        this.wahlkreise_filtered = this.wahlkreise.slice()
+        this.filteredWahlkreise = this.wahlkreise.slice()
       })
   }
 
-  onFilterChange(event: MatSelectChange): void {
-    this.wahlkreise_filtered = this.wahlkreise.filter(wk =>  event.value == "Alle" || wk.land == event.value );
+  updateFiltered() {
+    this.filteredWahlkreise = this.wahlkreise.filter(wk => this.landFilter == "Alle" || wk.land == this.landFilter);
   }
 
   wahlkreiseLoaded() {

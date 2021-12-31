@@ -2,14 +2,14 @@
   <h1>Wahlkreise</h1>
   <mat-form-field id="wahlkreis-land-filter" appearance="fill">
     <mat-label>Bundesland</mat-label>
-    <mat-select (selectionChange)="onFilterChange($event)" value="Alle">
+    <mat-select (selectionChange)="this.landFilter = $event.value; updateFiltered()" value="Alle">
       <mat-option *ngFor="let land of laender" [value]="land">
         {{land}}
       </mat-option>
     </mat-select>
   </mat-form-field>
   <mat-nav-list id="wahlkreis-list">
-    <a mat-list-item href="{{routePrefix + wk.wk_nummer}}" *ngFor="let wk of wahlkreise_filtered"> {{ wk.wk_nummer }}-{{wk.wk_name}}</a>
+    <a mat-list-item href="{{routePrefix + wk.wk_nummer}}" *ngFor="let wk of filteredWahlkreise"> {{ wk.wk_nummer }}-{{wk.wk_name}}</a>
   </mat-nav-list>
 </div>
 <mat-spinner *ngIf="!wahlkreiseLoaded()"></mat-spinner>

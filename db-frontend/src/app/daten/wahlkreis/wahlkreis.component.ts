@@ -17,8 +17,8 @@ export class WahlkreisComponent implements OnInit {
   nummer !: number;
   wahl !: number;
   useEinzelstimmen: boolean = false;
-
   wahlkreis !: Wahlkreis;
+
   erststimmenergebnisse !: Array<ParteiErgebnis>;
   erststimmenConfig = {
     type   : 'bar',
