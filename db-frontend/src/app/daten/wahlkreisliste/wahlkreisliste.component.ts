@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {REST_GET} from "../../../util";
 import {Wahlkreis} from "../../../model/Walhkreis";
@@ -10,6 +10,9 @@ import {MatSelectChange} from "@angular/material/select";
   styleUrls: ['./wahlkreisliste.component.scss']
 })
 export class WahlkreislisteComponent implements OnInit {
+
+  @Input()
+  routePrefix !: string;
 
   wahl !: number;
   wahlkreise !: Array<Wahlkreis>;

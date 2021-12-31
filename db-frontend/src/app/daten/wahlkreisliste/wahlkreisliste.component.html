@@ -9,7 +9,7 @@
     </mat-select>
   </mat-form-field>
   <mat-nav-list id="wahlkreis-list">
-    <a mat-list-item href="{{'Daten/Wahlkreis/' + wk.wk_nummer}}" *ngFor="let wk of wahlkreise_filtered"> {{ wk.wk_nummer }}-{{wk.wk_name}}</a>
+    <a mat-list-item href="{{routePrefix + wk.wk_nummer}}" *ngFor="let wk of wahlkreise_filtered"> {{ wk.wk_nummer }}-{{wk.wk_name}}</a>
   </mat-nav-list>
 </div>
 <mat-spinner *ngIf="!wahlkreiseLoaded()"></mat-spinner>

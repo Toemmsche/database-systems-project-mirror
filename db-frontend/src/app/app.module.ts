@@ -37,6 +37,8 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import { DatenComponent } from './daten/daten.component';
+import { StimmabgabeComponent } from './stimmabgabe/stimmabgabe.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +55,9 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     OstenergebnisComponent,
     KarteComponent,
     StimmzettelComponent,
-    WahlkreislisteComponent
+    WahlkreislisteComponent,
+    DatenComponent,
+    StimmabgabeComponent
   ],
   imports: [
     BrowserModule,

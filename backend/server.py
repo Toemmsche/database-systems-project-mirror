@@ -129,7 +129,7 @@ def get_stimmzettel(wknr: str):
         return table_to_json(cursor, 'stimmzettel_2021', wk_nummer=wknr)
 
 
-@app.route("/api/20/wahlkreis/<wknr>/stimmenabgabe", methods=['POST'])
+@app.route("/api/20/wahlkreis/<wknr>/stimmabgabe", methods=['POST'])
 def cast_vote(wknr: str, ):
     if not valid_wahlkreis(wknr):
         abort(404)

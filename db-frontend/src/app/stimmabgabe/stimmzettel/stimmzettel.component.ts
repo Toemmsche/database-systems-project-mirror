@@ -45,7 +45,7 @@ export class StimmzettelComponent implements OnInit {
 
 
   stimmeAbgeben() {
-    REST_POST(`20/wahlkreis/${this.nummer}/stimmenabgabe`,
+    REST_POST(`20/wahlkreis/${this.nummer}/stimmabgabe`,
       new Stimmabgabe(this.nummer, this.erststimmeSelection, this.zweitstimmeSelection))
       .then(response => {
         //TODO error handling
