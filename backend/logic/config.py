@@ -1,9 +1,9 @@
 import os
 
 db_config = {
-    'dbname': 'wahl',
-    'user': 'tom',
+    'dbname': os.environ.get('POSTGRES_DB') if 'POSTGRES_DB' in os.environ else 'wahl',
+    'user': os.environ.get('POSTGRES_USER') if 'POSTGRES_USER' in os.environ else 'postgres',
     'password': os.environ.get('POSTGRES_PWD')
 }
 
-conn_string = f"host=localhost port=5432 dbname=wahl user=tom password=1108"
+conn_string = f"host=localhost port=5432 dbname={db_config['dbname']} user={db_config['user']} password={db_config['password']}"
