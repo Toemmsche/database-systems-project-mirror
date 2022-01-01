@@ -1,6 +1,11 @@
-<h1>Wahlergebnis in Ostdeutschland nach Zweitstimmen</h1>
-<chart id="osten-chart" *ngIf="ostenLoaded()"
-       [type]="ostenConfig.type"
-       [data]="ostenConfig.data"
-       [options]="ostenConfig.options"></chart>
+<div id="osten-container" *ngIf="ostenLoaded()">
+  <chart id="osten-chart"
+    [type]="ostenConfig.type"
+    [data]="ostenConfig.data"
+    [options]="ostenConfig.options">
+  </chart>
+</div>
+<mat-spinner *ngIf="!ostenLoaded()"></mat-spinner>
+
+
 

@@ -7,6 +7,13 @@
   align-items: center;
 }
 
+#mdb-filter {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
 .mat-column-vorname, .mat-column-nachname, .mat-column-grund, .mat-column-geburtsjahr {
   padding-left: 20px;
   padding-right: 20px;
@@ -14,7 +21,7 @@
 }
 
 #mdb-container {
-  width: 100%;
+  width: 60%;
 }
 
 #mdb-table {

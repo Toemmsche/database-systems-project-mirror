@@ -1,7 +1,8 @@
-from logic.links import *
-from logic.util import *
 from psycopg.types import datetime
 from svgpathtools import svg2paths2
+
+from logic.links import *
+from logic.util import *
 
 
 def load_bundestagswahl(cursor: psycopg.cursor):
@@ -33,13 +34,20 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
 
 
 def load_wahlkreise(
-        url: str, wahl: int, deutsche_key: str, begrenzungen_url: str, begrenzungen_dict: dict[int, int],
+        url: str,
+        wahl: int,
+        deutsche_key: str,
+        begrenzungen_url: str,
+        begrenzungen_dict: dict[int, int],
         cursor: psycopg.cursor,
         encoding: str = 'utf-8-sig'
 ) -> None:
     records = download_csv(url, delimiter=';', skip=1, encoding=encoding)
     bundesland_mapping = key_dict(cursor, 'bundesland', ('name',), 'landId')
     _, attributes, _ = svg2paths2(begrenzungen_url)
+
+    # Advanced strukturdaten
+    aq_mapping = {20: 'Februar 2021', 19: 'März 2017'}
 
     records = list(
         map(
@@ -49,7 +57,8 @@ def load_wahlkreise(
                 bundesland_mapping[(row['Land'],)],
                 wahl,
                 int(parse_float_de(row[deutsche_key]) * 1000),
-                attributes[begrenzungen_dict[int(row['Wahlkreis-Nr.'])]]['d'].strip().replace(',', ' ')
+                attributes[begrenzungen_dict[int(row['Wahlkreis-Nr.'])]]['d'].strip().replace(',', ' '),
+                parse_float_de(row[f'Arbeitslosenquote {aq_mapping[wahl]} - insgesamt'])
             ),
             filter(
                 lambda row: row['Land'] != 'Deutschland' and

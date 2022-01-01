@@ -22,7 +22,7 @@ def random_wahlkreis() -> int:
 
 
 class WahlUser(HttpUser):
-    t = 0.1 # average wait time in seconds
+    t = 0.1  # average wait time in seconds
     wait_time = between(0.8 * t, 1.2 * t)
     host = "http://localhost:5000"
 
@@ -42,7 +42,8 @@ class WahlUser(HttpUser):
     def query_wahlkreisuebersicht(self):
         wahlkreis = 22
         self.query_random_wahlen(
-            [f"/api/{{wahl}}/wahlkreis/{wahlkreis}", f"/api/{{wahl}}/wahlkreis/{wahlkreis}/erststimmen", f"/api/{{wahl}}/wahlkreis/{wahlkreis}/zweitstimmen"])
+            [f"/api/{{wahl}}/wahlkreis/{wahlkreis}", f"/api/{{wahl}}/wahlkreis/{wahlkreis}/stimmen"]
+        )
 
     # Q4
     @task(10)
@@ -52,7 +53,7 @@ class WahlUser(HttpUser):
     # Q5
     @task(10)
     def query_ueberhang(self):
-        self.query_random_wahlen(["/api/{wahl}/ueberhang"])
+        self.query_random_wahlen(["/api/{wahl}/stat/ueberhang"])
 
     # Q6
     @task(20)

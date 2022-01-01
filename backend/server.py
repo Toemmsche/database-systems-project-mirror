@@ -74,15 +74,15 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
 
 @app.route("/api/<wahl>/wahlkreissieger", methods=['GET'])
 def get_wahlkreissieger(wahl: str):
-    if not models_nat(wahl) or int(wahl) not in [19, 20]:
+    if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'wahlkreissieger', wahl=wahl)
 
 
-@app.route("/api/<wahl>/ueberhang", methods=['GET'])
+@app.route("/api/<wahl>/stat/ueberhang", methods=['GET'])
 def get_ueberhang(wahl: str):
-    if not models_nat(wahl) or int(wahl) not in [19, 20]:
+    if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'ueberhang_qpartei_bundesland', wahl=wahl)
@@ -90,18 +90,27 @@ def get_ueberhang(wahl: str):
 
 @app.route("/api/<wahl>/stat/knapp", methods=['GET'])
 def get_knapp(wahl: str):
-    if not models_nat(wahl) or int(wahl) not in [19, 20]:
+    if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'knappste_siege_oder_niederlagen', wahl=wahl)
 
 
-@app.route("/api/<wahl>/ostenergebnis", methods=['GET'])
+@app.route("/api/<wahl>/stat/ostenergebnis", methods=['GET'])
 def get_osten_ergebnis(wahl: str):
-    if not models_nat(wahl) or int(wahl) not in [19, 20]:
+    if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
+
+
+@app.route("/api/<wahl>/stat/aqvergleich"
+           "", methods=['GET'])
+def get_aq_vergleich(wahl: str):
+    if not valid_wahl(wahl):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return table_to_json(cursor, 'zweitstimmen_qpartei_aq_hoch_vs_niedrig', wahl=wahl)
 
 
 @app.route("/api/<wahl>/karte", methods=['GET'])

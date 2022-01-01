@@ -59,6 +59,8 @@ export class SitzverteilungComponent implements OnInit {
         chartData.datasets[0].backgroundColor = data.map((row) => '#' +
           row.partei_farbe);
 
+        this.sitzVerteilungConfig.data = Object.assign({}, chartData)
+
         // Save for later
         this.sitzverteilung = data;
       });

@@ -17,10 +17,10 @@ export class MitgliederComponent implements OnInit {
   columnsToDisplay = ['vorname', 'nachname', 'partei', 'geburtsjahr', 'grund'];
 
   mdbData !: Array<MDB>;
-  mdbDataSource !: MatTableDataSource<MDB>
+  filteredMdbData !: Array<MDB>;
 
-  @ViewChild('mdbPaginator')
-  mdbPaginator !: MatPaginator;
+  parteien !: Set<string>;
+  parteiFilter : string = "Alle";
 
   constructor(
     private readonly wahlservice: WahlSelectionService
@@ -42,13 +42,19 @@ export class MitgliederComponent implements OnInit {
       .then(response => response.json())
       .then((data: Array<MDB>) => {
         data = data.sort((a, b) => a.nachname.localeCompare(b.nachname));
-        this.mdbDataSource = new MatTableDataSource(data); // TODO
-        this.mdbDataSource.paginator = this.mdbPaginator;
         this.mdbData = data;
+        this.filteredMdbData = data.slice();
+        this.parteien = new Set(this.mdbData.map(mdb => mdb.partei));
+        this.parteien.add("Alle")
       });
   }
 
   mdbLoaded(): boolean {
     return this.mdbData != null && this.mdbData.length > 0;
+  }
+
+  updateFiltered() : void  {
+    this.filteredMdbData = this.mdbData.filter(mdb =>
+      (this.parteiFilter == "Alle" || mdb.partei == this.parteiFilter))
   }
 }

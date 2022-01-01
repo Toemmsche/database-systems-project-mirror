@@ -1,5 +1,4 @@
 <div *ngIf="knappLoaded()">
-  <h1>Knappste Siege oder Niederlagen der Parteien (nach Erststimme)</h1>
   <div id="knapp-filter">
     <mat-form-field appearance="fill">
       <mat-label>Sieg/Niederlage</mat-label>
@@ -52,7 +51,7 @@
       <td mat-cell *matCellDef="let row"> {{row.differenz_stimmen}} </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplay"
+    <tr mat-row class="row-hover" *matRowDef="let row; columns: columnsToDisplay" [routerLink]="'/Daten/Wahlkreis/' + row.wk_nummer"
         [ngStyle]="{'background':  (row.is_sieg ? '#00FF0040' : '#FF000040'  )}"></tr>
 
   </table>

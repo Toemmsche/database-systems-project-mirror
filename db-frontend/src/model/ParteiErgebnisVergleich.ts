@@ -1,5 +1,5 @@
-export class ParteiErgebnis {
-  stimmentyp !: number;
+export class ParteiErgebnisVergleich {
+  typ !: string;
   wahl !: number;
   partei !: string;
   partei_farbe !: string;

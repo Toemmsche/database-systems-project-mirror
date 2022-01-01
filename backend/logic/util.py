@@ -15,8 +15,9 @@ logger = logging.getLogger('DB')
 
 def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
     # recalculate aggregate
-    exec_script(cursor,
-                f"""
+    exec_script(
+        cursor,
+        f"""
                 UPDATE direktkandidatur
                         SET anzahlstimmen =
                                 (SELECT COUNT(*)
@@ -29,7 +30,8 @@ def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
                             AND wk.wahl = {wahl}
                         )
                 """
-                , 'ResetAggregates.sql')
+        , 'ResetAggregates.sql'
+    )
 
 
 def exec_script(cursor: psycopg.cursor, script: str, script_name: str) -> None:
@@ -130,6 +132,11 @@ def make_unique(dicts: list[dict], key_values: tuple):
     return unique_list
 
 
+def get_wahljahr(wahl: int) -> int:
+    mapping = {20: 2021, 19: 2017}
+    return mapping[wahl]
+
+
 def notFalsy(s, d):
     if s:
         return s
@@ -151,6 +158,7 @@ def valid_wahl(wahl: str):
 
 def valid_wahlkreis(wknr: str):
     return models_nat(wknr) and 1 <= int(wknr) <= 299
+
 
 def valid_stimme(stimme):
     return models_nat(stimme)

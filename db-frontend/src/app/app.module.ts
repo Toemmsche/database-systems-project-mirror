@@ -39,6 +39,8 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import { DatenComponent } from './daten/daten.component';
 import { StimmabgabeComponent } from './stimmabgabe/stimmabgabe.component';
+import {MatExpansionModule} from "@angular/material/expansion";
+import { AQVergleichComponent } from './stat/aqvergleich/aqvergleich.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +59,8 @@ import { StimmabgabeComponent } from './stimmabgabe/stimmabgabe.component';
     StimmzettelComponent,
     WahlkreislisteComponent,
     DatenComponent,
-    StimmabgabeComponent
+    StimmabgabeComponent,
+    AQVergleichComponent
   ],
   imports: [
     BrowserModule,
@@ -81,7 +84,8 @@ import { StimmabgabeComponent } from './stimmabgabe/stimmabgabe.component';
     MatFormFieldModule,
     MatOptionModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatExpansionModule
   ],
   providers: [
     WahlSelectionService

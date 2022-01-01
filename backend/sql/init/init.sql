@@ -28,13 +28,14 @@ CREATE TABLE bundesland
 
 CREATE TABLE wahlkreis
 (
-    nummer     INTEGER                                    NOT NULL,
-    name       VARCHAR(100)                               NOT NULL,
-    land       INTEGER REFERENCES bundesland (landid)     NOT NULL,
-    wahl       INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
-    deutsche   INTEGER                                    NOT NULL,
-    begrenzung TEXT,
-    wkid       SERIAL PRIMARY KEY,
+    nummer            INTEGER                                    NOT NULL,
+    name              VARCHAR(100)                               NOT NULL,
+    land              INTEGER REFERENCES bundesland (landid)     NOT NULL,
+    wahl              INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
+    deutsche          INTEGER                                    NOT NULL,
+    begrenzung        TEXT                                       NOT NULL,
+    arbeitslosenquote DECIMAL                                    NOT NULL,
+    wkid              SERIAL PRIMARY KEY,
     UNIQUE (nummer, wahl),
     UNIQUE (name, wahl)
 );
@@ -83,7 +84,7 @@ CREATE TABLE direktkandidatur
     partei               INTEGER REFERENCES partei (parteiid),
     parteilosgruppenname VARCHAR(200),
     kandidat             INTEGER REFERENCES kandidat (kandid),
-    wahlkreis            INTEGER REFERENCES wahlkreis (wkid)        NOT NULL,
+    wahlkreis            INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
     anzahlstimmen        INTEGER,
     direktid             SERIAL PRIMARY KEY
 );
