@@ -31,7 +31,32 @@
     <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
     <!--[ngStyle]="{'background': '#' +  mdb.partei_farbe + '60'}" -->
   </table>
-  <button *ngIf="stimmzettelLoaded()" id="cast-vote-btn" mat-button (click)="stimmeAbgeben()">Stimmen Abgeben</button>
+  <mat-form-field id="wahl-token-input" appearance="fill">
+    <mat-label>Ihr Zugangsschlüssel:</mat-label>
+    <input matInput [formControl]="token" required>
+    <mat-error *ngIf="token.invalid">Invalid token</mat-error>
+  </mat-form-field>
+  <button *ngIf="!showResponse" id="cast-vote-btn" mat-button (click)="stimmeAbgeben()" [disabled]="token.invalid">
+    Stimmen Abgeben
+  </button>
+  <div *ngIf="showResponse" class="after-vote-popup">
+    <mat-spinner *ngIf="voteSuccessful == null"></mat-spinner>
+    <div class="after-vote-message" *ngIf="voteSuccessful != null && !voteSuccessful">
+      <mat-icon id="checkmark-success" id="vote-message-failure" aria-hidden="false" aria-label="Checkmark icon">error
+      </mat-icon>
+      <span>Etwas ist schiefgelaufen, mögliche Gründe sind:</span>
+      <ul>
+        <li>Fehlerhafte Eingabe ihres Schlüssels</li>
+        <li>Ungültiger Zugangsschlüssel</li>
+        <li>Bereits benutzter Zugangsschlüssel</li>
+      </ul>
+    </div>
+    <div class="after-vote-message" id="vote-message-success" *ngIf="voteSuccessful">
+      <mat-icon aria-hidden="false" aria-label="Checkmark icon">done</mat-icon>
+      <span>Ihre Stimme wurde gezählt</span>
+    </div>
+    <button *ngIf="voteSuccessful != null" id="reset-stimmzettel-btn" mat-button (click)="resetStimmzettel()">Neuer Stimmzettel</button>
+  </div>
 </div>
 <mat-spinner *ngIf="!stimmzettelLoaded()"></mat-spinner>
 

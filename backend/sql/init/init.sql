@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS listenplatz CASCADE;
 DROP TABLE IF EXISTS erststimme CASCADE;
 DROP TABLE IF EXISTS zweitstimme CASCADE;
 DROP TABLE IF EXISTS zweitstimmenergebnis CASCADE;
+DROP TABLE IF EXISTS wahl_token CASCADE;
 
 CREATE TABLE bundestagswahl
 (
@@ -127,3 +128,11 @@ CREATE TABLE zweitstimmenergebnis
     anzahlstimmen INTEGER,
     PRIMARY KEY (liste, wahlkreis)
 );
+
+CREATE TABLE wahl_token
+(
+    wahlkreis INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
+    token     TEXT                                NOT NULL,
+    gueltig   BOOLEAN                             NOT NULL,
+    PRIMARY KEY (wahlkreis, token)
+)

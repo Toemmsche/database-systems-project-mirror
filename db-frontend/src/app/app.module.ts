@@ -25,7 +25,7 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ChartModule} from "angular2-chartjs";
 import {KarteComponent} from './karte/karte.component';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatSliderModule} from '@angular/material/slider';
 import {WahlSelectionService} from './service/wahl-selection.service';
 import {StimmzettelComponent} from './stimmabgabe/stimmzettel/stimmzettel.component';
@@ -33,7 +33,7 @@ import {MatRadioModule} from "@angular/material/radio";
 import {MatButtonModule} from "@angular/material/button";
 import {WahlkreislisteComponent} from './daten/wahlkreisliste/wahlkreisliste.component';
 import {MatPaginatorModule} from "@angular/material/paginator";
-import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatFormFieldControl, MatFormFieldModule} from "@angular/material/form-field";
 import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
@@ -41,6 +41,8 @@ import { DatenComponent } from './daten/daten.component';
 import { StimmabgabeComponent } from './stimmabgabe/stimmabgabe.component';
 import {MatExpansionModule} from "@angular/material/expansion";
 import { AQVergleichComponent } from './stat/aqvergleich/aqvergleich.component';
+import {MatInputModule} from "@angular/material/input";
+import {MatIconModule} from "@angular/material/icon";
 
 @NgModule({
   declarations: [
@@ -85,7 +87,10 @@ import { AQVergleichComponent } from './stat/aqvergleich/aqvergleich.component';
     MatOptionModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatIconModule
   ],
   providers: [
     WahlSelectionService
