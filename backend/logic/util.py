@@ -164,6 +164,17 @@ def valid_stimme(stimme):
     return models_nat(stimme)
 
 
+def valid_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
+    query = f"SELECT * FROM wahl_token t, wahlkreis wk WHERE t.token = '{token}' AND t.wahlkreis = wk.wkid AND wk.wahl = {wahl} AND wk.nummer = {wknr} AND t.gueltig"
+    res = cursor.execute(query).fetchall()
+    return len(res) == 1
+
+
+def make_token_invalid(cursor: psycopg.cursor, token: str):
+    statement = f"UPDATE wahl_token SET gueltig = FALSE WHERE token = '{token}'"
+    exec_script(cursor, statement, "MakeTokenInvalid.sql")
+
+
 if __name__ == '__main__':
     download_csv(
         'https://raw.githubusercontent.com/sumtxt/ags/master/data-raw'

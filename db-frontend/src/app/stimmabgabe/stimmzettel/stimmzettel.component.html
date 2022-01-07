@@ -34,7 +34,7 @@
   <mat-form-field id="wahl-token-input" appearance="fill">
     <mat-label>Ihr Zugangsschlüssel:</mat-label>
     <input matInput [formControl]="token" required>
-    <mat-error *ngIf="token.invalid">Invalid token</mat-error>
+    <mat-error *ngIf="token.invalid">Ungültiger Zugangsschlüssel</mat-error>
   </mat-form-field>
   <button *ngIf="!showResponse" id="cast-vote-btn" mat-button (click)="stimmeAbgeben()" [disabled]="token.invalid">
     Stimmen Abgeben

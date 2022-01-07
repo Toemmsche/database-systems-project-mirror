@@ -13,7 +13,9 @@ from logic.util import (
     reset_aggregates,
     exec_script_from_file,
     table_to_dict_list,
-    load_into_db, logger
+    load_into_db, logger,
+    valid_token,
+    make_token_invalid
 )
 
 app = Flask("db-backend")
@@ -71,6 +73,7 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
+
 
 @app.route("/api/<wahl>/wahlkreissieger", methods=['GET'])
 def get_wahlkreissieger(wahl: str):
@@ -139,15 +142,27 @@ def get_stimmzettel(wknr: str):
 
 
 @app.route("/api/20/wahlkreis/<wknr>/stimmabgabe", methods=['POST'])
-def cast_vote(wknr: str, ):
+def cast_vote(wknr: str):
     if not valid_wahlkreis(wknr):
         abort(404)
 
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        # Verify vode validity
+        # Verify vote validity
         stimmzettel = table_to_dict_list(cursor, 'stimmzettel_2021', wk_nummer=wknr)
         try:
             stimmen = request.json
+            if 'token' not in stimmen:
+                err_str = f"Token missing"
+                logger.error(err_str)
+                abort(400)
+
+            token = stimmen['token']
+            if valid_token(cursor, 20, int(wknr), token):
+                make_token_invalid(cursor, token)
+            else:
+                err_str = f"Invalid token for wahlkreis {wknr}: {token}"
+                logger.error(err_str)
+                abort(400)
             if 'erststimme' in stimmen:
                 erststimme = stimmen['erststimme']
                 legalErststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))

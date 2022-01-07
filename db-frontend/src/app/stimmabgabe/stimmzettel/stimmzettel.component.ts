@@ -19,12 +19,11 @@ export class StimmzettelComponent implements OnInit {
   erststimmeSelection !: number;
   // listenID
   zweitstimmeSelection !: number;
-  stimmzettel !: Array<StimmzettelEintrag>
+  stimmzettel !: Array<StimmzettelEintrag>;
 
   columnsToDisplay = ['erststimme_selection', 'erststimme', 'zweitstimme', 'zweitstimme_selection']
 
-  //TODO adjust validator pattern for access tokens
-  token = new FormControl('', [Validators.maxLength(10), Validators.minLength(10)]);
+  token = new FormControl('', [Validators.pattern('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')]);
 
   showResponse !: boolean;
   voteSuccessful !: boolean | null;
@@ -57,7 +56,7 @@ export class StimmzettelComponent implements OnInit {
     this.voteSuccessful = null;
     this.showResponse = true;
     REST_POST(`20/wahlkreis/${this.nummer}/stimmabgabe`,
-      new Stimmabgabe(this.nummer, this.erststimmeSelection, this.zweitstimmeSelection))
+      new Stimmabgabe(this.nummer, this.erststimmeSelection, this.zweitstimmeSelection, this.token.value))
       .then(response => {
         //TODO error handling
         this.voteSuccessful = response.status === 200;
