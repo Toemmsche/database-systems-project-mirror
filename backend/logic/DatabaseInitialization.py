@@ -59,6 +59,7 @@ def init_all() -> None:
             load_direktkandidaten_2017(cursor)
 
             # exec_script_from_file(cursor, 'sql/init/StimmenGenerator.sql')
+            # exec_script_from_file(cursor, 'sql/init/TokenGenerator.sql')
 
 
 def exec_util_queries():
@@ -67,6 +68,7 @@ def exec_util_queries():
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             exec_script_from_file(cursor, 'sql/core/Einzelstimmen222.sql')
+            exec_script_from_file(cursor, 'sql/core/Token222.sql')
             exec_script_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
             exec_script_from_file(cursor, 'sql/core/Triggers.sql')
 

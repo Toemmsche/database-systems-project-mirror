@@ -3,6 +3,7 @@ import itertools
 import logging
 import math
 
+from uuid import UUID
 import psycopg
 import requests
 import simplejson as json
@@ -163,6 +164,13 @@ def valid_wahlkreis(wknr: str):
 def valid_stimme(stimme):
     return models_nat(stimme)
 
+
+def valid_uuid(value):
+    try:
+        UUID(value)
+        return True
+    except ValueError:
+        return False
 
 def valid_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
     query = f"SELECT * FROM wahl_token t, wahlkreis wk WHERE t.token = '{token}' AND t.wahlkreis = wk.wkid AND wk.wahl = {wahl} AND wk.nummer = {wknr} AND t.gueltig"

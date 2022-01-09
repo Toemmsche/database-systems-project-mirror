@@ -28,7 +28,7 @@ export class StimmzettelComponent implements OnInit {
   showResponse !: boolean;
   voteSuccessful !: boolean | null;
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {

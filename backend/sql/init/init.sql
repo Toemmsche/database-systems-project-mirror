@@ -132,6 +132,6 @@ CREATE TABLE zweitstimmenergebnis
 CREATE TABLE wahl_token
 (
     wahlkreis INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
-    token     UUID PRIMARY KEY,
+    token     uuid PRIMARY KEY,
     gueltig   BOOLEAN                             NOT NULL
 )

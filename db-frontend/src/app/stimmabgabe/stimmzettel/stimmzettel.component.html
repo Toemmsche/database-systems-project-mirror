@@ -37,7 +37,7 @@
     <mat-error *ngIf="token.invalid">Ungültiger Zugangsschlüssel</mat-error>
   </mat-form-field>
   <button *ngIf="!showResponse" id="cast-vote-btn" mat-button (click)="stimmeAbgeben()" [disabled]="token.invalid">
-    Stimmen Abgeben
+    Stimmzettel Abgeben
   </button>
   <div *ngIf="showResponse" class="after-vote-popup">
     <mat-spinner *ngIf="voteSuccessful == null"></mat-spinner>

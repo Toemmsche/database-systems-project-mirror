@@ -15,7 +15,7 @@ from logic.util import (
     table_to_dict_list,
     load_into_db, logger,
     valid_token,
-    make_token_invalid
+    make_token_invalid, valid_uuid
 )
 
 app = Flask("db-backend")
@@ -140,7 +140,6 @@ def get_stimmzettel(wknr: str):
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'stimmzettel_2021', wk_nummer=wknr)
 
-
 @app.route("/api/20/wahlkreis/<wknr>/stimmabgabe", methods=['POST'])
 def cast_vote(wknr: str):
     if not valid_wahlkreis(wknr):
@@ -154,15 +153,17 @@ def cast_vote(wknr: str):
             if 'token' not in stimmen:
                 err_str = f"Token missing"
                 logger.error(err_str)
-                abort(400)
+                abort(401)
 
             token = stimmen['token']
-            if valid_token(cursor, 20, int(wknr), token):
+            # prevent SQL injection via token string
+            # this check should be performed by the frontend as well but we want to make sure
+            if valid_uuid(token) and valid_token(cursor, 20, int(wknr), token):
                 make_token_invalid(cursor, token)
             else:
                 err_str = f"Invalid token for wahlkreis {wknr}: {token}"
                 logger.error(err_str)
-                abort(400)
+                abort(401)
             if 'erststimme' in stimmen:
                 erststimme = stimmen['erststimme']
                 legalErststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
@@ -183,7 +184,7 @@ def cast_vote(wknr: str):
                     logger.error(err_str)
             return 'processed\n'
         except:
-            err_str = f"Bad request: {request.data}"
+            err_str = f"Bad vote: {request.data}"
             logger.error(err_str)
             abort(400)
 
