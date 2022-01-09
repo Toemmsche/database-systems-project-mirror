@@ -1,5 +1,17 @@
 :host {
-  margin: 5rem;
+  width: 100%;
+  margin-bottom: 100px;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#mdb-filter {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .mat-column-vorname, .mat-column-nachname, .mat-column-grund, .mat-column-geburtsjahr {
@@ -7,3 +19,12 @@
   padding-right: 20px;
   text-align: center;
 }
+
+#mdb-container {
+  width: 60%;
+}
+
+#mdb-table {
+  width: 100%;
+}
+

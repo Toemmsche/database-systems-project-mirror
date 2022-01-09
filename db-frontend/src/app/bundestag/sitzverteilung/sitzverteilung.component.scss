@@ -1,5 +1,16 @@
+@import "~@angular/material/theming";
+@import "../../../theme_variables.scss";
+
+
+#mdb-btn {
+  background: mat-color($primaryPalette);
+  color: white;
+  width: 20%;
+  transform: translateY(-50px);
+}
+
 #sitzverteilung-chart {
-  width: 75%;
+  width: 60%;
 }
 
 #sitzverteilung {
@@ -10,11 +21,23 @@
   justify-content: space-between;
 }
 
-#sitzverteilung-table {
-  transform: translate(0, -30%)
+#sitzverteilung-cards-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sitzverteilung-card {
+  margin-left: 2rem;
+  margin-bottom: 2rem;
 }
 
 :host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-items: center;
   width: 100%;
   margin-bottom: 100px;
   margin-top: 50px;

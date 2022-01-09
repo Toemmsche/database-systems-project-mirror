@@ -1,4 +1,27 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 100px;
+  margin-top: 50px;
+}
+
 .begrenzung {
   stroke: #999999;
   stroke-width: 1;
+}
+
+#karte-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#karte-toggle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  row-gap: 10px;
 }

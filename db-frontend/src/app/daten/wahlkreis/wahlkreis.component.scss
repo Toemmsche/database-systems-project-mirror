@@ -1,7 +1,37 @@
 #wahlkreis-card {
   margin: 5rem;
+  width: 80%;
 }
 
 .wahlkreis-card-key mat-card-content {
   font-weight: bold;
 }
+
+#wahlkreis-chart-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.wahlkreis-chart-titled {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#wahlkreis-card-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+
+:host {
+  width: 100%;
+  margin-bottom: 100px;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+

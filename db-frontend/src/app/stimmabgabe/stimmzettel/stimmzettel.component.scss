@@ -1,0 +1,66 @@
+@import "~@angular/material/theming";
+@import "../../../theme_variables.scss";
+
+:host {
+  margin-top: 50px;
+  margin-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+
+.mat-column-erststimme, .mat-column-zweitstimme {
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+}
+
+.mat-column-erststimme {
+  border-right: 5px solid black;
+}
+
+#wahl-token-input {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+#cast-vote-btn {
+  background: mat-color($primaryPalette);
+  color: white;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+#reset-stimmzettel-btn {
+  background: mat-color($accentPalette);
+  color: white;
+  width: 100%;
+  margin-top: 1rem;
+}
+.after-vote-message {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+#vote-message-failure {
+  color: red;
+}
+
+#vote-message-success {
+  color: green;
+}
+
+.after-vote-popup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+

@@ -9,13 +9,11 @@ import {NavitemComponent} from './header/navigation/navitem/navitem.component';
 import {SitzverteilungComponent} from './bundestag/sitzverteilung/sitzverteilung.component';
 import {HeaderComponent} from './header/header.component';
 import {FooterComponent} from './footer/footer.component';
-import {BundestagComponent} from './bundestag/bundestag.component';
 import {MatTableModule} from "@angular/material/table";
 import {MitgliederComponent} from './bundestag/mitglieder/mitglieder.component';
 import {WahlkreisComponent} from './daten/wahlkreis/wahlkreis.component';
 import {MatCardModule} from "@angular/material/card";
 import {CommonModule} from "@angular/common";
-import {WahlkreissiegerComponent} from './karte/wahlkreissieger/wahlkreissieger.component';
 import {UeberhangComponent} from './stat/ueberhang/ueberhang.component';
 import {MatDividerModule} from "@angular/material/divider";
 import {StatComponent} from './stat/stat.component';
@@ -27,9 +25,24 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {ChartModule} from "angular2-chartjs";
 import {KarteComponent} from './karte/karte.component';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatSliderModule} from '@angular/material/slider';
-import { WahlSelectionService } from './service/wahl-selection.service';
+import {WahlSelectionService} from './service/wahl-selection.service';
+import {StimmzettelComponent} from './stimmabgabe/stimmzettel/stimmzettel.component';
+import {MatRadioModule} from "@angular/material/radio";
+import {MatButtonModule} from "@angular/material/button";
+import {WahlkreislisteComponent} from './daten/wahlkreisliste/wahlkreisliste.component';
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatFormFieldControl, MatFormFieldModule} from "@angular/material/form-field";
+import {MatOptionModule} from "@angular/material/core";
+import {MatSelectModule} from "@angular/material/select";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import { DatenComponent } from './daten/daten.component';
+import { StimmabgabeComponent } from './stimmabgabe/stimmabgabe.component';
+import {MatExpansionModule} from "@angular/material/expansion";
+import { AQVergleichComponent } from './stat/aqvergleich/aqvergleich.component';
+import {MatInputModule} from "@angular/material/input";
+import {MatIconModule} from "@angular/material/icon";
 
 @NgModule({
   declarations: [
@@ -38,16 +51,18 @@ import { WahlSelectionService } from './service/wahl-selection.service';
     SitzverteilungComponent,
     HeaderComponent,
     FooterComponent,
-    BundestagComponent,
     MitgliederComponent,
     WahlkreisComponent,
-    WahlkreissiegerComponent,
     UeberhangComponent,
     StatComponent,
     KnappComponent,
     OstenergebnisComponent,
-    KarteComponent
-
+    KarteComponent,
+    StimmzettelComponent,
+    WahlkreislisteComponent,
+    DatenComponent,
+    StimmabgabeComponent,
+    AQVergleichComponent
   ],
   imports: [
     BrowserModule,
@@ -64,7 +79,18 @@ import { WahlSelectionService } from './service/wahl-selection.service';
     MatGridListModule,
     MatSlideToggleModule,
     MatButtonToggleModule,
-    MatSliderModule
+    MatSliderModule,
+    MatRadioModule,
+    MatButtonModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatOptionModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatExpansionModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatIconModule
   ],
   providers: [
     WahlSelectionService

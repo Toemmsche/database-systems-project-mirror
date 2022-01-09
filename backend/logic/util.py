@@ -2,8 +2,8 @@ import csv
 import itertools
 import logging
 import math
-import time
 
+from uuid import UUID
 import psycopg
 import requests
 import simplejson as json
@@ -16,8 +16,9 @@ logger = logging.getLogger('DB')
 
 def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
     # recalculate aggregate
-    exec_script(cursor,
-                f"""
+    exec_script(
+        cursor,
+        f"""
                 UPDATE direktkandidatur
                         SET anzahlstimmen =
                                 (SELECT COUNT(*)
@@ -30,7 +31,8 @@ def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
                             AND wk.wahl = {wahl}
                         )
                 """
-                , 'ResetAggregates.sql')
+        , 'ResetAggregates.sql'
+    )
 
 
 def exec_script(cursor: psycopg.cursor, script: str, script_name: str) -> None:
@@ -54,10 +56,8 @@ def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
     # Cut columns if necessary
     col_names = col_names[:record_len]
     with cursor.copy(f'COPY  {table}({",".join(col_names)}) FROM STDIN') as copy:
-
         for record in records:
             copy.write_row(record)
-
 
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
@@ -100,7 +100,6 @@ def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dic
 
     res = cursor.execute(query).fetchall()
 
-
     col_names = [desc.name for desc in cursor.description]
     arr = []
     for r in res:
@@ -134,6 +133,11 @@ def make_unique(dicts: list[dict], key_values: tuple):
     return unique_list
 
 
+def get_wahljahr(wahl: int) -> int:
+    mapping = {20: 2021, 19: 2017}
+    return mapping[wahl]
+
+
 def notFalsy(s, d):
     if s:
         return s
@@ -155,6 +159,28 @@ def valid_wahl(wahl: str):
 
 def valid_wahlkreis(wknr: str):
     return models_nat(wknr) and 1 <= int(wknr) <= 299
+
+
+def valid_stimme(stimme):
+    return models_nat(stimme)
+
+
+def valid_uuid(value):
+    try:
+        UUID(value)
+        return True
+    except ValueError:
+        return False
+
+def valid_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
+    query = f"SELECT * FROM wahl_token t, wahlkreis wk WHERE t.token = '{token}' AND t.wahlkreis = wk.wkid AND wk.wahl = {wahl} AND wk.nummer = {wknr} AND t.gueltig"
+    res = cursor.execute(query).fetchall()
+    return len(res) == 1
+
+
+def make_token_invalid(cursor: psycopg.cursor, token: str):
+    statement = f"UPDATE wahl_token SET gueltig = FALSE WHERE token = '{token}'"
+    exec_script(cursor, statement, "MakeTokenInvalid.sql")
 
 
 if __name__ == '__main__':

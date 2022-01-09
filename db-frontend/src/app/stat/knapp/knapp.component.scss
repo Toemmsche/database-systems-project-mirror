@@ -1,8 +1,12 @@
 :host {
-  margin-bottom: 100px;
-  margin-top: 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
+}
+
+.mat-column-sieger-partei, .mat-column-verlierer-partei, .mat-column-wahlkreis, .mat-column-differenz-stimmen {
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
 }

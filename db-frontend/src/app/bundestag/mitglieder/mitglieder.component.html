@@ -1,27 +1,40 @@
-<h1>Mitglieder des Deutschen Bundestages</h1>
-<table id="mdb-table" mat-table *ngIf="mdbLoaded()" [dataSource]="mdbData" class="mat-elevation-z8">
-  <ng-container matColumnDef="vorname">
-    <th mat-header-cell *matHeaderCellDef>Vorname</th>
-    <td mat-cell *matCellDef="let mdb"> {{mdb.vorname}} </td>
-  </ng-container>
-  <ng-container matColumnDef="nachname">
-    <th mat-header-cell *matHeaderCellDef>Nachname</th>
-    <td mat-cell *matCellDef="let mdb"> {{mdb.nachname}} </td>
-  </ng-container>
-  <ng-container matColumnDef="partei">
-    <th mat-header-cell *matHeaderCellDef>Partei</th>
-    <td mat-cell *matCellDef="let mdb"> {{mdb.partei}} </td>
-  </ng-container>
-  <ng-container matColumnDef="geburtsjahr">
-    <th mat-header-cell *matHeaderCellDef>Geburtsjahr</th>
-    <td mat-cell *matCellDef="let mdb"> {{mdb.geburtsjahr}} </td>
-  </ng-container>
-  <ng-container matColumnDef="grund">
-    <th mat-header-cell *matHeaderCellDef>Grund</th>
-    <td mat-cell *matCellDef="let mdb"> {{mdb.grund}} </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-  <tr mat-row *matRowDef="let mdb; columns: columnsToDisplay"></tr>
-      <!--[ngStyle]="{'background': '#' +  mdb.partei_farbe + '60'}" -->
-</table>
-<span *ngIf="!mdbLoaded()">Loading...</span>
+<div id="mdb-container" *ngIf="mdbLoaded()">
+  <h1>Mitglieder des Deutschen Bundestages</h1>
+  <div id="mdb-filter">
+    <mat-form-field appearance="fill">
+      <mat-label>Partei</mat-label>
+      <mat-select (selectionChange)="this.parteiFilter = $event.value; updateFiltered()" value="Alle">
+        <mat-option *ngFor="let p of this.parteien" [value]="p">
+          {{p}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <table id="mdb-table" mat-table  [dataSource]="filteredMdbData" class="mat-elevation-z8">
+    <ng-container matColumnDef="vorname">
+      <th mat-header-cell *matHeaderCellDef>Vorname</th>
+      <td mat-cell *matCellDef="let mdb"> {{mdb.vorname}} </td>
+    </ng-container>
+    <ng-container matColumnDef="nachname">
+      <th mat-header-cell *matHeaderCellDef>Nachname</th>
+      <td mat-cell *matCellDef="let mdb"> {{mdb.nachname}} </td>
+    </ng-container>
+    <ng-container matColumnDef="partei">
+      <th mat-header-cell *matHeaderCellDef>Partei</th>
+      <td mat-cell *matCellDef="let mdb"> {{mdb.partei}} </td>
+    </ng-container>
+    <ng-container matColumnDef="geburtsjahr">
+      <th mat-header-cell *matHeaderCellDef>Geburtsjahr</th>
+      <td mat-cell *matCellDef="let mdb"> {{mdb.geburtsjahr}} </td>
+    </ng-container>
+    <ng-container matColumnDef="grund">
+      <th mat-header-cell *matHeaderCellDef>Grund</th>
+      <td mat-cell *matCellDef="let mdb"> {{mdb.grund}} </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let mdb; columns: columnsToDisplay"></tr>
+    <!--[ngStyle]="{'background': '#' +  mdb.partei_farbe + '60'}" -->
+  </table>
+</div>
+<span *ngIf="wahl == 19">Leider gibt es aus Datenschutzgründen keine Daten zu den MDB der BTW 2017.</span>
+<mat-spinner *ngIf="wahl == 20 && !mdbLoaded()"></mat-spinner>

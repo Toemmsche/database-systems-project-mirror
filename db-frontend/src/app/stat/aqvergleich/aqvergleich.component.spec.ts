@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BundestagComponent } from './bundestag.component';
+import { AQVergleichComponent } from './aqvergleich.component';
 
-describe('BundestagComponent', () => {
-  let component: BundestagComponent;
-  let fixture: ComponentFixture<BundestagComponent>;
+describe('AQVergleichComponent', () => {
+  let component: AQVergleichComponent;
+  let fixture: ComponentFixture<AQVergleichComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BundestagComponent ]
+      declarations: [ AQVergleichComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BundestagComponent);
+    fixture = TestBed.createComponent(AQVergleichComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

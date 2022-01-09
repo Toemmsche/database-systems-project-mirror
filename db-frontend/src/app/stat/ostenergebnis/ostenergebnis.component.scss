@@ -1,7 +1,15 @@
 :host {
-  margin-top: 50px;
-  margin-bottom: 100px;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+#osten-container {
+  width: 60%;
+}
+
+#osten-chart {
+  width: 100%;
 }

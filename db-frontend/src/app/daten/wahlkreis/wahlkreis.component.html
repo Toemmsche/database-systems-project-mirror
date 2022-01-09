@@ -1,5 +1,10 @@
 <mat-card id="wahlkreis-card" *ngIf="wahlkreisLoaded()">
-  <mat-card-title>{{"Wahlkreis " + nummer}}</mat-card-title>
+  <div id="wahlkreis-card-header">
+    <mat-card-title>{{"Wahlkreis " + nummer}}</mat-card-title>
+    <mat-slide-toggle id="einzelstimmen-toggle" (change)="onEinzelstimmenToggleChanged($event)"
+                      checked="{{useEinzelstimmen}}">Neuberechnung mit Einzelstimmen
+    </mat-slide-toggle>
+  </div>
   <mat-divider inset></mat-divider>
   <mat-card-content></mat-card-content>
   <table>
@@ -46,9 +51,21 @@
   <mat-divider inset></mat-divider>
   <!-- hack for empty space-->
   <mat-card-content></mat-card-content>
-  <mat-card-subtitle><h1>Erststimmenergebnisse der Parteien</h1></mat-card-subtitle>
-  <chart id="wahlkreis-results-chart"
-          [type]="resultsConfig.type"
-          [data]="resultsConfig.data"
-          [options]="resultsConfig.options"></chart>
+  <div id="wahlkreis-chart-container">
+    <div class="wahlkreis-chart-titled">
+      <mat-card-subtitle><h1>Erststimmenergebnisse der Parteien</h1></mat-card-subtitle>
+      <chart id="wahlkreis-erststimmen-chart"
+             [type]="erststimmenConfig.type"
+             [data]="erststimmenConfig.data"
+             [options]="erststimmenConfig.options"></chart>
+    </div>
+    <div class="wahlkreis-chart-titled">
+      <mat-card-subtitle><h1>Zweitstimmenergebnisse der Parteien</h1></mat-card-subtitle>
+      <chart id="wahlkreis-zweitstimmen-chart"
+             [type]="zweitstimmenConfig.type"
+             [data]="zweitstimmenConfig.data"
+             [options]="zweitstimmenConfig.options"></chart>
+    </div>
+  </div>
 </mat-card>
+<mat-spinner *ngIf="!wahlkreisLoaded()"></mat-spinner>

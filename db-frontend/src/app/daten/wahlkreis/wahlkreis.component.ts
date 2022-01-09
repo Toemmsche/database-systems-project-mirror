@@ -4,29 +4,58 @@ import {REST_GET} from "../../../util";
 import {Wahlkreis} from "../../../model/Walhkreis";
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
+import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 
 @Component({
-  selector: 'app-wahlkreis',
+  selector   : 'app-wahlkreis',
   templateUrl: './wahlkreis.component.html',
-  styleUrls: ['./wahlkreis.component.scss']
+  styleUrls  : ['./wahlkreis.component.scss']
 })
 export class WahlkreisComponent implements OnInit {
 
   @Input()
   nummer !: number;
   wahl !: number;
-
+  useEinzelstimmen: boolean = false;
   wahlkreis !: Wahlkreis;
-  results !: Array<ParteiErgebnis>;
-  resultsConfig = {
-    type: 'bar',
-    data: {
-      labels: [] as Array<string>,
+
+  erststimmenergebnisse !: Array<ParteiErgebnis>;
+  erststimmenConfig = {
+    type   : 'bar',
+    data   : {
+      labels  : [] as Array<string>,
       datasets: [
         {
-          label: "Erststimmen",
-          borderWidth: 1,
-          data: [] as Array<number>,
+          label          : "Erststimmen",
+          borderWidth    : 1,
+          data           : [] as Array<number>,
+          backgroundColor: [] as Array<string>,
+        }
+      ]
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
+          }
+        ]
+      }
+    }
+  }
+
+  zweitstimmenergebnisse !: Array<ParteiErgebnis>;
+  zweitstimmenConfig = {
+    type   : 'bar',
+    data   : {
+      labels  : [] as Array<string>,
+      datasets: [
+        {
+          label          : "Zweitstimmen",
+          borderWidth    : 1,
+          data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
         }
       ]
@@ -51,7 +80,8 @@ export class WahlkreisComponent implements OnInit {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
     wahlservice.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlservice.getWahlNumber(selection);
-      this.results = []
+      this.erststimmenergebnisse = [];
+      this.zweitstimmenergebnisse = [];
       this.ngOnInit()
     });
   }
@@ -63,12 +93,12 @@ export class WahlkreisComponent implements OnInit {
   }
 
   populate(): void {
-    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}`)
+    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
       .then(response => response.json())
       .then((data: Wahlkreis) => {
         this.wahlkreis = data;
       });
-    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/erststimmen`)
+    REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
         data = data.sort((a, b) => {
@@ -79,21 +109,47 @@ export class WahlkreisComponent implements OnInit {
           }
           return b.abs_stimmen - a.abs_stimmen;
         });
+
         // Populate bar chart
-        const chartData = this.resultsConfig.data;
-        chartData.labels = data.map((result) => result.partei);
-        chartData.datasets[0].data = data.map((result) => result.abs_stimmen);
-        chartData.datasets[0].backgroundColor = data.map((result) => '#' +
+        const esData = data.filter(pe => pe.stimmentyp == 1);
+        const esChartData = this.erststimmenConfig.data;
+        esChartData.labels = esData.map((result) => result.partei);
+        esChartData.datasets[0].data = esData.map((result) => result.abs_stimmen);
+        esChartData.datasets[0].backgroundColor = esData.map((result) => '#' +
           result.partei_farbe);
 
         // Save for later
-        this.results = data;
+        this.erststimmenergebnisse = esData;
+
+        // Populate bar chart
+        const zsData = data.filter(pe => pe.stimmentyp == 2);
+        const zsChartData = this.zweitstimmenConfig.data;
+        zsChartData.labels = zsData.map((result) => result.partei);
+        zsChartData.datasets[0].data = zsData.map((result) => result.abs_stimmen);
+        zsChartData.datasets[0].backgroundColor = zsData.map((result) => '#' +
+          result.partei_farbe);
+
+        // Save for later
+        this.zweitstimmenergebnisse = zsData;
       });
   }
 
   wahlkreisLoaded(): boolean {
-    return this.wahlkreis != null && this.results != null &&
-      this.results.length > 0;
+    return this.wahlkreis != null &&
+      this.erststimmenergebnisse != null &&
+      this.erststimmenergebnisse.length > 0 &&
+      this.zweitstimmenergebnisse != null &&
+      this.zweitstimmenergebnisse.length > 0;
   }
 
+  onEinzelstimmenToggleChanged(event: MatSlideToggleChange) {
+    if (this.nummer != 222 || this.wahl != 20) {
+      window.alert("Einzelstimmen liegen nicht vor")
+      return;
+    }
+    this.useEinzelstimmen = event.checked;
+    this.erststimmenergebnisse = [];
+    this.zweitstimmenergebnisse = [];
+    this.ngOnInit();
+  }
 }

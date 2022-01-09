@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { WahlkreissiegerComponent } from './wahlkreissieger.component';
+import { DatenComponent } from './daten.component';
 
-describe('WahlkreissiegerComponent', () => {
-  let component: WahlkreissiegerComponent;
-  let fixture: ComponentFixture<WahlkreissiegerComponent>;
+describe('DatenComponent', () => {
+  let component: DatenComponent;
+  let fixture: ComponentFixture<DatenComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ WahlkreissiegerComponent ]
+      declarations: [ DatenComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(WahlkreissiegerComponent);
+    fixture = TestBed.createComponent(DatenComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

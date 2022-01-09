@@ -1,22 +1,47 @@
-<mat-grid-list cols="2" rowHeight="2:1">
-  <mat-grid-tile>
-    <mat-card class="clickable-card" id="ueberhang-summary-card" routerLink="/Statistiken/Ueberhang">
-      <mat-card-title>Überhangmandate</mat-card-title>
-      <mat-card-content>nach Partei und Bundesland</mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <mat-card class="clickable-card" id="knappstesieger-summary-card" routerLink="/Statistiken/KnappsteSieger">
-      <mat-card-title>Knappste Sieger bzw. Verlierer</mat-card-title>
-      <mat-card-content>Die 10 knappsten Wahlkreissieger (oder -niederlagen) jeder Partei</mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <mat-card class="clickable-card" id="ostenergebnis-summary-card" routerLink="/Statistiken/OstenErgebnis">
-      <mat-card-title>Wahlergebnis in Ostdeutschland</mat-card-title>
-      <mat-card-content>Das Wahlergebnis nach Zweitstimmen in Ostdeutschland</mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
-</mat-grid-list>
-
-
+<mat-accordion>
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Überhangmandate
+      </mat-panel-title>
+      <mat-panel-description>
+        Überhangmandate nach Partei und Bundesland
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <app-ueberhang></app-ueberhang>
+  </mat-expansion-panel>
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Ergebnis im Osten
+      </mat-panel-title>
+      <mat-panel-description>
+        Zweitstimmenergebnis der Bundestagsparteien in Ostdeutschland
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <app-ostenergebnis></app-ostenergebnis>
+  </mat-expansion-panel>
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Knappste Sieger/Verlierer
+      </mat-panel-title>
+      <mat-panel-description>
+        Die 10 knappsten Wahlkreissieger oder Wahlkreisniederlagen aller angetrenen Parteien nach Erststimme
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <app-knapp></app-knapp>
+  </mat-expansion-panel>
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Vergleich: Hohe vs. niedrige Arbeitslosenquote
+      </mat-panel-title>
+      <mat-panel-description>
+        Zweitstimmenergebnis der Bundestagsparteien in den 10 Wahlkreisen mit der höchsten bzw. niedrigsten
+        Arbeitslosenquote
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <app-aqvergleich></app-aqvergleich>
+  </mat-expansion-panel>
+</mat-accordion>

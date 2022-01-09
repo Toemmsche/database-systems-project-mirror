@@ -3,9 +3,17 @@
   margin-bottom: 100px;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: center;
+  align-items: center;
+  min-height: 60%;
 }
 
-.mat-list {
-  align-items: center;
+
+mat-panel-title {
+  font-size: larger;
+}
+
+.mat-expansion-panel-header-description {
+  display: flex;
+  justify-content: flex-end;
 }
