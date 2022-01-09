@@ -27,6 +27,7 @@ export class StimmzettelComponent implements OnInit {
 
   showResponse !: boolean;
   voteSuccessful !: boolean | null;
+  newStimmzettelCountdown !: number;
 
   constructor(private route: ActivatedRoute) {
   }
@@ -56,10 +57,17 @@ export class StimmzettelComponent implements OnInit {
     this.voteSuccessful = null;
     this.showResponse = true;
     REST_POST(`20/wahlkreis/${this.nummer}/stimmabgabe`,
-      new Stimmabgabe(this.nummer, this.erststimmeSelection, this.zweitstimmeSelection, this.token.value))
+      new Stimmabgabe(this.nummer, this.token.value, this.erststimmeSelection ?? undefined, this.zweitstimmeSelection ?? undefined))
       .then(response => {
-        //TODO error handling
         this.voteSuccessful = response.status === 200;
+        this.newStimmzettelCountdown = 10;
+        setInterval(() => {
+          if (this.newStimmzettelCountdown > 0) {
+            this.newStimmzettelCountdown--;
+          } else {
+            this.resetStimmzettel();
+          }
+        }, 1000);
       })
   }
 

@@ -150,43 +150,43 @@ def cast_vote(wknr: str):
         stimmzettel = table_to_dict_list(cursor, 'stimmzettel_2021', wk_nummer=wknr)
         try:
             stimmen = request.json
-            if 'token' not in stimmen:
-                err_str = f"Token missing"
-                logger.error(err_str)
-                abort(401)
-
-            token = stimmen['token']
-            # prevent SQL injection via token string
-            # this check should be performed by the frontend as well but we want to make sure
-            if valid_uuid(token) and valid_token(cursor, 20, int(wknr), token):
-                make_token_invalid(cursor, token)
-            else:
-                err_str = f"Invalid token for wahlkreis {wknr}: {token}"
-                logger.error(err_str)
-                abort(401)
-            if 'erststimme' in stimmen:
-                erststimme = stimmen['erststimme']
-                legalErststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
-                if valid_stimme(erststimme) and erststimme in legalErststimmen:
-                    load_into_db(cursor, [(erststimme,)], 'erststimme', )
-                    logger.info(f"Received first vote for {erststimme} in {wknr}")
-                else:
-                    err_str = f"Invalid first vote for wahlkreis {wknr}: {str(erststimme)}"
-                    logger.error(err_str)
-            if 'zweitstimme' in stimmen:
-                zweitstimme = stimmen['zweitstimme']
-                legalZweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
-                if valid_stimme(zweitstimme) and zweitstimme in legalZweitstimmen:
-                    load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
-                    logger.info(f"Received second vote for {zweitstimme} in {wknr}")
-                else:
-                    err_str = f"Invalid second vote for wahlkreis {wknr}: {str(zweitstimme)}"
-                    logger.error(err_str)
-            return 'processed\n'
         except:
             err_str = f"Bad vote: {request.data}"
             logger.error(err_str)
             abort(400)
+        if 'token' not in stimmen:
+            err_str = f"Token missing"
+            logger.error(err_str)
+            abort(401)
+        token = stimmen['token']
+        # prevent SQL injection via token string
+        # this check should be performed by the frontend as well but we want to make sure
+        if valid_uuid(token) and valid_token(cursor, 20, int(wknr), token):
+            make_token_invalid(cursor, token)
+        else:
+            err_str = f"Invalid token for wahlkreis {wknr}: {token}"
+            logger.error(err_str)
+            abort(401)
+        if 'erststimme' in stimmen:
+            erststimme = stimmen['erststimme']
+            legalErststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
+            if valid_stimme(erststimme) and erststimme in legalErststimmen:
+                load_into_db(cursor, [(erststimme,)], 'erststimme', )
+                logger.info(f"Received first vote for {erststimme} in {wknr}")
+            else:
+                err_str = f"Invalid first vote for wahlkreis {wknr}: {str(erststimme)}"
+                logger.error(err_str)
+        if 'zweitstimme' in stimmen:
+            zweitstimme = stimmen['zweitstimme']
+            legalZweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
+            if valid_stimme(zweitstimme) and zweitstimme in legalZweitstimmen:
+                load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
+                logger.info(f"Received second vote for {zweitstimme} in {wknr}")
+            else:
+                err_str = f"Invalid second vote for wahlkreis {wknr}: {str(zweitstimme)}"
+                logger.error(err_str)
+        return 'processed\n'
+
 
 
 if __name__ == '__main__':
