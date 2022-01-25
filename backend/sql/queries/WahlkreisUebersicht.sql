@@ -26,8 +26,18 @@ CREATE VIEW wahlkreisinformation
     GROUP BY wk.wahl, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
 
 CREATE VIEW stimmen_qpartei_wahlkreis_rich
-    (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen) AS
-    WITH qpartei(wahl, partei) AS
+    (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
+    WITH erststimmen_wahlkreis(wahlkreis, abs_stimmen) AS
+             (SELECT dk.wahlkreis,
+                     SUM(dk.anzahlstimmen) AS abs_stimmen
+              FROM direktkandidatur dk
+              GROUP BY dk.wahlkreis),
+         zweitstimmen_wahlkreis(wahlkreis, abs_stimmen) AS
+             (SELECT ze.wahlkreis,
+                     SUM(ze.anzahlstimmen) AS abs_stimmen
+              FROM zweitstimmenergebnis ze
+              GROUP BY ze.wahlkreis),
+         qpartei(wahl, partei) AS
              (SELECT DISTINCT m.wahl, m.partei
               FROM mandat m),
          nicht_qpartei(wahl, partei) AS
@@ -58,53 +68,65 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
            wk.nummer,
            p.kuerzel,
            p.farbe,
-           epw.abs_stimmen
+           epw.abs_stimmen,
+           epw.abs_stimmen::decimal / ewk.abs_stimmen AS rel_stimmen
     FROM erststimmen_partei_wahlkreis epw,
          partei p,
          qpartei qp,
-         wahlkreis wk
+         wahlkreis wk,
+         erststimmen_wahlkreis ewk
     WHERE epw.partei = p.parteiid
       AND p.parteiid = qp.partei
       AND wk.wahl = qp.wahl
       AND epw.wahlkreis = wk.wkid
+      AND epw.wahlkreis = ewk.wahlkreis
     UNION
     SELECT 1,
            wk.wahl,
            wk.nummer,
            'Sonstige',
            'DDDDDD',
-           SUM(epw.abs_stimmen) AS abs_stimmen
+           SUM(epw.abs_stimmen) AS abs_stimmen,
+           SUM(epw.abs_stimmen)::decimal / ewk.abs_stimmen AS rel_stimmen
     FROM erststimmen_partei_wahlkreis epw,
          wahlkreis wk,
-         nicht_qpartei nqp
+         nicht_qpartei nqp,
+         erststimmen_wahlkreis ewk
     WHERE epw.wahlkreis = wk.wkid
       AND epw.partei = nqp.partei
-    GROUP BY wk.wahl, wk.nummer
+      AND epw.wahlkreis = ewk.wahlkreis
+    GROUP BY wk.wahl, wk.nummer, ewk.abs_stimmen
     UNION
     SELECT 2,
            wk.wahl,
            wk.nummer,
            p.kuerzel AS partei,
            p.farbe   AS partei_farbe,
-           zpw.abs_stimmen
+           zpw.abs_stimmen,
+           zpw.abs_stimmen::decimal / zwk.abs_stimmen AS rel_stimmen
     FROM zweitstimmen_partei_wahlkreis zpw,
          partei p,
          qpartei qp,
-         wahlkreis wk
+         wahlkreis wk,
+         zweitstimmen_wahlkreis zwk
     WHERE zpw.partei = p.parteiid
       AND p.parteiid = qp.partei
       AND wk.wahl = qp.wahl
       AND zpw.wahlkreis = wk.wkid
+      AND zpw.wahlkreis = zwk.wahlkreis
     UNION
     SELECT 2,
            wk.wahl,
            wk.nummer,
            'Sonstige',
            'DDDDDD',
-           SUM(zpw.abs_stimmen) AS abs_stimmen
+           SUM(zpw.abs_stimmen) AS abs_stimmen,
+           SUM(zpw.abs_stimmen)::decimal / zwk.abs_stimmen AS rel_stimmen
     FROM zweitstimmen_partei_wahlkreis zpw,
          wahlkreis wk,
-         nicht_qpartei nqp
+         nicht_qpartei nqp,
+         zweitstimmen_wahlkreis zwk
     WHERE zpw.wahlkreis = wk.wkid
       AND zpw.partei = nqp.partei
-    GROUP BY wk.wahl, wk.nummer;
+      AND zpw.wahlkreis = zwk.wahlkreis
+    GROUP BY wk.wahl, wk.nummer, zwk.abs_stimmen;
