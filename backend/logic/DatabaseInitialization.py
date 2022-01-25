@@ -6,17 +6,19 @@ from logic.ETL_general import *
 from logic.config import db_config
 
 
-def init_all() -> None:
+def init_data() -> None:
     # open database connection
     with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             # reset first
-            exec_script_from_file(cursor, 'sql/init/init.sql')
+            exec_sql_statement_from_file(cursor, 'sql/init/init.sql')
 
             # load data for 2021
             load_bundestagswahl(cursor)
             load_bundeslaender(cursor)
+
+            logger.info("Loaded general data")
 
             # Make sure that Wahlkreise and SVG paths are matched correctly
             begrenzungen_dict = {
@@ -43,6 +45,8 @@ def init_all() -> None:
             load_direktkandidaten_2021(cursor)
             load_zweitstimmen_2021(cursor)
 
+            logger.info("Loaded data for 2021")
+
             # 2017
             load_wahlkreise(
                 wahlkreise_2017,
@@ -58,8 +62,12 @@ def init_all() -> None:
             load_zweitstimmen_2017(cursor)
             load_direktkandidaten_2017(cursor)
 
-            # exec_script_from_file(cursor, 'sql/init/StimmenGenerator.sql')
-            # exec_script_from_file(cursor, 'sql/init/TokenGenerator.sql')
+            logger.info("Loaded data for 2017")
+
+            exec_sql_statement_from_file(cursor, 'sql/init/Einzelstimmen.sql')
+            exec_sql_statement_from_file(cursor, 'sql/init/Token.sql')
+
+            logger.info("Generated Einzelstimmen and (admin) tokens")
 
 
 def exec_util_queries():
@@ -67,10 +75,9 @@ def exec_util_queries():
     with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
-            exec_script_from_file(cursor, 'sql/core/Einzelstimmen222.sql')
-            exec_script_from_file(cursor, 'sql/core/Token222.sql')
-            exec_script_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
-            exec_script_from_file(cursor, 'sql/core/Triggers.sql')
+            exec_sql_statement_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
+            exec_sql_statement_from_file(cursor, 'sql/core/Triggers.sql')
+            logger.info("Loaded utility views")
 
 
 def exec_data_queries():
@@ -78,15 +85,16 @@ def exec_data_queries():
     with psycopg.connect(**db_config) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
-            # open scritp directory
-            for root, dirs, files in os.walk('sql/queries'):  #
+            # open script directory
+            for root, dirs, files in os.walk('sql/queries'):
                 for file in files:
-                    fullpath = os.path.join(root, file)
-                    exec_script_from_file(cursor, fullpath)
+                    full_path = os.path.join(root, file)
+                    exec_sql_statement_from_file(cursor, full_path)
+            logger.info("Loaded data views")
 
 
 def init_backend():
-    init_all()
+    init_data()
     exec_util_queries()
     exec_data_queries()
 

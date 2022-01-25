@@ -1,4 +1,4 @@
-<div *ngIf="stimmzettelLoaded()">
+<div *ngIf="stimmzettelLoaded()" class="center flex-column">
   <h1>{{'Stimmzettel für Wahlkreis ' + this.nummer}}</h1>
   <table id="mdb-table" mat-table [dataSource]="stimmzettel" class="mat-elevation-z8">
     <ng-container matColumnDef="erststimme_selection">
@@ -36,26 +36,27 @@
     <input matInput [formControl]="token" required>
     <mat-error *ngIf="token.invalid">Ungültiges Format für den Zugangsschlüssel</mat-error>
   </mat-form-field>
-  <button *ngIf="!showResponse" id="cast-vote-btn" mat-button (click)="stimmeAbgeben()" [disabled]="token.invalid">
+  <button *ngIf="voteStatus.isIdle()" id="cast-vote-btn" class="stretch" mat-button (click)="stimmeAbgeben()" [disabled]="token.invalid">
     Stimmzettel Abgeben
   </button>
-  <div *ngIf="showResponse" class="after-vote-popup">
-    <mat-spinner *ngIf="voteSuccessful == null"></mat-spinner>
-    <div class="after-vote-message" *ngIf="voteSuccessful != null && !voteSuccessful">
-      <mat-icon id="checkmark-success" id="vote-message-failure" aria-hidden="false" aria-label="Checkmark icon">error
-      </mat-icon>
+  <div *ngIf="voteStatus.isResultStatus()" class="center flex-column stretch">
+    <mat-spinner *ngIf="voteStatus.isWaiting()"></mat-spinner>
+    <div class="center flex-column" id="vote-message-failure" *ngIf="voteStatus.isFailure()">
+      <div>
+      <mat-icon>error</mat-icon>
       <span>Etwas ist schiefgelaufen, mögliche Gründe sind:</span>
+      </div>
       <ul>
         <li>Fehlerhafte Eingabe ihres Schlüssels</li>
         <li>Ungültiger Zugangsschlüssel</li>
         <li>Bereits benutzter Zugangsschlüssel</li>
       </ul>
     </div>
-    <div class="after-vote-message" id="vote-message-success" *ngIf="voteSuccessful">
-      <mat-icon aria-hidden="false" aria-label="Checkmark icon">done</mat-icon>
+    <div class="center flex-row stretch" id="vote-message-success" *ngIf="voteStatus.isSuccess()">
+      <mat-icon>done</mat-icon>
       <span>Ihre Stimme wurde gezählt</span>
     </div>
-    <button *ngIf="voteSuccessful != null" id="reset-stimmzettel-btn" mat-button (click)="resetStimmzettel()">Neuer Stimmzettel (automatisch in {{newStimmzettelCountdown}}s)</button>
+    <button id="reset-stimmzettel-btn" class="stretch" mat-button (click)="resetStimmzettel()">Neuer Stimmzettel (automatisch in {{newStimmzettelCountdown}}s)</button>
   </div>
 </div>
 <mat-spinner *ngIf="!stimmzettelLoaded()"></mat-spinner>

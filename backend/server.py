@@ -1,5 +1,4 @@
-import time
-from flask import Flask, abort, request, current_app, g as app_ctx
+from flask import Flask, abort, request
 from flask_cors import CORS
 from psycopg_pool import ConnectionPool
 
@@ -9,13 +8,13 @@ from logic.util import (
     valid_wahlkreis,
     valid_stimme,
     table_to_json,
-    models_nat,
     reset_aggregates,
-    exec_script_from_file,
     table_to_dict_list,
     load_into_db, logger,
-    valid_token,
-    make_token_invalid, valid_uuid
+    valid_admin_token,
+    valid_wahl_token,
+    make_wahl_token_invalid,
+    valid_uuid, generate_wahl_token
 )
 
 app = Flask("db-backend")
@@ -107,8 +106,10 @@ def get_osten_ergebnis(wahl: str):
         return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
 
 
-@app.route("/api/<wahl>/stat/aqvergleich"
-           "", methods=['GET'])
+@app.route(
+    "/api/<wahl>/stat/aqvergleich"
+    "", methods=['GET']
+)
 def get_aq_vergleich(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
@@ -140,6 +141,34 @@ def get_stimmzettel(wknr: str):
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         return table_to_json(cursor, 'stimmzettel_2021', wk_nummer=wknr)
 
+
+@app.route("/api/20/wahlkreis/<wknr>/wahl_token", methods=['POST'])
+def get_wahl_token(wknr: str):
+    if not valid_wahlkreis(wknr):
+        abort(404)
+
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        try:
+            data = request.json
+        except:
+            err_str = f"Bad token request: {request.data}"
+            logger.error(err_str)
+            abort(400)
+        if 'token' not in data:
+            err_str = f"Missing admin token"
+            logger.error(err_str)
+            abort(401)
+        token = data['token']
+        if valid_uuid(token) and valid_admin_token(cursor, 20, int(wknr), token):
+            # Generate new wahl token
+            new_token = generate_wahl_token(cursor, 20, int(wknr))
+            return {'token': str(new_token)}
+        else:
+            err_str = f"Invalid admin token for wahlkreis {wknr}: {token}"
+            logger.error(err_str)
+            abort(401)
+
+
 @app.route("/api/20/wahlkreis/<wknr>/stimmabgabe", methods=['POST'])
 def cast_vote(wknr: str):
     if not valid_wahlkreis(wknr):
@@ -151,26 +180,25 @@ def cast_vote(wknr: str):
         try:
             stimmen = request.json
         except:
-            err_str = f"Bad vote: {request.data}"
+            err_str = f"Bad vote request:  {request.data}"
             logger.error(err_str)
             abort(400)
         if 'token' not in stimmen:
-            err_str = f"Token missing"
+            err_str = f"Missing wahl token"
             logger.error(err_str)
             abort(401)
         token = stimmen['token']
         # prevent SQL injection via token string
-        # this check should be performed by the frontend as well but we want to make sure
-        if valid_uuid(token) and valid_token(cursor, 20, int(wknr), token):
-            make_token_invalid(cursor, token)
+        if valid_uuid(token) and valid_wahl_token(cursor, 20, int(wknr), token):
+            make_wahl_token_invalid(cursor, token)
         else:
-            err_str = f"Invalid token for wahlkreis {wknr}: {token}"
+            err_str = f"Invalid wahl token for wahlkreis {wknr}: {token}"
             logger.error(err_str)
             abort(401)
         if 'erststimme' in stimmen:
             erststimme = stimmen['erststimme']
-            legalErststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
-            if valid_stimme(erststimme) and erststimme in legalErststimmen:
+            legal_erststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
+            if valid_stimme(erststimme) and erststimme in legal_erststimmen:
                 load_into_db(cursor, [(erststimme,)], 'erststimme', )
                 logger.info(f"Received first vote for {erststimme} in {wknr}")
             else:
@@ -178,15 +206,14 @@ def cast_vote(wknr: str):
                 logger.error(err_str)
         if 'zweitstimme' in stimmen:
             zweitstimme = stimmen['zweitstimme']
-            legalZweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
-            if valid_stimme(zweitstimme) and zweitstimme in legalZweitstimmen:
+            legal_zweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
+            if valid_stimme(zweitstimme) and zweitstimme in legal_zweitstimmen:
                 load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
                 logger.info(f"Received second vote for {zweitstimme} in {wknr}")
             else:
                 err_str = f"Invalid second vote for wahlkreis {wknr}: {str(zweitstimme)}"
                 logger.error(err_str)
         return 'processed\n'
-
 
 
 if __name__ == '__main__':

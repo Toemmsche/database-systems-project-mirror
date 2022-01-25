@@ -1,12 +1,14 @@
 # Ablauf Stimmabgabe
 
 ## Vorbereitung
-- SQL-Tabelle mit Tokens (UUIDs) verknüpft mit Wahl und Wahlkreis entsprechend der Anzahl an wahlberechtigten Personen im Wahlkreis
-- jede wahlberechtigte Person erhält Wahlinformation per Post inklusive einem Token
+- SQL-Tabelle mit Tokens (UUIDs) verknüpft mit Wahlkreis
+- Wahlhelfer/autorisierte Personen erhalten (Admin-)Token für ihren Wahlkreis mit dem sich unter `/api/20/Wahlkreis/<wknr>/wahl_token`
+auf Bedarf gültige (Wahl-)tokens für den Wahlkreis generieren lassen 
 
 ## Durchführung im Wahllokal
 - wahlberechtigte Person besucht Wahllokal
 - Identifikation mit Personalausweis (Wahlhelfer im Wahllokal führt Liste mit Personen, die schon eine Stimme abgegeben haben)
+- Wahlhelfer generiert neues Wahltoken, druckt es aus, und übergibt es dem Wahlberechtigten
 - Wähler betritt sichtgeschützten Bereich, der die Weboberfläche zur Stimmabgabe zeigt (/Stimmabgabe/{Wahlkreisnummer}), die bereits auf den entsprechenden Wahlkreis voreingestellt ist und einen gültigen Stimmzettel anzeigt
 - Wähler setzt Kreuze (wahlweise auch Enthaltung)
 - Eingabe des Tokens durch Eingabefeld in Weboberfläche
@@ -34,6 +36,7 @@ Durch das Wählen in einem sichtgeschützten Bereich und das automatische Laden 
 
 Ein Token ist nur für eine einzige erfolgreiche Stimmabgabe gültig. 
 Durch Kontrolle des Peronalausweises wird die Einlösung mehrer Tokens durch diesselbe Person verhindert.
+Da jedes Token nur auf Bedarf generiert wird, ist es zudem ausgeschlossen, das eine Person bereits mit mehreren Tokens die Wahlkabine betritt.
 
 ### Stimmabgabe durch nicht autorisierte Personen
 

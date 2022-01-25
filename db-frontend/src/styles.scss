@@ -37,6 +37,34 @@ h3 {
   background: lightgrey !important;
 }
 
+.host-container {
+  margin-top: 50px;
+  margin-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
+}
+
+.stretch {
+  width: 100%;
+}
+
 
 h1, h2 {
   text-align: center !important;

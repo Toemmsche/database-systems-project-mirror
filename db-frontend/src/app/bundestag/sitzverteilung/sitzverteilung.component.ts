@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {REST_GET} from "../../../util";
+import {REST_GET} from "../../../util/ApiService";
 import {Sitzverteilung} from "../../../model/Sitzverteilung";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 

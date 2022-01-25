@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {REST_GET} from "../../../util";
+import {REST_GET} from "../../../util/ApiService";
 import {Wahlkreis} from "../../../model/Walhkreis";
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
