@@ -13,18 +13,18 @@ import {DatenComponent} from "./daten/daten.component";
 import {StimmabgabeComponent} from "./stimmabgabe/stimmabgabe.component";
 
 const routes: Routes = [
-  {path: 'Bundestag', component: SitzverteilungComponent, pathMatch: 'full'},
-  {path: 'Bundestag/Mitglieder', component: MitgliederComponent, pathMatch: 'full'},
-  {path: 'Daten', component: DatenComponent, pathMatch: 'full'}, //TODO
-  {path: 'Daten/Wahlkreis/:nummer', component: WahlkreisComponent, pathMatch: 'full'},
-  {path: 'Karte', component: KarteComponent, pathMatch: 'full'},
-  {path: 'Statistiken', component: StatComponent, pathMatch: 'full'},
-  {path: 'Statistiken/Ueberhang', component: UeberhangComponent, pathMatch: 'full'},
-  {path: 'Statistiken/KnappsteSieger', component: KnappComponent, pathMatch: 'full'},
-  {path: 'Statistiken/OstenErgebnis', component: OstenergebnisComponent, pathMatch: 'full'},
-  {path: 'Stimmabgabe', component: StimmabgabeComponent, pathMatch: 'full'}, //TODO
-  {path: 'Stimmabgabe/:nummer', component: StimmzettelComponent, pathMatch: 'full'},
-  {path: '', component: SitzverteilungComponent, pathMatch: 'full'}
+  {path: 'Bundestag', component: SitzverteilungComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Bundestag/Mitglieder', component: MitgliederComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Daten', component: DatenComponent, pathMatch: 'full', data: { allowsWahlSelection: true }}, //TODO
+  {path: 'Daten/Wahlkreis/:nummer', component: WahlkreisComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Karte', component: KarteComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Statistiken', component: StatComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Statistiken/Ueberhang', component: UeberhangComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Statistiken/KnappsteSieger', component: KnappComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Statistiken/OstenErgebnis', component: OstenergebnisComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Stimmabgabe', component: StimmabgabeComponent, pathMatch: 'full', data: { allowsWahlSelection: false }}, //TODO
+  {path: 'Stimmabgabe/:nummer', component: StimmzettelComponent, pathMatch: 'full', data: { allowsWahlSelection: false }},
+  {path: '', component: SitzverteilungComponent, pathMatch: 'full', data: { allowsWahlSelection: true }}
 ];
 
 @NgModule({
