@@ -8,9 +8,9 @@ import {FormControl, Validators} from "@angular/forms";
 import RS, {RequestStatus} from "../../../util/RequestStatus";
 
 @Component({
-  selector   : 'app-stimmzettel',
+  selector: 'app-stimmzettel',
   templateUrl: './stimmzettel.component.html',
-  styleUrls  : ['./stimmzettel.component.scss']
+  styleUrls: ['./stimmzettel.component.scss']
 })
 export class StimmzettelComponent implements OnInit {
 
@@ -45,6 +45,7 @@ export class StimmzettelComponent implements OnInit {
       .then(response => response.json())
       .then((data: Array<StimmzettelEintrag>) => {
         this.stimmzettel = data;
+        this.stimmzettel.splice(0,0, new StimmzettelEintrag(this.nummer, -1, -1, "", "Ungültig", -1, "Ungültig", ""));
       })
   }
 

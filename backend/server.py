@@ -198,6 +198,8 @@ def cast_vote(wknr: str):
         if 'erststimme' in stimmen:
             erststimme = stimmen['erststimme']
             legal_erststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
+            # Add 'ungültig' vote (represented by -1)
+            legal_erststimmen.append(-1)
             if valid_stimme(erststimme) and erststimme in legal_erststimmen:
                 load_into_db(cursor, [(erststimme,)], 'erststimme', )
                 logger.info(f"Received first vote for {erststimme} in {wknr}")
@@ -207,6 +209,8 @@ def cast_vote(wknr: str):
         if 'zweitstimme' in stimmen:
             zweitstimme = stimmen['zweitstimme']
             legal_zweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
+            # Add 'ungültig' vote (represented by -1)
+            legal_zweitstimmen.append(-1)
             if valid_stimme(zweitstimme) and zweitstimme in legal_zweitstimmen:
                 load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
                 logger.info(f"Received second vote for {zweitstimme} in {wknr}")

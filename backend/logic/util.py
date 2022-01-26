@@ -182,7 +182,6 @@ def valid_admin_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
 def generate_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int) -> UUID:
     wahlkreis_dict = key_dict(cursor, 'wahlkreis', ('wahl', 'nummer'), 'wkid')
     wkid = wahlkreis_dict[(wahl, wknr)]
-    print(wkid)
     token = uuid4()
     statement = f"INSERT INTO wahl_token(wahlkreis, token, gueltig) VALUES ({wkid},'{token}',TRUE)"
     exec_sql_statement(cursor, statement, "GenerateWahlToken.sql")
