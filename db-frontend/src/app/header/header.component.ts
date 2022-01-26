@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {WahlSelectionService} from "../service/wahl-selection.service";
 import {MatSliderChange} from '@angular/material/slider';
+import { ActivationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -9,7 +10,16 @@ import {MatSliderChange} from '@angular/material/slider';
 })
 export class HeaderComponent implements OnInit {
   wahl !: number;
-  constructor(private readonly wahlService: WahlSelectionService) { }
+  isWahlSelectionAllowed : boolean = false;
+
+  constructor(private readonly wahlService: WahlSelectionService, router: Router) {
+    router.events.subscribe(event => {
+      if (event instanceof ActivationEnd) {
+        const data = event.snapshot.data;
+        this.isWahlSelectionAllowed = data['allowsWahlSelection'];
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.wahl = this.wahlService.wahlSubject.getValue();

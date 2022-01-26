@@ -5,8 +5,8 @@
   <app-navitem name="Statistiken"></app-navitem>
   <app-navitem name="Stimmabgabe"></app-navitem>
   <div id="wahl-slider">
-    <span>2017</span>
-    <span>
+    <span *ngIf="isWahlSelectionAllowed">2017</span>
+    <span *ngIf="isWahlSelectionAllowed">
       <mat-slider id="wahl-slider-control" [tickInterval]="1" (change)="changeWahlSelection($event)" [value]="wahl" [min]="0" [max]="1"></mat-slider>
     </span>
     <span>2021</span>
