@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {WahlSelectionService} from "../../service/wahl-selection.service";
-import {REST_GET} from "../../../util";
+import {REST_GET} from "../../../util/ApiService";
 import {Wahlkreis} from "../../../model/Walhkreis";
 
 @Component({

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
-import {REST_GET} from "../../../util";
+import {REST_GET} from "../../../util/ApiService";
 
 @Component({
   selector: 'app-ostenergebnis',

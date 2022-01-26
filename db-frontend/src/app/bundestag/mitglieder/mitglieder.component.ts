@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {MDB} from "../../../model/MDB";
-import {REST_GET} from "../../../util";
+import {REST_GET} from "../../../util/ApiService";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
 import {WahlSelectionService} from "../../service/wahl-selection.service";

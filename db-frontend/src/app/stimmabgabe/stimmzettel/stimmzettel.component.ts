@@ -1,10 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {REST_GET, REST_POST} from "../../../util";
+import {REST_GET, REST_POST} from "../../../util/ApiService";
 import {StimmzettelEintrag} from "../../../model/StimmzettelEintrag";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute} from "@angular/router";
 import {MatRadioChange} from "@angular/material/radio";
 import {Stimmabgabe} from "../../../model/Stimmabgabe";
 import {FormControl, Validators} from "@angular/forms";
+import RS, {RequestStatus} from "../../../util/RequestStatus";
 
 @Component({
   selector   : 'app-stimmzettel',
@@ -23,10 +24,10 @@ export class StimmzettelComponent implements OnInit {
 
   columnsToDisplay = ['erststimme_selection', 'erststimme', 'zweitstimme', 'zweitstimme_selection']
 
-  token = new FormControl('', [Validators.pattern('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')]);
+  token = new FormControl('',
+    [Validators.pattern('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')]);
 
-  showResponse !: boolean;
-  voteSuccessful !: boolean | null;
+  voteStatus !: RequestStatus;
   newStimmzettelCountdown !: number;
 
   constructor(private route: ActivatedRoute) {
@@ -35,8 +36,7 @@ export class StimmzettelComponent implements OnInit {
   ngOnInit(): void {
     // Get wahlkreis nummer
     this.nummer = parseInt(<string>this.route.snapshot.paramMap.get('nummer'));
-    this.showResponse = false;
-    this.voteSuccessful = true;
+    this.voteStatus = RS.IDLE;
     this.populate()
   }
 
@@ -52,27 +52,32 @@ export class StimmzettelComponent implements OnInit {
     return this.stimmzettel != null && this.stimmzettel.length > 0;
   }
 
-
   stimmeAbgeben() {
-    this.voteSuccessful = null;
-    this.showResponse = true;
+    this.voteStatus = RS.WAITING;
     REST_POST(`20/wahlkreis/${this.nummer}/stimmabgabe`,
-      new Stimmabgabe(this.nummer, this.token.value, this.erststimmeSelection ?? undefined, this.zweitstimmeSelection ?? undefined))
+      new Stimmabgabe(this.nummer,
+        this.token.value,
+        this.erststimmeSelection ?? undefined,
+        this.zweitstimmeSelection ?? undefined))
       .then(response => {
-        this.voteSuccessful = response.status === 200;
-        this.newStimmzettelCountdown = 10;
-        setInterval(() => {
-          if (this.newStimmzettelCountdown > 0) {
-            this.newStimmzettelCountdown--;
-          } else {
-            this.resetStimmzettel();
-          }
-        }, 1000);
+        this.voteStatus = RS.SUCCESS;
       })
+      .catch(() => {
+        // TODO handle error properly
+        this.voteStatus = RS.FAILURE;
+      }).finally(() => {
+      this.newStimmzettelCountdown = 10;
+      setInterval(() => {
+        if (this.newStimmzettelCountdown > 0) {
+          this.newStimmzettelCountdown--;
+        } else {
+          this.resetStimmzettel();
+        }
+      }, 1000);
+    })
   }
 
   resetStimmzettel(): void {
-    this.showResponse = false;
     // Ugly way to reload page
     window.location.reload();
   }

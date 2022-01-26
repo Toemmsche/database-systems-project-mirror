@@ -2,8 +2,8 @@ import csv
 import itertools
 import logging
 import math
+from uuid import *
 
-from uuid import UUID
 import psycopg
 import requests
 import simplejson as json
@@ -16,7 +16,7 @@ logger = logging.getLogger('DB')
 
 def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
     # recalculate aggregate
-    exec_script(
+    exec_sql_statement(
         cursor,
         f"""
                 UPDATE direktkandidatur
@@ -35,13 +35,13 @@ def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
     )
 
 
-def exec_script(cursor: psycopg.cursor, script: str, script_name: str) -> None:
+def exec_sql_statement(cursor: psycopg.cursor, script: str, script_name: str) -> None:
     cursor.execute(script)
 
 
-def exec_script_from_file(cursor: psycopg.cursor, path: str) -> None:
+def exec_sql_statement_from_file(cursor: psycopg.cursor, path: str) -> None:
     with open(path) as script:
-        exec_script(cursor, script.read(), path)
+        exec_sql_statement(cursor, script.read(), path)
 
 
 def get_column_names(cursor: psycopg.cursor, table: str) -> list[str]:
@@ -107,7 +107,7 @@ def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dic
     return arr
 
 
-def key_dict(cursor: psycopg.cursor, table: str, keys: tuple[str], target: str) -> dict:
+def key_dict(cursor: psycopg.cursor, table: str, keys: tuple[str, ...], target: str) -> dict:
     keys = tuple(map(lambda key: key.lower(), keys))
     target = target.lower()
     return {tuple(row[key] for key in keys): row[target] for row in table_to_dict_list(cursor, table)}
@@ -172,15 +172,32 @@ def valid_uuid(value):
     except ValueError:
         return False
 
-def valid_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
+
+def valid_admin_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
+    query = f"SELECT * FROM admin_token t, wahlkreis wk WHERE t.token = '{token}' AND t.wahlkreis = wk.wkid AND wk.wahl = {wahl} AND wk.nummer = {wknr} AND t.gueltig"
+    res = cursor.execute(query).fetchall()
+    return len(res) == 1
+
+
+def generate_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int) -> UUID:
+    wahlkreis_dict = key_dict(cursor, 'wahlkreis', ('wahl', 'nummer'), 'wkid')
+    wkid = wahlkreis_dict[(wahl, wknr)]
+    print(wkid)
+    token = uuid4()
+    statement = f"INSERT INTO wahl_token(wahlkreis, token, gueltig) VALUES ({wkid},'{token}',TRUE)"
+    exec_sql_statement(cursor, statement, "GenerateWahlToken.sql")
+    return token
+
+
+def valid_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
     query = f"SELECT * FROM wahl_token t, wahlkreis wk WHERE t.token = '{token}' AND t.wahlkreis = wk.wkid AND wk.wahl = {wahl} AND wk.nummer = {wknr} AND t.gueltig"
     res = cursor.execute(query).fetchall()
     return len(res) == 1
 
 
-def make_token_invalid(cursor: psycopg.cursor, token: str):
+def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
     statement = f"UPDATE wahl_token SET gueltig = FALSE WHERE token = '{token}'"
-    exec_script(cursor, statement, "MakeTokenInvalid.sql")
+    exec_sql_statement(cursor, statement, "MakeWahlTokenInvalid.sql")
 
 
 if __name__ == '__main__':

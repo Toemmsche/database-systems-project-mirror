@@ -1,6 +1,6 @@
 import {Component, ElementRef, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {Begrenzung} from 'src/model/Begrenzung';
-import {REST_GET} from 'src/util';
+import {REST_GET} from 'src/util/ApiService';
 import {Wahlkreissieger} from "../../model/Wahlkreissieger";
 import {Wahlkreisstimmen} from "../../model/Wahlkreisstimmen";
 import {WahlSelectionService} from "../service/wahl-selection.service";
@@ -18,7 +18,6 @@ export class KarteComponent implements OnInit {
 
   @ViewChildren('begrenzung')
   begrenzungElements!: QueryList<ElementRef<SVGPathElement>>;
-
 
   // DATA
   wksData !: Array<Wahlkreissieger>
@@ -103,6 +102,7 @@ export class KarteComponent implements OnInit {
       this.siegerTyp);
     const maxRelative: number = filteredData.reduce((prev, wkp) => Math.max(prev, wkp.rel_stimmen), 0);
     filteredData.forEach(wkp => {
+      console.log(wkp);
       const alpha = Math.round(wkp.rel_stimmen * 255 / maxRelative);
       const color = wkp.partei_farbe + (alpha < 16 ? '0' : '') + alpha.toString(16);
       this.colorWahlkreis(wkp.wk_nummer, color);
