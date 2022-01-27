@@ -88,8 +88,11 @@ def download_csv(url: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
     return parse_csv(content, delimiter, skip)
 
 
-def parse_float_de(str: str) -> float:
-    return float(str.replace('.', '').replace(',', '.'))
+def parse_float_de(str: str) -> float or None:
+    try:
+        return float(str.replace('.', '').replace(',', '.'))
+    except:
+        return None
 
 
 def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dict]:
