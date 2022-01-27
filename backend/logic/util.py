@@ -202,6 +202,10 @@ def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
     exec_sql_statement(cursor, statement, "MakeWahlTokenInvalid.sql")
 
 
+def valid_metrik(metrik: str):
+    raise NotImplementedError
+
+
 if __name__ == '__main__':
     download_csv(
         'https://raw.githubusercontent.com/sumtxt/ags/master/data-raw'

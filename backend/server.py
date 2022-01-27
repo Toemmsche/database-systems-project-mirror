@@ -7,6 +7,7 @@ from logic.util import (
     valid_wahl,
     valid_wahlkreis,
     valid_stimme,
+    valid_metrik,
     table_to_json,
     reset_aggregates,
     table_to_dict_list,
@@ -219,6 +220,20 @@ def cast_vote(wknr: str):
                 logger.error(err_str)
         return 'processed\n'
 
+
+@app.route("/api/<wahl>", methods=['GET'])
+def get_metriken(wahl: str):
+    if not valid_wahl(wahl):
+        abort(404)
+    raise NotImplementedError
+
+
+@app.route("/api/<wahl>/<metrik>", methods=['GET'])
+def get_metrik(wahl: str, metrik: str):
+    if not valid_wahl(wahl) or not valid_metrik(metrik):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return table_to_json(cursor, f'metrik_rang({wahl}, CAST(\'{metrik}\' AS TEXT))')
 
 if __name__ == '__main__':
     app.run('localhost', 5000)
