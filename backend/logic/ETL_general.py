@@ -2,7 +2,7 @@ from psycopg.types import datetime
 from svgpathtools import svg2paths2
 
 from logic.links import *
-from logic.metrics_mapping import *
+from logic.metrics import *
 from logic.util import *
 
 
@@ -75,7 +75,7 @@ def load_wahlkreise(
             lambda row:
             tuple(
                 [wahlkreis_dict[(wahl, int(row['Wahlkreis-Nr.']))]] +
-                [parse_float_de(row[value[wahl]]) if wahl in value else None for key, value in sd_mapping.items()]
+                [parse_float_de(row[value[wahl]]) if wahl in value else None for value in sd_mapping.values()]
                 ),
             filtered_wahlkreise
         )

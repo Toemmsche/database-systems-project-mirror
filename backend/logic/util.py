@@ -96,10 +96,15 @@ def parse_float_de(str: str) -> float or None:
 
 
 def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dict]:
-    kwargs_str = " AND ".join([key + " = " + value for key, value in kwargs.items()])
-    if len(kwargs) > 0:
-        kwargs_str = "WHERE " + kwargs_str
-    query = f"SELECT * FROM {table} {kwargs_str}"
+    # check if table is a query
+    if 'query' in kwargs:
+        query = kwargs['query']
+    else:
+        kwargs_str = " AND ".join([key + " = " + value for key, value in kwargs.items()])
+        if len(kwargs) > 0:
+            kwargs_str = "WHERE " + kwargs_str
+        query = f"SELECT * FROM {table} {kwargs_str}"
+
 
     res = cursor.execute(query).fetchall()
 
@@ -202,8 +207,8 @@ def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
     exec_sql_statement(cursor, statement, "MakeWahlTokenInvalid.sql")
 
 
-def valid_metrik(metrik: str):
-    raise NotImplementedError
+
+
 
 
 if __name__ == '__main__':

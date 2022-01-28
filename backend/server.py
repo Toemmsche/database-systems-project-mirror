@@ -3,20 +3,8 @@ from flask_cors import CORS
 from psycopg_pool import ConnectionPool
 
 from logic.config import conn_string
-from logic.util import (
-    valid_wahl,
-    valid_wahlkreis,
-    valid_stimme,
-    valid_metrik,
-    table_to_json,
-    reset_aggregates,
-    table_to_dict_list,
-    load_into_db, logger,
-    valid_admin_token,
-    valid_wahl_token,
-    make_wahl_token_invalid,
-    valid_uuid, generate_wahl_token
-)
+from logic.util import *
+from logic.metrics import *
 
 app = Flask("db-backend")
 CORS(app)
@@ -221,19 +209,19 @@ def cast_vote(wknr: str):
         return 'processed\n'
 
 
-@app.route("/api/<wahl>", methods=['GET'])
+@app.route("/api/<wahl>/rangliste", methods=['GET'])
 def get_metriken(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     raise NotImplementedError
 
 
-@app.route("/api/<wahl>/<metrik>", methods=['GET'])
+@app.route("/api/<wahl>/rangliste/<metrik>", methods=['GET'])
 def get_metrik(wahl: str, metrik: str):
     if not valid_wahl(wahl) or not valid_metrik(metrik):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        return table_to_json(cursor, f'metrik_rang({wahl}, CAST(\'{metrik}\' AS TEXT))')
+        return get_wahlkreise_ranked_by_metric(cursor, int(wahl), metrik)
 
 if __name__ == '__main__':
     app.run('localhost', 5000)

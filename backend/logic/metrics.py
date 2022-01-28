@@ -1,3 +1,23 @@
+import psycopg
+
+from logic.util import table_to_json
+
+
+def get_wahlkreise_ranked_by_metric(cursor: psycopg.Cursor, wahl: int, metric: str) -> str:
+    query = (f"""
+        SELECT wk.wkid, wk.nummer, sd.{metric} AS metrik_wert, ROW_NUMBER() OVER (ORDER BY sd.{metric}) AS rank 
+        FROM wahlkreis wk, strukturdaten sd 
+        WHERE wahl = {wahl} AND wk.wkid = sd.wahlkreis
+    """)
+
+    # misuse table_to_json
+    return table_to_json(cursor, "", query=query)
+
+
+def valid_metrik(metrik: str):
+    return metrik.lower() in [value["db"] for value in sd_mapping.values()]
+
+
 sd_mapping = {
     'Ausländeranteil': {
         20: 'Bevölkerung am 31.12.2019 - Ausländer/-innen (%)',
