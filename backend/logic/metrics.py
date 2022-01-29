@@ -1,11 +1,18 @@
+import json
+
 import psycopg
 
 from logic.util import table_to_json
 
 
-def get_wahlkreise_ranked_by_metric(cursor: psycopg.Cursor, wahl: int, metric: str) -> str:
+def get_wahlkreise_ranked_by_metric(
+        cursor: psycopg.Cursor,
+        wahl: int,
+        metric: str
+) -> str:
     query = (f"""
-        SELECT wk.wkid, wk.nummer, sd.{metric} AS metrik_wert, ROW_NUMBER() OVER (ORDER BY sd.{metric}) AS rank 
+        SELECT wk.wkid, wk.nummer, sd.{metric} AS metrik_wert, ROW_NUMBER() 
+        OVER (ORDER BY sd.{metric}) AS rank 
         FROM wahlkreis wk, strukturdaten sd 
         WHERE wahl = {wahl} AND wk.wkid = sd.wahlkreis
     """)
@@ -16,6 +23,14 @@ def get_wahlkreise_ranked_by_metric(cursor: psycopg.Cursor, wahl: int, metric: s
 
 def valid_metrik(metrik: str):
     return metrik.lower() in [value["db"] for value in sd_mapping.values()]
+
+
+def all_metrics_to_json(wahl: int):
+    metrics = {}
+    for key, value in sd_mapping.items():
+        if wahl in value:
+            metrics[key] = value["db"]
+    return json.dumps(metrics)
 
 
 sd_mapping = {
@@ -30,8 +45,10 @@ sd_mapping = {
         "db": 'bevoelkerungsdichte'
     },
     'Wanderungssaldo pro 1000 Einwohner': {
-        20: 'Zu- (+) bzw. Abnahme (-) der Bevölkerung 2019 - Wanderungssaldo (je 1000 EW)',
-        19: 'Zu- (+) bzw. Abnahme (-) der Bevölkerung 2015 - Wanderungssaldo (je 1000 Einwohner)',
+        20: 'Zu- (+) bzw. Abnahme (-) der Bevölkerung 2019 - Wanderungssaldo '
+            '(je 1000 EW)',
+        19: 'Zu- (+) bzw. Abnahme (-) der Bevölkerung 2015 - Wanderungssaldo '
+            '(je 1000 Einwohner)',
         "db": 'bevoelkerungsveraenderung_pro_1000_ew',
     },
     'Altersanteil unter 18': {
@@ -65,16 +82,19 @@ sd_mapping = {
         "db": 'altersanteil_ueber_74'
     },
     'Bodenflächenanteil Siedlung/Verkehr': {
-        20: 'Bodenfläche nach Art der tatsächlichen Nutzung am 31.12.2019 - Siedlung und Verkehr (%)',
+        20: 'Bodenfläche nach Art der tatsächlichen Nutzung am 31.12.2019 - '
+            'Siedlung und Verkehr (%)',
         "db": 'bodenflaechenanteil_siedlung_verkehr'
     },
     'Bodenflächenanteil Vegatation/Gewässer': {
-        20: 'Bodenfläche nach Art der tatsächlichen Nutzung am 31.12.2019 - Vegetation und Gewässer (%)',
+        20: 'Bodenfläche nach Art der tatsächlichen Nutzung am 31.12.2019 - '
+            'Vegetation und Gewässer (%)',
         "db": 'bodenflaechenanteil_vegation_gewaesser'
     },
     'Wohnungen pro 1000 Einwohner': {
         20: 'Bestand an Wohnungen am 31.12.2019 - insgesamt (je 1000 EW)',
-        19: 'Bautätigkeit und Wohnungswesen - Bestand an Wohnungen am 31.12.2015 (je 1000 Einwohner)',
+        19: 'Bautätigkeit und Wohnungswesen - Bestand an Wohnungen am '
+            '31.12.2015 (je 1000 Einwohner)',
         "db": 'wohnungen_pro_1000_ew',
     },
     'Durchschnittliche Wohnfläche pro Wohnung': {
@@ -91,17 +111,20 @@ sd_mapping = {
         "db": 'pkw_bestand_pro_1000_ew'
     },
     'PKW-Anteil Elektro/Hybrid': {
-        20: 'PKW-Bestand am 01.01.2020 - PKW mit Elektro- oder Hybrid-Antrieb (%)',
+        20: 'PKW-Bestand am 01.01.2020 - PKW mit Elektro- oder Hybrid-Antrieb '
+            '(%)',
         "db": 'pkw_anteil_elektro_hybrid',
     },
     'Unternehmen pro 1000 Einwohner': {
         20: 'Unternehmensregister 2018 - Unternehmen insgesamt (je 1000 EW)',
-        19: 'Unternehmensregister 2014 - Unternehmen insgesamt (je 1000 Einwohner)',
+        19: 'Unternehmensregister 2014 - Unternehmen insgesamt (je 1000 '
+            'Einwohner)',
         "db": 'unternehmen_pro_1000_ew'
     },
     'Handwerksunternehmen pro 1000 Einwohner': {
         20: 'Unternehmensregister 2018 - Handwerksunternehmen (je 1000 EW)',
-        19: 'Unternehmensregister 2014 - Handwerksunternehmen (je 1000 Einwohner)',
+        19: 'Unternehmensregister 2014 - Handwerksunternehmen (je 1000 '
+            'Einwohner)',
         "db": 'handwerksunternehmen_pro_1000_ew'
     },
     'Schulabänger beruflicher Schulen pro 1000 Einwohner': {
@@ -110,33 +133,44 @@ sd_mapping = {
         "db": 'schulabgaenger_beruflich_pro_1000_ew',
     },
     'Schulabänger mit Allgemeinbildung pro 1000 Einwohner': {
-        20: 'Schulabgänger/-innen allgemeinbildender Schulen 2019 - insgesamt ohne Externe (je 1000 EW)',
-        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - insgesamt ohne Externe (je 1000 Einwohner)',
+        20: 'Schulabgänger/-innen allgemeinbildender Schulen 2019 - insgesamt '
+            'ohne Externe (je 1000 EW)',
+        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - insgesamt '
+            'ohne Externe (je 1000 Einwohner)',
         "db": 'schulabgaenger_allgemeinbildend_pro_1000_ew',
     },
     'Anteil Schulabgänger mit Allgemeinbildung ohne Hauptschulabschluss': {
-        20: 'Schulabgänger/-innen allgemeinbildender Schulen 2019 - ohne Hauptschulabschluss (%)',
-        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - ohne Hauptschulabschluss (%)',
+        20: 'Schulabgänger/-innen allgemeinbildender Schulen 2019 - ohne '
+            'Hauptschulabschluss (%)',
+        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - ohne '
+            'Hauptschulabschluss (%)',
         "db": 'schulabgaengeranteil_allgemeinbildend_ohne_hauptschulabschluss'
     },
     'Anteil Schulabgänger mit Hauptschulabschluss': {
-        20: 'Schulabgänger/-innen allgemeinbildender Schulen 2019 - mit Hauptschulabschluss (%)',
-        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - mit Hauptschulabschluss (%)',
+        20: 'Schulabgänger/-innen allgemeinbildender Schulen 2019 - mit '
+            'Hauptschulabschluss (%)',
+        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - mit '
+            'Hauptschulabschluss (%)',
         "db": 'schulabgaengeranteil_allgemeinbildend_hauptschulabschluss'
     },
     'Anteil Schulabgänger mit Mittlerer Reife': {
-        20: 'Schulabgänger/-innen allgemeinblldender Schulen 2019 - mit allgemeiner und Fachhochschulreife (%)',
-        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - mit allgemeiner und Fachhochschulreife (%)',
+        20: 'Schulabgänger/-innen allgemeinblldender Schulen 2019 - mit '
+            'allgemeiner und Fachhochschulreife (%)',
+        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - mit '
+            'allgemeiner und Fachhochschulreife (%)',
         "db": 'schulabgaengeranteil_allgemeinbildend_mittlerer_schulabschluss'
     },
     'Anteil Schulabgänger mit Hochschulreife': {
-        20: 'Schulabgänger/-innen allgemeinbildender Schulen 2019 - ohne Hauptschulabschluss (%)',
-        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - ohne Hauptschulabschluss (%)',
+        20: 'Schulabgänger/-innen allgemeinbildender Schulen 2019 - ohne '
+            'Hauptschulabschluss (%)',
+        19: 'Absolventen/Abgänger allgemeinbildender Schulen 2015 - ohne '
+            'Hauptschulabschluss (%)',
         "db": 'schulabgaengeranteil_allgemeinbildend_hochschulreife'
     },
     'Einkommen pro Einwohner (€)': {
         20: 'Verfügbares Einkommen der privaten Haushalte 2018 (EUR je EW)',
-        19: 'Verfügbares Einkommen der privaten Haushalte 2014 (€ je Einwohner)',
+        19: 'Verfügbares Einkommen der privaten Haushalte 2014 (€ je '
+            'Einwohner)',
         "db": 'einkommen_pro_ew'
     },
     'Bruttoinlandsprodukt pro Einwohner': {
@@ -145,33 +179,45 @@ sd_mapping = {
         "db": 'bip_pro_ew'
     },
     'Beschäftigte pro 1000 Einwohner': {
-        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - insgesamt (je 1000 EW)',
-        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - insgesamt (je 1000 Einwohner)',
+        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - '
+            'insgesamt (je 1000 EW)',
+        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - '
+            'insgesamt (je 1000 Einwohner)',
         "db": 'beschaeftigte_pro_1000_ew'
     },
     'Beschäftigtenanteil in Land- und Forstwirtschaft': {
-        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - Land- und Forstwirtschaft, Fischerei (%)',
-        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - Land- und Forstwirtschaft, Fischerei (%)',
+        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - Land- '
+            'und Forstwirtschaft, Fischerei (%)',
+        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - Land- '
+            'und Forstwirtschaft, Fischerei (%)',
         "db": 'beschaeftigtenanteil_landwirtschaft_forstwirtschaft_fischerei'
     },
     'Beschäftigtenanteil im produzierenden Gewerbe': {
-        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - Produzierendes Gewerbe (%)',
-        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - Produzierendes Gewerbe (%)',
+        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - '
+            'Produzierendes Gewerbe (%)',
+        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - '
+            'Produzierendes Gewerbe (%)',
         "db": 'beschaeftigtenanteil_produzierendes_gewerbe'
     },
     'Beschäftigtenanteil in Handel, Gastgewerbe, und Verkehr': {
-        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - Handel, Gastgewerbe, Verkehr (%)',
-        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - Handel, Gastgewerbe, Verkehr (%)',
+        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - '
+            'Handel, Gastgewerbe, Verkehr (%)',
+        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - '
+            'Handel, Gastgewerbe, Verkehr (%)',
         "db": 'beschaeftigtenanteil_handel_gastgewerbe_verkehr'
     },
     'Beschäftigtenanteil im Dienstleistungsgewerbe': {
-        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - Öffentliche und private Dienstleister (%)',
-        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - Öffentliche und private Dienstleister (%)',
+        20: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2020 - '
+            'Öffentliche und private Dienstleister (%)',
+        19: 'Sozialversicherungspflichtig Beschäftigte am 30.06.2016 - '
+            'Öffentliche und private Dienstleister (%)',
         "db": 'beschaeftigtenanteil_dienstleister'
     },
     'Leistungsempfänger pro 1000 Einwohner': {
-        20: 'Empfänger/-innen von Leistungen nach SGB II  Oktober 2020 -  insgesamt (je 1000 EW)',
-        19: 'Empfänger(innen) von Leistungen nach SGB II am 31.12.2016 -  insgesamt (je 1000 Einwohner)',
+        20: 'Empfänger/-innen von Leistungen nach SGB II  Oktober 2020 -  '
+            'insgesamt (je 1000 EW)',
+        19: 'Empfänger(innen) von Leistungen nach SGB II am 31.12.2016 -  '
+            'insgesamt (je 1000 Einwohner)',
         "db": 'leistungsempfaenger_pro_1000_ew'
     },
     'Arbeitslosenquote': {

@@ -213,7 +213,7 @@ def cast_vote(wknr: str):
 def get_metriken(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
-    raise NotImplementedError
+    return all_metrics_to_json(int(wahl))
 
 
 @app.route("/api/<wahl>/rangliste/<metrik>", methods=['GET'])
