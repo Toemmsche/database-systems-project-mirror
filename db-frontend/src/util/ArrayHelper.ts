@@ -1,3 +1,7 @@
+import {ParteiErgebnis} from "../model/ParteiErgebnis";
+import {ParteiErgebnisVergleich} from "../model/ParteiErgebnisVergleich";
+
+
 /**
  * @description
  * Takes an Array<V>, and a grouping function,
@@ -21,4 +25,13 @@ export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K
        }
   });
   return map;
+}
+
+export function sortWithSonstige(a : ParteiErgebnis | ParteiErgebnisVergleich, b : ParteiErgebnis | ParteiErgebnisVergleich) {
+  if (a.partei == 'Sonstige') {
+    return 1;
+  } else if (b.partei == 'Sonstige') {
+    return -1;
+  }
+  return b.abs_stimmen - a.abs_stimmen;
 }

@@ -3,7 +3,7 @@
     <mat-form-field appearance="fill">
       <mat-label>Metrik</mat-label>
       <mat-select [formControl]="metrik" (selectionChange)="populateRangliste()">
-        <mat-option *ngFor="let metrik of metriken" [value]="metrik.metrik">{{metrik.displayName}}</mat-option>
+        <mat-option *ngFor="let metrik of metriken" [value]="metrik">{{metrik.displayName}}</mat-option>
       </mat-select>
     </mat-form-field>
   </div>
@@ -20,14 +20,9 @@
   </div>
   <div class="strukturdaten-result-container">
     <div *ngIf="stimmenLoaded()">
-      <h2>{{metrik.value}} hoch</h2>
-      <chart [type]="ergebnisseHochConfig.type" [data]="ergebnisseHochConfig.data"
-        [options]="ergebnisseHochConfig.options"></chart>
-    </div>
-    <div *ngIf="stimmenLoaded()">
-      <h2>{{metrik.value}} niedrig</h2>
-      <chart [type]="ergebnisseNiedrigConfig.type" [data]="ergebnisseNiedrigConfig.data"
-        [options]="ergebnisseNiedrigConfig.options"></chart>
+      <h2>{{this.metrik.value.displayName}}</h2>
+      <chart [type]="ergebnisseVergleichConfig.type" [data]="ergebnisseVergleichConfig.data"
+        [options]="ergebnisseVergleichConfig.options"></chart>
     </div>
   </div>
 

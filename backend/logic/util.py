@@ -105,7 +105,6 @@ def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dic
             kwargs_str = "WHERE " + kwargs_str
         query = f"SELECT * FROM {table} {kwargs_str}"
 
-
     res = cursor.execute(query).fetchall()
 
     col_names = [desc.name for desc in cursor.description]
@@ -209,15 +208,33 @@ def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
 
 def get_zweitstimmen_by_ids(cursor: psycopg.cursor, wahl: int, ids: list[int]):
     strIds = ','.join(map(str, ids))
-    query = f"SELECT * FROM stimmen_qpartei_wahlkreis_rich WHERE wahl = {wahl} AND stimmentyp = 2 AND wk_nummer IN ({strIds})"
+    query = f"""
+      WITH qpartei(wahl, partei) AS
+             (SELECT DISTINCT m.wahl, m.partei
+              FROM mandat m),
+         stimmen_aggregiert(wahl, partei, partei_farbe, abs_stimmen) AS (
+             SELECT sw.wahl, sw.partei, sw.partei_farbe, SUM(sw.abs_stimmen) AS abs_stimmen
+             FROM stimmen_qpartei_wahlkreis_rich sw
+             WHERE sw.wahl = {wahl}
+               AND sw.stimmentyp = 2
+               AND sw.wk_nummer IN ({strIds})
+             GROUP BY sw.wahl, sw.partei, sw.partei_farbe),
+         stimmen_aggregiert_relativ(wahl, partei, partei_farbe, abs_stimmen, rel_stimmen) AS (
+             SELECT sa.*, sa.abs_stimmen::DECIMAL / (SELECT SUM(abs_stimmen) from stimmen_aggregiert)
+             FROM stimmen_aggregiert sa
+         )
+    SELECT *
+    FROM stimmen_aggregiert_relativ sa
+    UNION
+    SELECT qp.wahl, p.kuerzel AS partei, p.farbe AS partei_farbe, 0, 0
+    FROM qpartei qp,
+         partei p
+    WHERE qp.wahl = {wahl}
+      AND qp.partei = p.parteiid
+      AND p.kuerzel NOT IN (SELECT sa.partei FROM stimmen_aggregiert_relativ sa)
+    """
 
-    res = cursor.execute(query).fetchall()
-
-    col_names = [desc.name for desc in cursor.description]
-    arr = []
-    for r in res:
-        arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
-    return json.dumps(arr)
+    return table_to_json(cursor, "", query=query)
 
 
 if __name__ == '__main__':

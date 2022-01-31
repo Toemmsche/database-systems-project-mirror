@@ -1,18 +1,17 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { SvgKarteComponent } from 'src/app/karte/svg-karte/svg-karte.component';
-import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
-import { Begrenzung } from 'src/model/Begrenzung';
-import { Metrik } from 'src/model/Metrik';
-import { ParteiErgebnis } from 'src/model/ParteiErgebnis';
-import { Rangliste } from 'src/model/Rangliste';
-import { REST_GET, REST_POST } from 'src/util/ApiService';
-import { groupBy } from 'src/util/ArrayHelper';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormControl, Validators} from '@angular/forms';
+import {SvgKarteComponent} from 'src/app/karte/svg-karte/svg-karte.component';
+import {WahlSelectionService} from 'src/app/service/wahl-selection.service';
+import {Begrenzung} from 'src/model/Begrenzung';
+import {Metrik} from 'src/model/Metrik';
+import {Rangliste} from 'src/model/Rangliste';
+import {REST_GET, REST_POST} from 'src/util/ApiService';
+import {ParteiErgebnisVergleich} from "../../../model/ParteiErgebnisVergleich";
 
 @Component({
-  selector: 'app-strukturdaten',
+  selector   : 'app-strukturdaten',
   templateUrl: './strukturdaten.component.html',
-  styleUrls: ['./strukturdaten.component.scss']
+  styleUrls  : ['./strukturdaten.component.scss']
 })
 export class StrukturdatenComponent implements OnInit {
   wahl !: number;
@@ -21,43 +20,24 @@ export class StrukturdatenComponent implements OnInit {
   metrik = new FormControl(undefined, [Validators.required]);
   rangliste !: Array<Rangliste>;
   bData !: Array<Begrenzung>;
+
   @ViewChild(SvgKarteComponent) karte !: SvgKarteComponent;
 
-  ergebnisseNiedrig !: Array<ParteiErgebnis>;
-  ergebnisseNiedrigConfig = {
+  ergebnisseNiedrig !: Array<ParteiErgebnisVergleich>;
+  ergebnisseHoch !: Array<ParteiErgebnisVergleich>;
+  ergebnisseVergleichConfig = {
     type   : 'bar',
     data   : {
       labels  : [] as Array<string>,
       datasets: [
         {
-          label          : "Zweitstimmen",
+          label          : "Zweitstimmenanteil (Niedrig)",
           borderWidth    : 1,
           data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
-        }
-      ]
-    },
-    options: {
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true
-            }
-          }
-        ]
-      }
-    }
-  }
-
-  ergebnisseHoch !: Array<ParteiErgebnis>;
-  ergebnisseHochConfig = {
-    type   : 'bar',
-    data   : {
-      labels  : [] as Array<string>,
-      datasets: [
+        },
         {
-          label          : "Zweitstimmen",
+          label          : "Zweitstimmenanteil (Hoch)",
           borderWidth    : 1,
           data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
@@ -117,7 +97,7 @@ export class StrukturdatenComponent implements OnInit {
     if (!this.metrik.valid || !this.topN.valid) {
       return;
     }
-    REST_GET(`${this.wahl}/rangliste/${this.metrik.value}`)
+    REST_GET(`${this.wahl}/rangliste/${this.metrik.value.metrik}`)
       .then(response => response.json())
       .then((data: Array<Rangliste>) => {
         this.rangliste = data;
@@ -136,75 +116,51 @@ export class StrukturdatenComponent implements OnInit {
     });
   }
 
-  populateData(): void {
+  async populateData() {
     const count = this.rangliste.length;
-    const body = this.rangliste.filter(r => r.rank <= this.topN.value || r.rank > count - this.topN.value).map(r => r.nummer);
-    const lowest = new Set(this.rangliste.filter(r => r.rank <= this.topN.value).map(r => r.nummer));
-    const highest = new Set(this.rangliste.filter(r => r.rank > count - this.topN.value).map(r => r.nummer));
-    const groupByMergeCduCsu = (result: ParteiErgebnis) => result.partei == 'CSU' || result.partei == 'CDU' ? 'CDU/CSU' : result.partei;
-    REST_POST(`${this.wahl}/zweitstimmen`, body)
-      .then(response => response.json())
-      .then((data: Array<ParteiErgebnis>) => {
-        const groupsLowest = groupBy(data.filter(result => lowest.has(result.wk_nummer)), groupByMergeCduCsu);
-        let aggregatedDataLowest = new Array<ParteiErgebnis>(groupsLowest.size);
-        let index = 0;
-        groupsLowest.forEach((value, key) => {
-          const first = value[0];
-          const abs_stimmen = value.reduce((prev, curr) => prev + curr.abs_stimmen, 0);
-          const color = key == 'CDU/CSU' ? '000000' : first.partei_farbe;
-          aggregatedDataLowest[index++] = {partei: key, abs_stimmen: abs_stimmen, partei_farbe: color, stimmentyp: 2, wahl: first.wahl, wk_nummer: first.wk_nummer};
-        });
-        aggregatedDataLowest = aggregatedDataLowest.sort((a, b) => {
-          if (a.partei == 'Sonstige') {
-            return 1;
-          } else if (b.partei == 'Sonstige') {
-            return -1;
-          }
-          return b.abs_stimmen - a.abs_stimmen;
-        });
+    const lowestBody = this.rangliste.filter(r => r.rank <= this.topN.value).map(r => r.nummer);
+    const highestBody = this.rangliste.filter(r => r.rank > count - this.topN.value).map(r => r.nummer);
 
-        // Populate bar chart
-        const chartDataLowest = this.ergebnisseNiedrigConfig.data;
-        chartDataLowest.labels = aggregatedDataLowest.map((result) => result.partei);
-        chartDataLowest.datasets[0].data = aggregatedDataLowest.map((result) => result.abs_stimmen);
-        chartDataLowest.datasets[0].backgroundColor = aggregatedDataLowest.map((result) => '#' +
-          result.partei_farbe);
+    let lowestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen`, lowestBody)
+      .then(response => response.json());
+    let highestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen`, highestBody)
+      .then(response => response.json());
 
-        this.ergebnisseNiedrigConfig.data = Object.assign({}, chartDataLowest);
+    const mergeCduCsu = (data: Array<ParteiErgebnisVergleich>) => {
+      const onlyCduCsu = data.filter(pe => pe.partei === 'CSU' || pe.partei === 'CDU');
+      const merged = new ParteiErgebnisVergleich(this.wahl, "UNION", '000000',
+        onlyCduCsu
+          .map(pe => pe.abs_stimmen)
+          .reduce((a, b) => a + b),
+        onlyCduCsu
+          .map(pe => pe.rel_stimmen)
+          .reduce((a, b) => a + b));
+      data.push(merged);
+      return data.filter(pe => pe.partei !== 'CSU' && pe.partei !== 'CDU');
+    }
 
-        // Save for later
-        this.ergebnisseNiedrig = aggregatedDataLowest;
+    // Aggregate CSU / CDU
+    lowestData = mergeCduCsu(lowestData);
+    highestData = mergeCduCsu(highestData);
 
-        const groupsHighest = groupBy(data.filter(result => highest.has(result.wk_nummer)), groupByMergeCduCsu);
-        let aggregatedDataHighest = new Array<ParteiErgebnis>(groupsHighest.size);
-        index = 0;
-        groupsHighest.forEach((value, key) => {
-          const first = value[0];
-          const abs_stimmen = value.reduce((prev, curr) => prev + curr.abs_stimmen, 0);
-          const color = key == 'CDU/CSU' ? '000000' : first.partei_farbe;
-          aggregatedDataHighest[index++] = {partei: key, abs_stimmen: abs_stimmen, partei_farbe: color, stimmentyp: 2, wahl: first.wahl, wk_nummer: first.wk_nummer};
-        })
-        aggregatedDataHighest = aggregatedDataHighest.sort((a, b) => {
-          if (a.partei == 'Sonstige') {
-            return 1;
-          } else if (b.partei == 'Sonstige') {
-            return -1;
-          }
-          return b.abs_stimmen - a.abs_stimmen;
-        });
+    // Sort by party and allign
+    lowestData.sort((a, b) => a.partei.localeCompare(b.partei));
+    highestData.sort((a, b) => a.partei.localeCompare(b.partei));
 
-        // Populate bar chart
-        const chartDataHighest= this.ergebnisseHochConfig.data;
-        chartDataHighest.labels = aggregatedDataHighest.map((result) => result.partei);
-        chartDataHighest.datasets[0].data = aggregatedDataHighest.map((result) => result.abs_stimmen);
-        chartDataHighest.datasets[0].backgroundColor = aggregatedDataHighest.map((result) => '#' +
-          result.partei_farbe);
 
-        this.ergebnisseHochConfig.data = Object.assign({}, chartDataHighest);
+    // Populate bar chart
+    const chartDataVergleich = this.ergebnisseVergleichConfig.data;
+    chartDataVergleich.labels = lowestData.map((result) => result.partei);
+    chartDataVergleich.datasets[0].data = lowestData.map((result) => result.rel_stimmen);
+    chartDataVergleich.datasets[0].backgroundColor = lowestData.map((result) => '#' +
+      result.partei_farbe);
+    chartDataVergleich.datasets[1].data = highestData.map((result) => result.rel_stimmen);
+    chartDataVergleich.datasets[1].backgroundColor = highestData.map((result) => '#' +
+      result.partei_farbe);
 
-        // Save for later
-        this.ergebnisseHoch = aggregatedDataHighest;
-      });
+    this.ergebnisseVergleichConfig.data = Object.assign({}, chartDataVergleich);
+    this.ergebnisseNiedrig = lowestData;
+    this.ergebnisseHoch = highestData;
   }
 
   bDataLoaded() {
