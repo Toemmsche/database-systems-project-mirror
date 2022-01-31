@@ -6,6 +6,4 @@ db_config = {
     'password': os.environ.get('POSTGRES_PWD')
 }
 
-print(os.environ.get('DATABASE_URI'))
-print(os.environ.get('DATABASE_URL'))
-conn_string = f"host=localhost port=5432 dbname={db_config['dbname']} user={db_config['user']} password={db_config['password']}" if os.environ.get('DATABASE_URI') is None else None # TODO
+conn_string = f"host=localhost port=5432 dbname={db_config['dbname']} user={db_config['user']} password={db_config['password']}" if os.environ.get('DATABASE_URI') is None else s.environ.get('DATABASE_URI')
