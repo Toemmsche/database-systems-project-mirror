@@ -4,8 +4,10 @@ stages:
 deploy:
   stage: deploy
   script:
-    - git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/datenbanken-ws22.git
-    - git push heroku master
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --ap=datenbanken-ws22 --api-key=$HEROKU_API_KEY
     - echo "Deployed to Server https://datenbanken-ws22.herokuapp.com"
   environment:
     name: deployment
