@@ -1,11 +1,5 @@
 stages:
-  - ver
   - deploy
-
-ver:
-  stage: ver
-  script:
-    - python --version
 
 deploy:
   stage: deploy
