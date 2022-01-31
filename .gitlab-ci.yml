@@ -1,4 +1,18 @@
-build-job:
-  stage: build
+stages:
+  - ver
+  - deploy
+
+ver:
+  stage: ver
   script:
-    - echo "Hello World from the gitlab runner"
+    - python --version
+
+deploy:
+  stage: deploy
+  script:
+    - git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/datenbanken-ws22.git
+    - git push heroku master
+    - echo "Deployed to Server https://datenbanken-ws22.herokuapp.com"
+  environment:
+    name: deployment
+    url: https://flask-api-staging.herokuapp.com/
