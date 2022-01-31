@@ -1,4 +1,4 @@
-<mat-accordion>
+<mat-accordion multi="true">
   <mat-expansion-panel hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title>
@@ -32,7 +32,7 @@
     </mat-expansion-panel-header>
     <app-knapp></app-knapp>
   </mat-expansion-panel>
-  <mat-expansion-panel hideToggle>
+  <mat-expansion-panel *ngFor="let comp of vergleichComponents;" hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title>
         Vergleich mit Strukturdaten
@@ -45,3 +45,4 @@
     <app-strukturdaten></app-strukturdaten>
   </mat-expansion-panel>
 </mat-accordion>
+<button id="add-vergleich-btn" mat-button (click)="vergleichComponents.push(vergleichComponents.length);">Neuer Vergleich</button>

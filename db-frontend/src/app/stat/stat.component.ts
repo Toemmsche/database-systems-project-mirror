@@ -7,6 +7,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class StatComponent implements OnInit {
 
+  // Initial component
+  vergleichComponents = [0];
+
   constructor() { }
 
   ngOnInit(): void {
