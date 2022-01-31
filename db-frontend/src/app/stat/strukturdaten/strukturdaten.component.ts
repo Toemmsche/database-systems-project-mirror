@@ -141,17 +141,19 @@ export class StrukturdatenComponent implements OnInit {
     const body = this.rangliste.filter(r => r.rank <= this.topN.value || r.rank > count - this.topN.value).map(r => r.nummer);
     const lowest = new Set(this.rangliste.filter(r => r.rank <= this.topN.value).map(r => r.nummer));
     const highest = new Set(this.rangliste.filter(r => r.rank > count - this.topN.value).map(r => r.nummer));
+    const groupByMergeCduCsu = (result: ParteiErgebnis) => result.partei == 'CSU' || result.partei == 'CDU' ? 'CDU/CSU' : result.partei;
     REST_POST(`${this.wahl}/zweitstimmen`, body)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
-        const groupsLowest = groupBy(data.filter(result => lowest.has(result.wk_nummer)), result => result.partei);
+        const groupsLowest = groupBy(data.filter(result => lowest.has(result.wk_nummer)), groupByMergeCduCsu);
         let aggregatedDataLowest = new Array<ParteiErgebnis>(groupsLowest.size);
         let index = 0;
-        groupsLowest.forEach((value) => {
+        groupsLowest.forEach((value, key) => {
           const first = value[0];
           const abs_stimmen = value.reduce((prev, curr) => prev + curr.abs_stimmen, 0);
-          aggregatedDataLowest[index++] = {partei: first.partei, abs_stimmen: abs_stimmen, partei_farbe: first.partei_farbe, stimmentyp: 2, wahl: first.wahl, wk_nummer: first.wk_nummer};
-        })
+          const color = key == 'CDU/CSU' ? '000000' : first.partei_farbe;
+          aggregatedDataLowest[index++] = {partei: key, abs_stimmen: abs_stimmen, partei_farbe: color, stimmentyp: 2, wahl: first.wahl, wk_nummer: first.wk_nummer};
+        });
         aggregatedDataLowest = aggregatedDataLowest.sort((a, b) => {
           if (a.partei == 'Sonstige') {
             return 1;
@@ -173,13 +175,14 @@ export class StrukturdatenComponent implements OnInit {
         // Save for later
         this.ergebnisseNiedrig = aggregatedDataLowest;
 
-        const groupsHighest = groupBy(data.filter(result => highest.has(result.wk_nummer)), result => result.partei);
+        const groupsHighest = groupBy(data.filter(result => highest.has(result.wk_nummer)), groupByMergeCduCsu);
         let aggregatedDataHighest = new Array<ParteiErgebnis>(groupsHighest.size);
         index = 0;
-        groupsHighest.forEach((value) => {
+        groupsHighest.forEach((value, key) => {
           const first = value[0];
           const abs_stimmen = value.reduce((prev, curr) => prev + curr.abs_stimmen, 0);
-          aggregatedDataHighest[index++] = {partei: first.partei, abs_stimmen: abs_stimmen, partei_farbe: first.partei_farbe, stimmentyp: 2, wahl: first.wahl, wk_nummer: first.wk_nummer};
+          const color = key == 'CDU/CSU' ? '000000' : first.partei_farbe;
+          aggregatedDataHighest[index++] = {partei: key, abs_stimmen: abs_stimmen, partei_farbe: color, stimmentyp: 2, wahl: first.wahl, wk_nummer: first.wk_nummer};
         })
         aggregatedDataHighest = aggregatedDataHighest.sort((a, b) => {
           if (a.partei == 'Sonstige') {
