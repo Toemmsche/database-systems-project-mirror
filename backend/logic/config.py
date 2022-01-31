@@ -9,4 +9,4 @@ database = result.path[1:]
 hostname = result.hostname
 port = result.port
 
-conn_string = f"host=localhost port=5432 dbname={database} user={username} password={password}"
+conn_string = f"host={hostname} port={port} dbname={database} user={username} password={password}"
