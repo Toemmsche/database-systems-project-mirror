@@ -10,7 +10,6 @@ CORS(app)
 # new database connection pool
 conn_pool = ConnectionPool(conn_string)
 
-
 @app.route("/api/", methods=['GET'])
 def sayHello():
     return "Hello World"
