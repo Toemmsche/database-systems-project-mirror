@@ -89,7 +89,18 @@ export class StrukturdatenComponent implements OnInit {
     REST_GET(`${this.wahl}/rangliste`)
       .then(response => response.json())
       .then((data: Array<Metrik>) => {
+        this.ergebnisseHoch = [];
+        this.ergebnisseNiedrig = [];
+        const oldValue = this.metrik?.value;
         this.metriken = data;
+        if (oldValue) {
+          const selectedValue = data.find(metrik => metrik.metrik == oldValue.metrik);
+          if (selectedValue) {
+            this.metrik.setValue(selectedValue);
+          } else {
+            this.metrik.reset();
+          }
+        }
       });
   }
 
