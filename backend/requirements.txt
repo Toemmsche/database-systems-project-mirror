@@ -12,12 +12,14 @@ Flask-Cors==3.0.10
 gevent==21.12.0
 geventhttpclient==1.5.3
 greenlet==1.1.2
+gunicorn==20.1.0
 idna==3.3
 itsdangerous==2.0.1
 Jinja2==3.0.3
 locust==2.5.1
 MarkupSafe==2.0.1
 msgpack==1.0.3
+multipledispatch==0.6.0
 numpy==1.21.4
 psutil==5.8.0
 psycopg==3.0.4
@@ -35,7 +37,9 @@ six==1.16.0
 svgpathtools==1.4.4
 svgwrite==1.4.1
 tabulate==0.8.9
+toolz==0.11.2
 typing-extensions==4.0.1
+unification==0.2.2
 urllib3==1.26.7
 waitress==2.0.0
 Werkzeug==2.0.2

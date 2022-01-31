@@ -3,12 +3,12 @@ import os
 from logic.ETL_2017 import *
 from logic.ETL_2021 import *
 from logic.ETL_general import *
-from logic.config import db_config
+from logic.config import conn_string, heroku
 
 
 def init_data() -> None:
     # open database connection
-    with psycopg.connect(**db_config) as conn:
+    with psycopg.connect(conn_string) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             # reset first
@@ -37,7 +37,9 @@ def init_data() -> None:
                 begrenzungen_dict,
                 cursor
             )
-            load_gemeinden(gemeinden_2021, 20, cursor)
+            # There are over 10k communities in Germany
+            if not heroku:
+                load_gemeinden(gemeinden_2021, 20, cursor)
             load_parteien(cursor)
             load_landeslisten_2021(cursor)
             load_kandidaten_2021(cursor)
@@ -57,14 +59,18 @@ def init_data() -> None:
                 cursor,
                 'cp1252'
             )
-            load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
+            # There are over 10k communities in Germany
+            if not heroku:
+                load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
             load_landeslisten_2017(cursor)
             load_zweitstimmen_2017(cursor)
             load_direktkandidaten_2017(cursor)
 
             logger.info("Loaded data for 2017")
 
-            exec_sql_statement_from_file(cursor, 'sql/init/Einzelstimmen.sql')
+            # Cannot afford to store that many individual votes on a free plan
+            if not heroku:
+                exec_sql_statement_from_file(cursor, 'sql/init/Einzelstimmen.sql')
             exec_sql_statement_from_file(cursor, 'sql/init/Token.sql')
 
             logger.info("Generated Einzelstimmen and (admin) tokens")
@@ -72,7 +78,7 @@ def init_data() -> None:
 
 def exec_util_queries():
     # open database connection
-    with psycopg.connect(**db_config) as conn:
+    with psycopg.connect(conn_string) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             exec_sql_statement_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
@@ -82,7 +88,7 @@ def exec_util_queries():
 
 def exec_data_queries():
     # open database connection
-    with psycopg.connect(**db_config) as conn:
+    with psycopg.connect(conn_string) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             # open script directory

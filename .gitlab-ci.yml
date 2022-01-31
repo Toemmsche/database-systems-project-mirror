@@ -1,4 +1,16 @@
-build-job:
-  stage: build
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
   script:
-    - echo "Hello World from the gitlab runner"
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app="datenbanken-ws22" --api-key=$HEROKU_API_KEY
+    - echo "Deployed to Server https://datenbanken-ws22.herokuapp.com"
+  environment:
+    name: deployment
+    url: https://flask-api-staging.herokuapp.com/
+  only:
+    - main
