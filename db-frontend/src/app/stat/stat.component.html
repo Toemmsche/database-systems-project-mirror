@@ -32,10 +32,17 @@
     </mat-expansion-panel-header>
     <app-knapp></app-knapp>
   </mat-expansion-panel>
-  <mat-expansion-panel *ngFor="let comp of vergleichComponents;" hideToggle>
+  <mat-expansion-panel *ngFor="let comp of vergleichComponents; let i = index;" hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title>
-        Vergleich mit Strukturdaten
+        <div class="vergleich-expansion-panel-header">
+          <div>Vergleich mit Strukturdaten</div>
+          <div>
+            <button mat-icon-button (click)="vergleichComponents.splice(i, 1);">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
       </mat-panel-title>
       <mat-panel-description>
         Zweitstimmenergebnis der Bundestagsparteien in den N Wahlkreisen mit dem höchsten bzw. niedrigsten

@@ -28,3 +28,12 @@ mat-panel-title {
   margin-top: 1rem;
 }
 
+.mat-expansion-panel-header-description {
+  align-items: center;
+}
+
+.vergleich-expansion-panel-header {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
