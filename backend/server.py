@@ -1,21 +1,8 @@
 from flask import Flask, abort, request
 from flask_cors import CORS
 from psycopg_pool import ConnectionPool
-
 from logic.config import conn_string
-from logic.util import (
-    valid_wahl,
-    valid_wahlkreis,
-    valid_stimme,
-    table_to_json,
-    reset_aggregates,
-    table_to_dict_list,
-    load_into_db, logger,
-    valid_admin_token,
-    valid_wahl_token,
-    make_wahl_token_invalid,
-    valid_uuid, generate_wahl_token
-)
+from logic.util import *
 
 app = Flask("db-backend")
 CORS(app)
