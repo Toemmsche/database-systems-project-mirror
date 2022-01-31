@@ -1,0 +1,19 @@
+.strukturdaten-settings-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.strukturdaten-container {
+  width: 80%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.strukturdaten-result-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}

@@ -207,8 +207,17 @@ def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
     exec_sql_statement(cursor, statement, "MakeWahlTokenInvalid.sql")
 
 
+def get_zweitstimmen_by_ids(cursor: psycopg.cursor, wahl: int, ids: list[int]):
+    strIds = ','.join(map(str, ids))
+    query = f"SELECT * FROM stimmen_qpartei_wahlkreis_rich WHERE wahl = {wahl} AND stimmentyp = 2 AND wk_nummer IN ({strIds})"
 
+    res = cursor.execute(query).fetchall()
 
+    col_names = [desc.name for desc in cursor.description]
+    arr = []
+    for r in res:
+        arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
+    return json.dumps(arr)
 
 
 if __name__ == '__main__':

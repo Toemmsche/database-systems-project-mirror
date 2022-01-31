@@ -43,6 +43,8 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import { AQVergleichComponent } from './stat/aqvergleich/aqvergleich.component';
 import {MatInputModule} from "@angular/material/input";
 import {MatIconModule} from "@angular/material/icon";
+import { StrukturdatenComponent } from './stat/strukturdaten/strukturdaten.component';
+import { SvgKarteComponent } from './karte/svg-karte/svg-karte.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +64,9 @@ import {MatIconModule} from "@angular/material/icon";
     WahlkreislisteComponent,
     DatenComponent,
     StimmabgabeComponent,
-    AQVergleichComponent
+    AQVergleichComponent,
+    StrukturdatenComponent,
+    SvgKarteComponent
   ],
   imports: [
     BrowserModule,

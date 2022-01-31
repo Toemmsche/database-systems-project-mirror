@@ -63,6 +63,20 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
 
 
+@app.route("/api/<wahl>/zweitstimmen", methods=['POST'])
+def get_zweitstimmen(wahl: str):
+    wahlkreise = request.json
+    if not valid_wahl(wahl) or any([not valid_wahlkreis(wknr) for wknr in wahlkreise]):
+        abort(404)
+
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        # if specified, reset aggregates
+        if request.args.get('einzelstimmen') == 'true':
+            for wknr in wahlkreise:
+                reset_aggregates(cursor, wahl, wknr)
+        return get_zweitstimmen_by_ids(cursor, wahl, wahlkreise)
+
+
 @app.route("/api/<wahl>/wahlkreissieger", methods=['GET'])
 def get_wahlkreissieger(wahl: str):
     if not valid_wahl(wahl):

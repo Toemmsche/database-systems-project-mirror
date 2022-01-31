@@ -26,11 +26,8 @@ def valid_metrik(metrik: str):
 
 
 def all_metrics_to_json(wahl: int):
-    metrics = {}
-    for key, value in sd_mapping.items():
-        if wahl in value:
-            metrics[key] = value["db"]
-    return json.dumps(metrics)
+    metrics = [{"metrik": value["db"], "displayName": key} for key, value in sd_mapping.items() if wahl in value]
+    return json.dumps(metrics, ensure_ascii=False)
 
 
 sd_mapping = {
