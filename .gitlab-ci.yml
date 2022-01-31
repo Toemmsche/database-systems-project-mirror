@@ -12,3 +12,5 @@ deploy:
   environment:
     name: deployment
     url: https://flask-api-staging.herokuapp.com/
+  only:
+    - main
