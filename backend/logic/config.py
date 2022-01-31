@@ -2,6 +2,7 @@ import os
 from urllib.parse import urlparse
 
 # Parse database URI
+print("Parsing ",os.environ.get('DATABASE_URI'))
 result = urlparse(os.environ.get('DATABASE_URI'))
 username = result.username
 password = result.password
