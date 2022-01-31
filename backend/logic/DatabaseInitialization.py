@@ -72,7 +72,7 @@ def init_data() -> None:
 
 def exec_util_queries():
     # open database connection
-    with psycopg.connect(**conn_string) as conn:
+    with psycopg.connect(conn_string) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             exec_sql_statement_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
@@ -82,7 +82,7 @@ def exec_util_queries():
 
 def exec_data_queries():
     # open database connection
-    with psycopg.connect(**conn_string) as conn:
+    with psycopg.connect(conn_string) as conn:
         # create cursor to perform database operations
         with conn.cursor() as cursor:
             # open script directory
