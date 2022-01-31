@@ -1,6 +1,12 @@
 import os
 from urllib.parse import urlparse
 
+heroku = False
+if 'DYNO' in os.environ:
+    heroku = True
+    print("Detected heroku deployment")
+
+
 # Parse database URI
 result = urlparse(os.environ.get('DATABASE_URL'))
 username = result.username
