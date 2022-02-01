@@ -10,3 +10,10 @@
   padding-right: 20px;
   text-align: center;
 }
+
+#knapp-filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 10px;
+}

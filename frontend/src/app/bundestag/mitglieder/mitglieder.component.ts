@@ -45,7 +45,6 @@ export class MitgliederComponent implements OnInit {
         this.mdbData = data;
         this.filteredMdbData = data.slice();
         this.parteien = new Set(this.mdbData.map(mdb => mdb.partei));
-        this.parteien.add("Alle")
       });
   }
 

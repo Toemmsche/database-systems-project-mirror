@@ -46,9 +46,7 @@ export class KnappComponent implements OnInit {
           return a.differenz_stimmen - b.differenz_stimmen;
         })
         this.siegerParteien = new Set(this.knappData.map(k => k.sieger_partei));
-        this.siegerParteien.add("Alle");
         this.verliererParteien = new Set(this.knappData.map(k => k.verlierer_partei));
-        this.verliererParteien.add("Alle");
         this.filteredKnappData = this.knappData.slice();
       })
   }

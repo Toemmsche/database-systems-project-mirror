@@ -17,6 +17,7 @@
     <mat-form-field appearance="fill">
       <mat-label>Siegerpartei</mat-label>
       <mat-select (selectionChange)="updateFiltered()" [(ngModel)]="siegerParteiFilter">
+        <mat-option value="Alle">Alle</mat-option>
         <mat-option *ngFor="let sp of this.siegerParteien" [value]="sp">
           {{sp}}
         </mat-option>
@@ -25,6 +26,7 @@
     <mat-form-field appearance="fill">
       <mat-label>Verliererpartei</mat-label>
       <mat-select (selectionChange)="updateFiltered()" [(ngModel)]="verliererParteiFilter">
+        <mat-option value="Alle">Alle</mat-option>
         <mat-option *ngFor="let vp of this.verliererParteien" [value]="vp">
           {{vp}}
         </mat-option>

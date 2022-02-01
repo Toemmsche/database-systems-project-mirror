@@ -3,7 +3,8 @@
   <div id="mdb-filter">
     <mat-form-field appearance="fill">
       <mat-label>Partei</mat-label>
-      <mat-select (selectionChange)="this.parteiFilter = $event.value; updateFiltered()" value="Alle">
+      <mat-select (selectionChange)="updateFiltered()" [(ngModel)]="parteiFilter">
+        <mat-option value="Alle">Alle</mat-option>
         <mat-option *ngFor="let p of this.parteien" [value]="p">
           {{p}}
         </mat-option>

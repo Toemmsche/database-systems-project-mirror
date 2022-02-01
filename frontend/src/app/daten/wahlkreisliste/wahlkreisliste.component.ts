@@ -39,7 +39,6 @@ export class WahlkreislisteComponent implements OnInit {
       .then((data: Array<Wahlkreis>) => {
         this.wahlkreise = data.sort((a, b) => a.wk_nummer - b.wk_nummer);
         this.laender = new Set(this.wahlkreise.map(wk => wk.land));
-        this.laender.add("Alle");
         this.filteredWahlkreise = this.wahlkreise.slice()
       })
   }

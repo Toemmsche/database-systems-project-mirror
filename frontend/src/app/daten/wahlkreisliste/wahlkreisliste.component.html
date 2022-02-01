@@ -2,7 +2,8 @@
   <h1>Wahlkreise</h1>
   <mat-form-field id="wahlkreis-land-filter" appearance="fill">
     <mat-label>Bundesland</mat-label>
-    <mat-select (selectionChange)="this.landFilter = $event.value; updateFiltered()" value="Alle">
+    <mat-select (selectionChange)="updateFiltered()" [(ngModel)]="landFilter">
+      <mat-option value="Alle">Alle</mat-option>
       <mat-option *ngFor="let land of laender" [value]="land">
         {{land}}
       </mat-option>
