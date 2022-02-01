@@ -16,7 +16,7 @@ logger = logging.getLogger('DB')
 
 def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int):
     # recalculate aggregate
-    exec_sql_statement(cursor, f"SELECT reset_stimmen_aggregat({wahl}, {wknr})", 'ResetAggregates.sql')
+    exec_sql_statement(cursor, f"SELECT reset_stimmen_aggregat({wahl}, {wknr})", 'ResetAggregate.sql')
     logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
 
 
