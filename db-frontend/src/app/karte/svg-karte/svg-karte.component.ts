@@ -11,6 +11,7 @@ export class SvgKarteComponent {
   begrenzungElements!: QueryList<ElementRef<SVGPathElement>>;
 
   @Input() bData: Array<Begrenzung> = [];
+  @Input() getTooltipText : (b: Begrenzung) => string = (b) => `${b.wk_nummer} - ${b.wk_name}`;
 
   constructor() { }
 

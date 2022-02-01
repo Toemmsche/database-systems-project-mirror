@@ -23,7 +23,7 @@
       </mat-button-toggle-group>
     </div>
     <div>
-      <app-svg-karte [bData]="bData"></app-svg-karte>
+      <app-svg-karte [bData]="bData" [getTooltipText]="getTooltipText.bind(this)"></app-svg-karte>
     </div>
   </div>
   <div class="strukturdaten-result-container">

@@ -36,12 +36,14 @@ export class StrukturdatenComponent implements OnInit {
           borderWidth    : 1,
           data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
+          legendColor    : '#CC0000'
         },
         {
           label          : "Zweitstimmenanteil (Hoch)",
           borderWidth    : 1,
           data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
+          legendColor    : '#007E33'
         }
       ]
     },
@@ -54,6 +56,21 @@ export class StrukturdatenComponent implements OnInit {
             }
           }
         ]
+      },
+      legend: {
+        labels: {
+          generateLabels: function (chart: any) {
+            var data = chart.config.data;
+
+            return data.datasets.map((ds: any, index: number) => ({
+              text: ds.label,
+              fillStyle: ds.legendColor,
+              datasetIndex: index,
+              hidden: chart.getDatasetMeta(index).hidden
+            })
+            );
+          }
+        }
       }
     }
   }
@@ -134,7 +151,7 @@ export class StrukturdatenComponent implements OnInit {
         } else if (r.rank > this.rangliste.length - this.topN.value) {
           this.karte.colorWahlkreis(r.nummer, '007E33');
         }
-      })
+      });
     }
   }
 
@@ -200,5 +217,14 @@ export class StrukturdatenComponent implements OnInit {
 
   onKartenTypChange() {
     this.updateMap();
+  }
+
+  getTooltipText(b: Begrenzung): string {
+    const def = `${b.wk_nummer} - ${b.wk_name}`;
+    if (this.rangliste) {
+      const wahlkreis = this.rangliste.find(r => r.nummer == b.wk_nummer);
+      return `${def} ${this.metrik.value.displayName}: ${wahlkreis!.metrik_wert}`;
+    }
+    return `${b.wk_nummer} - ${b.wk_name}`;
   }
 }
