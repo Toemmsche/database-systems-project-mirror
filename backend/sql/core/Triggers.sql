@@ -5,7 +5,7 @@ DROP TRIGGER IF EXISTS zweitstimmen_aggregat_refresh ON erststimme CASCADE;
 
 --ERSTSTIMMENAGGREGAT
 CREATE FUNCTION update_erststimmen_aggregate()
-    RETURNS trigger
+    RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
 $$
@@ -26,14 +26,15 @@ EXECUTE PROCEDURE update_erststimmen_aggregate();
 
 --ZWEITSTIMMENAGGREGAT
 CREATE FUNCTION update_zweitstimmen_aggregate()
-    RETURNS trigger
+    RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
     UPDATE zweitstimmenergebnis
     SET anzahlstimmen = anzahlstimmen + 1
-    WHERE liste = new.liste;
+    WHERE liste = new.liste
+      AND wahlkreis = new.wahlkreis;
     RETURN NULL;
 END
 $$;
@@ -43,3 +44,25 @@ CREATE TRIGGER zweitstimmen_aggregat_refresh
     ON zweitstimme
     FOR EACH ROW
 EXECUTE PROCEDURE update_zweitstimmen_aggregate();
+
+
+--Ungültige Stimmen Aggregat
+CREATE FUNCTION update_ungueltige_stimmen_aggregate()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    UPDATE ungueltige_stimmen_ergebnis
+    SET anzahlstimmen = anzahlstimmen + 1
+    WHERE stimmentyp = new.stimmentyp
+      AND wahlkreis = new.wahlkreis;
+    RETURN NULL;
+END
+$$;
+
+CREATE TRIGGER ungueltige_stimmen_aggregat_refresh
+    AFTER INSERT
+    ON ungueltige_stimme
+    FOR EACH ROW
+EXECUTE PROCEDURE update_ungueltige_stimmen_aggregate();

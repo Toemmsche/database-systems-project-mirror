@@ -7,24 +7,26 @@ CREATE VIEW wahlkreisinformation
            bl.name,
            wk.nummer,
            wk.name,
-           k.vorname         AS sieger_vorname,
-           k.nachname        AS sieger_nachname,
-           p.kuerzel         AS sieger_partei,
-           (SUM(ze.anzahlstimmen) + (SELECT COUNT(*) FROM ungueltige_stimme us WHERE us.wahlkreis = wk.wkid))::DECIMAL *
-           100 / wk.deutsche AS wahlbeteiligung_prozent
+           k.vorname                                                AS sieger_vorname,
+           k.nachname                                               AS sieger_nachname,
+           p.kuerzel                                                AS sieger_partei,
+           (SUM(ze.anzahlstimmen) + use.anzahlstimmen)::DECIMAL * 100 / wk.deutsche AS wahlbeteiligung_prozent
     FROM wahlkreis wk,
          mandat m
              LEFT OUTER JOIN
          kandidat k ON k.kandid = m.kandidat,
          zweitstimmenergebnis ze,
+         ungueltige_stimmen_ergebnis use,
          partei p,
          bundesland bl
     WHERE m.ist_direktmandat
       AND wk.wkid = m.wahlkreis
       AND wk.wkid = ze.wahlkreis
+      AND wk.wkid = use.wahlkreis
+      AND use.stimmentyp = 2 --use zweitstimmen for wahlbeteiligung
       AND m.partei = p.parteiid
       AND wk.land = bl.landid
-    GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
+    GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche, use.anzahlstimmen;
 
 CREATE VIEW stimmen_qpartei_wahlkreis_rich
             (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS

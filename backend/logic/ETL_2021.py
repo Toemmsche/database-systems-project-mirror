@@ -1,3 +1,5 @@
+from functional import seq
+
 from logic.links import *
 from logic.util import *
 
@@ -217,7 +219,6 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
 
 def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
     records = download_csv(ergebnisse_2021, delimiter=';', skip=9)
-
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
     partei_mapping = {(x[0].upper(),): partei_mapping[x] for x in
                       partei_mapping}
@@ -259,6 +260,31 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
     )
     load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
 
+
+def load_ungueltige_stimmen_2021(cursor: psycopg.Cursor):
+    records = download_csv(ergebnisse_2021, delimiter=';', skip=9)
+
+    wahlkreis_mapping = key_dict(
+        cursor,
+        'wahlkreis',
+        ('nummer', 'wahl',),
+        'wkId'
+    )
+    ungueltige_stimmen_ergebnisse = seq(records).filter(
+        lambda row: row['Gebietsart'] == 'Wahlkreis' and
+                    row['Gruppenart'] == 'System-Gruppe' and
+                    row['Gruppenname'] == 'Ungültige'
+    ).map(
+        lambda row: (
+            (
+                int(row['Stimme']),
+                wahlkreis_mapping[(int(row['Gebietsnummer']), 20)],
+                int(row['Anzahl'])
+            )
+        )
+    ).to_list()
+
+    load_into_db(cursor, ungueltige_stimmen_ergebnisse, 'ungueltige_stimmen_ergebnis')
 
 if __name__ == '__main__':
     load_landeslisten_2021(None)

@@ -48,7 +48,7 @@ def init_data(cursor: psycopg.Cursor) -> None:
     load_listenplaetze_2021(cursor)
     load_direktkandidaten_2021(cursor)
     load_zweitstimmen_2021(cursor)
-
+    load_ungueltige_stimmen_2021(cursor)
     logger.info("Loaded data for 2021")
 
     # 2017
@@ -66,6 +66,7 @@ def init_data(cursor: psycopg.Cursor) -> None:
         load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
     load_landeslisten_2017(cursor)
     load_zweitstimmen_2017(cursor)
+    load_ungueltige_stimmen_2017(cursor)
     load_direktkandidaten_2017(cursor)
 
     logger.info("Loaded data for 2017")
@@ -95,11 +96,12 @@ def exec_data_queries(cursor: psycopg.Cursor):
 
 
 def init_backend():
-    with psycopg.connect(conn_string).cursor() as cursor:
-        init_tables(cursor)
-        init_data(cursor)
-        exec_util_queries(cursor)
-        exec_data_queries(cursor)
+    with psycopg.connect(conn_string) as conn:
+        with conn.cursor() as cursor:
+            init_tables(cursor)
+            init_data(cursor)
+            exec_util_queries(cursor)
+            exec_data_queries(cursor)
 
 
 if __name__ == '__main__':
