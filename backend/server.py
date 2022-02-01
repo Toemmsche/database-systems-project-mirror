@@ -136,6 +136,8 @@ def get_wahl_token(wknr: str):
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         try:
             data = request.json
+            if data is None:
+                raise "No json content type set"
         except:
             err_str = f"Bad token request: {request.data}"
             logger.error(err_str)
@@ -165,8 +167,10 @@ def cast_vote(wknr: str):
         stimmzettel = table_to_dict_list(cursor, 'stimmzettel_2021', wk_nummer=wknr)
         try:
             stimmen = request.json
+            if stimmen is None:
+                raise "No json content type set"
         except:
-            err_str = f"Bad vote request:  {request.data}"
+            err_str = f"Bad vote request: {request.data}"
             logger.error(err_str)
             abort(400)
         if 'token' not in stimmen:
@@ -183,26 +187,32 @@ def cast_vote(wknr: str):
             abort(401)
         if 'erststimme' in stimmen:
             erststimme = stimmen['erststimme']
-            legal_erststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
-            # Add 'ungültig' vote (represented by -1)
-            legal_erststimmen.append(-1)
-            if valid_stimme(erststimme) and erststimme in legal_erststimmen:
-                load_into_db(cursor, [(erststimme,)], 'erststimme', )
-                logger.info(f"Received first vote for {erststimme} in {wknr}")
+            # Check for 'ungueltig' vote
+            if erststimme == -1:
+                load_into_db(cursor, [(1, int(wknr))], "ungueltige_stimme")
+                logger.info(f"Received 'ungueltig' first vote in {wknr}")
             else:
-                err_str = f"Invalid first vote for wahlkreis {wknr}: {str(erststimme)}"
-                logger.error(err_str)
+                legal_erststimmen = list(map(lambda e: e['kandidatur'], stimmzettel))
+                if valid_stimme(erststimme) and erststimme in legal_erststimmen:
+                    load_into_db(cursor, [(erststimme,)], 'erststimme', )
+                    logger.info(f"Received first vote for {erststimme} in {wknr}")
+                else:
+                    err_str = f"Invalid first vote for wahlkreis {wknr}: {str(erststimme)}"
+                    logger.error(err_str)
         if 'zweitstimme' in stimmen:
             zweitstimme = stimmen['zweitstimme']
-            legal_zweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
-            # Add 'ungültig' vote (represented by -1)
-            legal_zweitstimmen.append(-1)
-            if valid_stimme(zweitstimme) and zweitstimme in legal_zweitstimmen:
-                load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
-                logger.info(f"Received second vote for {zweitstimme} in {wknr}")
+            # Check for 'ungueltig' vote
+            if zweitstimme == -1:
+                load_into_db(cursor, [(2, int(wknr))], "ungueltige_stimme")
+                logger.info(f"Received 'ungueltig' second vote in {wknr}")
             else:
-                err_str = f"Invalid second vote for wahlkreis {wknr}: {str(zweitstimme)}"
-                logger.error(err_str)
+                legal_zweitstimmen = list(map(lambda e: e['liste'], stimmzettel))
+                if valid_stimme(zweitstimme) and zweitstimme in legal_zweitstimmen:
+                    load_into_db(cursor, [(zweitstimme, int(wknr))], 'zweitstimme')
+                    logger.info(f"Received second vote for {zweitstimme} in {wknr}")
+                else:
+                    err_str = f"Invalid second vote for wahlkreis {wknr}: {str(zweitstimme)}"
+                    logger.error(err_str)
         return 'processed\n'
 
 
