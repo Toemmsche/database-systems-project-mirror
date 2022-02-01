@@ -162,7 +162,11 @@ def valid_wahlkreis(wknr: str):
 
 
 def valid_stimme(stimme):
-    return models_nat(stimme)
+    try:
+        x = int(stimme)
+    except:
+        return False
+    return not math.isnan(x) and x >= -1  # -1 is the invalid vote
 
 
 def valid_uuid(value):

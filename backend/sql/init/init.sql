@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS landesliste CASCADE;
 DROP TABLE IF EXISTS listenplatz CASCADE;
 DROP TABLE IF EXISTS erststimme CASCADE;
 DROP TABLE IF EXISTS zweitstimme CASCADE;
+DROP TABLE IF EXISTS ungueltige_stimme CASCADE;
+DROP TABLE IF EXISTS ungueltige_stimmen_ergebnis;
 DROP TABLE IF EXISTS zweitstimmenergebnis CASCADE;
 DROP TABLE IF EXISTS admin_token CASCADE;
 DROP TABLE IF EXISTS wahl_token CASCADE;
@@ -24,7 +26,7 @@ CREATE TABLE bundesland
     kuerzel CHAR(2) UNIQUE NOT NULL,
     name    VARCHAR(50),
     osten   BOOLEAN        NOT NULL,
-    wappen  bytea,
+    wappen  BYTEA,
     landid  INTEGER PRIMARY KEY
 );
 
@@ -61,7 +63,7 @@ CREATE TABLE partei
     nationaleminderheit BOOLEAN             NOT NULL,
     gruendungsjahr      INTEGER,
     farbe               VARCHAR(6),
-    logo                bytea,
+    logo                BYTEA,
     parteiid            SERIAL PRIMARY KEY
 );
 CREATE TABLE kandidat
@@ -122,6 +124,20 @@ CREATE TABLE zweitstimme
     wahlkreis INTEGER REFERENCES wahlkreis (wkid)
 );
 
+CREATE TABLE ungueltige_stimme
+(
+    stimmentyp INTEGER NOT NULL,
+    wahlkreis  INTEGER REFERENCES wahlkreis (wkid)
+);
+
+CREATE TABLE ungueltige_stimmen_ergebnis
+(
+    stimmentyp    INTEGER NOT NULL,
+    wahlkreis     INTEGER REFERENCES wahlkreis (wkid),
+    anzahlstimmen INTEGER,
+    PRIMARY KEY (stimmentyp, wahlkreis)
+);
+
 CREATE TABLE zweitstimmenergebnis
 (
     liste         INTEGER REFERENCES landesliste (listenid) NOT NULL,
@@ -133,13 +149,13 @@ CREATE TABLE zweitstimmenergebnis
 CREATE TABLE admin_token
 (
     wahlkreis INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
-    token     uuid PRIMARY KEY,
+    token     UUID PRIMARY KEY,
     gueltig   BOOLEAN                             NOT NULL
 );
 
 CREATE TABLE wahl_token
 (
     wahlkreis INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
-    token     uuid PRIMARY KEY,
+    token     UUID PRIMARY KEY,
     gueltig   BOOLEAN                             NOT NULL
 )
