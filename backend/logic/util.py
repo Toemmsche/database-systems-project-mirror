@@ -14,25 +14,10 @@ logging.root.setLevel(logging.NOTSET)
 logger = logging.getLogger('DB')
 
 
-def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
+def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int):
     # recalculate aggregate
-    exec_sql_statement(
-        cursor,
-        f"""
-                UPDATE direktkandidatur
-                        SET anzahlstimmen =
-                                (SELECT COUNT(*)
-                                FROM erststimme e
-                                WHERE e.kandidatur = direktid)    
-                        WHERE wahlkreis = (
-                            SELECT wk.wkid
-                            FROM wahlkreis wk
-                            WHERE wk.nummer = {wknr}
-                            AND wk.wahl = {wahl}
-                        )
-                """
-        , 'ResetAggregates.sql'
-    )
+    exec_sql_statement(cursor, f"SELECT reset_stimmen_aggregat({wahl}, {wknr})", 'ResetAggregates.sql')
+    logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
 
 
 def exec_sql_statement(cursor: psycopg.cursor, script: str, script_name: str) -> None:
@@ -204,37 +189,6 @@ def valid_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
 def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
     statement = f"UPDATE wahl_token SET gueltig = FALSE WHERE token = '{token}'"
     exec_sql_statement(cursor, statement, "MakeWahlTokenInvalid.sql")
-
-
-def get_zweitstimmen_by_ids(cursor: psycopg.cursor, wahl: int, ids: list[int]):
-    strIds = ','.join(map(str, ids))
-    query = f"""
-      WITH qpartei(wahl, partei) AS
-             (SELECT DISTINCT m.wahl, m.partei
-              FROM mandat m),
-         stimmen_aggregiert(wahl, partei, partei_farbe, abs_stimmen) AS (
-             SELECT sw.wahl, sw.partei, sw.partei_farbe, SUM(sw.abs_stimmen) AS abs_stimmen
-             FROM stimmen_qpartei_wahlkreis_rich sw
-             WHERE sw.wahl = {wahl}
-               AND sw.stimmentyp = 2
-               AND sw.wk_nummer IN ({strIds})
-             GROUP BY sw.wahl, sw.partei, sw.partei_farbe),
-         stimmen_aggregiert_relativ(wahl, partei, partei_farbe, abs_stimmen, rel_stimmen) AS (
-             SELECT sa.*, sa.abs_stimmen::DECIMAL / (SELECT SUM(abs_stimmen) from stimmen_aggregiert)
-             FROM stimmen_aggregiert sa
-         )
-    SELECT *
-    FROM stimmen_aggregiert_relativ sa
-    UNION
-    SELECT qp.wahl, p.kuerzel AS partei, p.farbe AS partei_farbe, 0, 0
-    FROM qpartei qp,
-         partei p
-    WHERE qp.wahl = {wahl}
-      AND qp.partei = p.parteiid
-      AND p.kuerzel NOT IN (SELECT sa.partei FROM stimmen_aggregiert_relativ sa)
-    """
-
-    return table_to_json(cursor, "", query=query)
 
 
 if __name__ == '__main__':

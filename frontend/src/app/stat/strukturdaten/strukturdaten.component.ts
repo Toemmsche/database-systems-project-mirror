@@ -163,9 +163,9 @@ export class StrukturdatenComponent implements OnInit {
     const lowestBody = this.rangliste.filter(r => r.rank <= this.topN.value).map(r => r.nummer);
     const highestBody = this.rangliste.filter(r => r.rank > count - this.topN.value).map(r => r.nummer);
 
-    let lowestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen`, lowestBody)
+    let lowestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen_aggregiert`, lowestBody)
       .then(response => response.json());
-    let highestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen`, highestBody)
+    let highestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen_aggregiert`, highestBody)
       .then(response => response.json());
 
     const mergeCduCsu = (data: Array<ParteiErgebnisVergleich>) => {
