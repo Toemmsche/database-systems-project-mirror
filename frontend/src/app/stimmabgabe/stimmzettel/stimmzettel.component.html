@@ -36,7 +36,7 @@
     <input matInput [formControl]="token" required>
     <mat-error *ngIf="token.invalid">Ungültiges Format für den Zugangsschlüssel</mat-error>
   </mat-form-field>
-  <button *ngIf="voteStatus.isIdle()" id="cast-vote-btn" class="stretch" mat-button (click)="stimmeAbgeben()" [disabled]="token.invalid">
+  <button *ngIf="voteStatus.isIdle()" id="cast-vote-btn" class="stretch" color="primary" mat-button (click)="stimmeAbgeben()" [disabled]="token.invalid">
     Stimmzettel Abgeben
   </button>
   <div *ngIf="voteStatus.isResultStatus()" class="center flex-column stretch">
@@ -56,7 +56,7 @@
       <mat-icon>done</mat-icon>
       <span>Ihre Stimme wurde gezählt</span>
     </div>
-    <button id="reset-stimmzettel-btn" class="stretch" mat-button (click)="resetStimmzettel()">Neuer Stimmzettel (automatisch in {{newStimmzettelCountdown}}s)</button>
+    <button id="reset-stimmzettel-btn" class="stretch" color="accent" mat-button (click)="resetStimmzettel()">Neuer Stimmzettel (automatisch in {{newStimmzettelCountdown}}s)</button>
   </div>
 </div>
 <mat-spinner *ngIf="!stimmzettelLoaded()"></mat-spinner>
