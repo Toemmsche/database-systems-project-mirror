@@ -1,7 +1,9 @@
 DROP FUNCTION IF EXISTS update_erststimmen_aggregate CASCADE;
 DROP TRIGGER IF EXISTS erststimmen_aggregat_refresh ON erststimme CASCADE;
 DROP FUNCTION IF EXISTS update_zweitstimmen_aggregate CASCADE;
-DROP TRIGGER IF EXISTS zweitstimmen_aggregat_refresh ON erststimme CASCADE;
+DROP TRIGGER IF EXISTS zweitstimmen_aggregat_refresh ON zweitstimme CASCADE;
+DROP FUNCTION IF EXISTS update_ungueltige_stimmen_aggregate CASCADE;
+DROP TRIGGER IF EXISTS ungueltige_stimmen_aggregat_refresh ON ungueltige_stimme CASCADE;
 
 --ERSTSTIMMENAGGREGAT
 CREATE FUNCTION update_erststimmen_aggregate()
