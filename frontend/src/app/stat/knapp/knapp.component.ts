@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Subscription } from 'rxjs';
 import {WahlSelectionService} from 'src/app/service/wahl-selection.service';
 import {KnapperSiegOderNierderlage} from "../../../model/KnapperSiegOderNierderlage";
 import {REST_GET} from "../../../util/ApiService";
@@ -8,7 +9,7 @@ import {REST_GET} from "../../../util/ApiService";
   templateUrl: './knapp.component.html',
   styleUrls  : ['./knapp.component.scss']
 })
-export class KnappComponent implements OnInit {
+export class KnappComponent implements OnInit, OnDestroy {
 
   wahl !: number;
   columnsToDisplay = [
@@ -25,9 +26,11 @@ export class KnappComponent implements OnInit {
   knappData !: Array<KnapperSiegOderNierderlage>;
   filteredKnappData !: Array<KnapperSiegOderNierderlage>;
 
+  wahlSubscription !: Subscription;
+
   constructor(private readonly wahlService: WahlSelectionService) {
     this.wahl = this.wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
-    this.wahlService.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlService.getWahlNumber(selection);
       this.knappData = [];
       this.ngOnInit();
@@ -36,6 +39,10 @@ export class KnappComponent implements OnInit {
 
   ngOnInit(): void {
     this.populate();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate(): void {

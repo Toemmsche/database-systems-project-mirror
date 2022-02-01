@@ -1,8 +1,7 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Subscription } from 'rxjs';
 import {MDB} from "../../../model/MDB";
 import {REST_GET} from "../../../util/ApiService";
-import {MatPaginator} from "@angular/material/paginator";
-import {MatTableDataSource} from "@angular/material/table";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 
 @Component({
@@ -10,7 +9,7 @@ import {WahlSelectionService} from "../../service/wahl-selection.service";
   templateUrl: './mitglieder.component.html',
   styleUrls: ['./mitglieder.component.scss']
 })
-export class MitgliederComponent implements OnInit {
+export class MitgliederComponent implements OnInit, OnDestroy {
 
 
   wahl !: number;
@@ -21,12 +20,13 @@ export class MitgliederComponent implements OnInit {
 
   parteien !: Set<string>;
   parteiFilter : string = "Alle";
+  wahlSubscription !: Subscription;
 
   constructor(
     private readonly wahlservice: WahlSelectionService
   ) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    wahlservice.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlservice.getWahlNumber(selection);
       this.mdbData = [];
       this.ngOnInit()
@@ -35,6 +35,10 @@ export class MitgliederComponent implements OnInit {
 
   ngOnInit(): void {
     this.populate();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate(): void {

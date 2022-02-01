@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Subscription } from 'rxjs';
 import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {REST_GET} from "../../../util/ApiService";
@@ -8,7 +9,7 @@ import {REST_GET} from "../../../util/ApiService";
   templateUrl: './ostenergebnis.component.html',
   styleUrls: ['./ostenergebnis.component.scss']
 })
-export class OstenergebnisComponent implements OnInit {
+export class OstenergebnisComponent implements OnInit, OnDestroy {
 
   wahl !: number;
   ostenData !: Array<ParteiErgebnis>
@@ -38,9 +39,11 @@ export class OstenergebnisComponent implements OnInit {
     }
   }
 
+  wahlSubscription !: Subscription;
+
   constructor(private readonly wahlService: WahlSelectionService) {
     this.wahl = this.wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
-    this.wahlService.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlService.getWahlNumber(selection);
       this.ostenData = [];
       this.ngOnInit();
@@ -49,6 +52,10 @@ export class OstenergebnisComponent implements OnInit {
 
   ngOnInit(): void {
     this.populate();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate() {

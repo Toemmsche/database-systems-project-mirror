@@ -1,4 +1,5 @@
-import {Component, ElementRef, Input, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
+import { Subscription } from 'rxjs';
 import {Begrenzung} from 'src/model/Begrenzung';
 import {REST_GET} from 'src/util/ApiService';
 import {Wahlkreissieger} from "../../model/Wahlkreissieger";
@@ -10,7 +11,7 @@ import {WahlSelectionService} from "../service/wahl-selection.service";
   templateUrl: './karte.component.html',
   styleUrls  : ['./karte.component.scss']
 })
-export class KarteComponent implements OnInit {
+export class KarteComponent implements OnInit, OnDestroy {
   bData !: Array<Begrenzung>
 
   @Input()
@@ -26,12 +27,17 @@ export class KarteComponent implements OnInit {
   siegerTyp: number = 1;
   partei: string = "Gewinner";
   parteien !: Array<string>;
+  wahlSubscription !: Subscription;
 
   constructor(private readonly wahlSelectionservice: WahlSelectionService) {
   }
 
   ngOnInit(): void {
     this.populateBegrenzungen();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populateBegrenzungen(): void {
@@ -45,7 +51,7 @@ export class KarteComponent implements OnInit {
 
   ready(): void {
     this.populateDaten(this.wahlSelectionservice.wahlSubject.getValue());
-    this.wahlSelectionservice.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = this.wahlSelectionservice.wahlSubject.subscribe((selection: number) => {
       this.populateDaten(selection);
     });
   }

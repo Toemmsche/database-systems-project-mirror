@@ -1,17 +1,18 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {REST_GET} from "../../../util/ApiService";
 import {Wahlkreis} from "../../../model/Walhkreis";
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector   : 'app-wahlkreis',
   templateUrl: './wahlkreis.component.html',
   styleUrls  : ['./wahlkreis.component.scss']
 })
-export class WahlkreisComponent implements OnInit {
+export class WahlkreisComponent implements OnInit, OnDestroy {
 
   @Input()
   nummer !: number;
@@ -72,13 +73,14 @@ export class WahlkreisComponent implements OnInit {
       }
     }
   }
+  wahlSubscription !: Subscription;
 
   constructor(
     private route: ActivatedRoute,
     private readonly wahlservice: WahlSelectionService
   ) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    wahlservice.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlservice.getWahlNumber(selection);
       this.erststimmenergebnisse = [];
       this.zweitstimmenergebnisse = [];
@@ -90,6 +92,10 @@ export class WahlkreisComponent implements OnInit {
     // Get wahlkreis nummer
     this.nummer = parseInt(<string>this.route.snapshot.paramMap.get('nummer'));
     this.populate();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate(): void {

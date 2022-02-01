@@ -1,14 +1,15 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {REST_GET} from "../../../util/ApiService";
 import {Wahlkreis} from "../../../model/Walhkreis";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector   : 'app-wahlkreisliste',
   templateUrl: './wahlkreisliste.component.html',
   styleUrls  : ['./wahlkreisliste.component.scss']
 })
-export class WahlkreislisteComponent implements OnInit {
+export class WahlkreislisteComponent implements OnInit, OnDestroy {
 
   @Input()
   routePrefix !: string;
@@ -19,10 +20,11 @@ export class WahlkreislisteComponent implements OnInit {
 
   laender !: Set<String>;
   landFilter !: string;
+  wahlSubscription !: Subscription;
 
   constructor(private readonly wahlservice: WahlSelectionService) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    wahlservice.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlservice.getWahlNumber(selection);
       this.wahlkreise = []
       this.ngOnInit()
@@ -31,6 +33,10 @@ export class WahlkreislisteComponent implements OnInit {
 
   ngOnInit(): void {
     this.populate()
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate(): void {

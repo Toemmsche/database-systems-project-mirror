@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {REST_GET} from "../../../util/ApiService";
 import {ParteiErgebnisVergleich} from "../../../model/ParteiErgebnisVergleich";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector   : 'app-aqvergleich',
@@ -63,9 +64,11 @@ export class AQVergleichComponent implements OnInit {
     }
   }
 
+  wahlSubscription !: Subscription;
+
   constructor(private readonly wahlService: WahlSelectionService) {
     this.wahl = this.wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
-    this.wahlService.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlService.getWahlNumber(selection);
       this.aqData = [];
       this.ngOnInit();
@@ -74,6 +77,10 @@ export class AQVergleichComponent implements OnInit {
 
   ngOnInit(): void {
     this.populate();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate() {

@@ -1,14 +1,15 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {REST_GET} from "../../../util/ApiService";
 import {Sitzverteilung} from "../../../model/Sitzverteilung";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector   : 'app-sitzverteilung',
   templateUrl: './sitzverteilung.component.html',
   styleUrls  : ['./sitzverteilung.component.scss']
 })
-export class SitzverteilungComponent implements OnInit {
+export class SitzverteilungComponent implements OnInit, OnDestroy {
 
   wahl !: number;
   sitzverteilung !: Array<Sitzverteilung>;
@@ -33,11 +34,12 @@ export class SitzverteilungComponent implements OnInit {
       maintainAspectRatio: true
     }
   }
+  wahlSubscription !: Subscription;
 
 
   constructor(private readonly wahlservice: WahlSelectionService) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    wahlservice.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlservice.getWahlNumber(selection);
       this.sitzverteilung = [];
       this.ngOnInit()
@@ -46,6 +48,10 @@ export class SitzverteilungComponent implements OnInit {
 
   ngOnInit(): void {
     this.populate();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate() {
