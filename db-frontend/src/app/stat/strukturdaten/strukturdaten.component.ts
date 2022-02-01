@@ -20,6 +20,7 @@ export class StrukturdatenComponent implements OnInit {
   metrik = new FormControl(undefined, [Validators.required]);
   rangliste !: Array<Rangliste>;
   bData !: Array<Begrenzung>;
+  kartenTyp: number = 1;
 
   @ViewChild(SvgKarteComponent) karte !: SvgKarteComponent;
 
@@ -119,12 +120,22 @@ export class StrukturdatenComponent implements OnInit {
 
   updateMap() {
     this.karte.resetColors();
-    const maxAbsolute: number = this.rangliste.reduce((prev, r) => Math.max(prev, r.metrik_wert), 0);
-    this.rangliste.forEach(r => {
-      const alpha = Math.round(r.metrik_wert * 255 / maxAbsolute);
-      const color = '3f51b5' + (alpha < 16 ? '0' : '') + alpha.toString(16);
-      this.karte.colorWahlkreis(r.nummer, color);
-    });
+    if (this.kartenTyp == 1) {
+      const maxAbsolute: number = this.rangliste.reduce((prev, r) => Math.max(prev, r.metrik_wert), 0);
+      this.rangliste.forEach(r => {
+        const alpha = Math.round(r.metrik_wert * 255 / maxAbsolute);
+        const color = '3f51b5' + (alpha < 16 ? '0' : '') + alpha.toString(16);
+        this.karte.colorWahlkreis(r.nummer, color);
+      });
+    } else if (this.kartenTyp == 2) {
+      this.rangliste.forEach(r => {
+        if (r.rank <= this.topN.value) {
+          this.karte.colorWahlkreis(r.nummer, 'CC0000');
+        } else if (r.rank > this.rangliste.length - this.topN.value) {
+          this.karte.colorWahlkreis(r.nummer, '007E33');
+        }
+      })
+    }
   }
 
   async populateData() {
@@ -185,5 +196,9 @@ export class StrukturdatenComponent implements OnInit {
   stimmenLoaded(): boolean {
     return this.ergebnisseNiedrig != null &&
       this.ergebnisseNiedrig.length > 0;
+  }
+
+  onKartenTypChange() {
+    this.updateMap();
   }
 }

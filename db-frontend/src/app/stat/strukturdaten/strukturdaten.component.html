@@ -16,7 +16,15 @@
 </div>
 <div *ngIf="bDataLoaded()" class="strukturdaten-container">
   <div>
-    <app-svg-karte [bData]="bData"></app-svg-karte>
+    <div>
+      <mat-button-toggle-group [disabled]="!stimmenLoaded()" name="kartenTyp" [(ngModel)]="kartenTyp" (change)="onKartenTypChange()">
+        <mat-button-toggle [value]="1">Gesamt</mat-button-toggle>
+        <mat-button-toggle [value]="2">Top N</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+    <div>
+      <app-svg-karte [bData]="bData"></app-svg-karte>
+    </div>
   </div>
   <div class="strukturdaten-result-container">
     <div *ngIf="stimmenLoaded()">
@@ -25,5 +33,4 @@
         [options]="ergebnisseVergleichConfig.options"></chart>
     </div>
   </div>
-
 </div>
