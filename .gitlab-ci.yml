@@ -21,3 +21,5 @@ deploy-frontend:
     - gem install dpl
     - dpl --provider=heroku --app="datenbanken-ws22-frontend" --api-key=$HEROKU_API_KEY
     - echo "Deployed to Server https://datenbanken-ws22-frontend.herokuapp.com"
+  only:
+    - main
