@@ -14,7 +14,7 @@ import {StimmabgabeComponent} from "./stimmabgabe/stimmabgabe.component";
 
 const routes: Routes = [
   {path: 'Bundestag', component: SitzverteilungComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
-  {path: 'Bundestag/Mitglieder', component: MitgliederComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Bundestag/Mitglieder', component: MitgliederComponent, pathMatch: 'full', data: { allowsWahlSelection: false }},
   {path: 'Daten', component: DatenComponent, pathMatch: 'full', data: { allowsWahlSelection: true }}, //TODO
   {path: 'Daten/Wahlkreis/:nummer', component: WahlkreisComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
   {path: 'Karte', component: KarteComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},

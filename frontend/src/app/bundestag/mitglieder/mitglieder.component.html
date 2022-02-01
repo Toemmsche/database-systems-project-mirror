@@ -12,13 +12,13 @@
     </mat-form-field>
   </div>
   <table id="mdb-table" mat-table  [dataSource]="filteredMdbData" class="mat-elevation-z8">
-    <ng-container matColumnDef="vorname">
-      <th mat-header-cell *matHeaderCellDef>Vorname</th>
-      <td mat-cell *matCellDef="let mdb"> {{mdb.vorname}} </td>
-    </ng-container>
     <ng-container matColumnDef="nachname">
       <th mat-header-cell *matHeaderCellDef>Nachname</th>
       <td mat-cell *matCellDef="let mdb"> {{mdb.nachname}} </td>
+    </ng-container>
+    <ng-container matColumnDef="vorname">
+      <th mat-header-cell *matHeaderCellDef>Vorname</th>
+      <td mat-cell *matCellDef="let mdb"> {{mdb.vorname}} </td>
     </ng-container>
     <ng-container matColumnDef="partei">
       <th mat-header-cell *matHeaderCellDef>Partei</th>
@@ -34,8 +34,6 @@
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
     <tr mat-row *matRowDef="let mdb; columns: columnsToDisplay"></tr>
-    <!--[ngStyle]="{'background': '#' +  mdb.partei_farbe + '60'}" -->
   </table>
 </div>
-<span *ngIf="wahl == 19">Leider gibt es aus Datenschutzgründen keine Daten zu den MDB der BTW 2017.</span>
-<mat-spinner *ngIf="wahl == 20 && !mdbLoaded()"></mat-spinner>
+<mat-spinner *ngIf="!mdbLoaded()"></mat-spinner>

@@ -13,7 +13,7 @@ export class MitgliederComponent implements OnInit, OnDestroy {
 
 
   wahl !: number;
-  columnsToDisplay = ['vorname', 'nachname', 'partei', 'geburtsjahr', 'grund'];
+  columnsToDisplay = ['nachname', 'vorname', 'partei', 'geburtsjahr', 'grund'];
 
   mdbData !: Array<MDB>;
   filteredMdbData !: Array<MDB>;
