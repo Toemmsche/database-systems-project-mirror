@@ -102,7 +102,6 @@ export class KarteComponent implements OnInit {
       this.siegerTyp);
     const maxRelative: number = filteredData.reduce((prev, wkp) => Math.max(prev, wkp.rel_stimmen), 0);
     filteredData.forEach(wkp => {
-      console.log(wkp);
       const alpha = Math.round(wkp.rel_stimmen * 255 / maxRelative);
       const color = wkp.partei_farbe + (alpha < 16 ? '0' : '') + alpha.toString(16);
       this.colorWahlkreis(wkp.wk_nummer, color);
