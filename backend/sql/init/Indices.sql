@@ -1,4 +1,4 @@
-Ad--We cannot move the einzelstimmen indices here as this would cause massive performance issues
+--We cannot move the einzelstimmen indices here as this would cause massive performance issues
 DROP INDEX IF EXISTS ungueltige_stimme_wahlkreis;
 DROP INDEX IF EXISTS ungueltige_stimme_stimmentyp;
 DROP INDEX IF EXISTS ungueltige_stimme_wahlkreis_stimmentyp;
