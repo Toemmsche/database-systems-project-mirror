@@ -22,6 +22,9 @@ export class StrukturdatenComponent implements OnInit {
   bData !: Array<Begrenzung>;
   kartenTyp: number = 1;
 
+  private colorNiedrig: string = "ff4081";
+  private colorHoch: string = "3f51b5";
+
   @ViewChild(SvgKarteComponent) karte !: SvgKarteComponent;
 
   ergebnisseNiedrig !: Array<ParteiErgebnisVergleich>;
@@ -36,14 +39,14 @@ export class StrukturdatenComponent implements OnInit {
           borderWidth    : 1,
           data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
-          legendColor    : '#CC0000'
+          legendColor    : '#' + this.colorNiedrig
         },
         {
           label          : "Zweitstimmenanteil (Hoch)",
           borderWidth    : 1,
           data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
-          legendColor    : '#007E33'
+          legendColor    : '#' + this.colorHoch
         }
       ]
     },
@@ -147,9 +150,9 @@ export class StrukturdatenComponent implements OnInit {
     } else if (this.kartenTyp == 2) {
       this.rangliste.forEach(r => {
         if (r.rank <= this.topN.value) {
-          this.karte.colorWahlkreis(r.nummer, 'CC0000');
+          this.karte.colorWahlkreis(r.nummer, this.colorNiedrig);
         } else if (r.rank > this.rangliste.length - this.topN.value) {
-          this.karte.colorWahlkreis(r.nummer, '007E33');
+          this.karte.colorWahlkreis(r.nummer, this.colorHoch);
         }
       });
     }
