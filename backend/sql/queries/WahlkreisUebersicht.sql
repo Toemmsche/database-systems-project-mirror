@@ -1,5 +1,5 @@
 DROP VIEW IF EXISTS wahlkreisinformation CASCADE;
-DROP VIEW IF EXISTS stimmen_qpartei_wahlkreis_rich CASCADE;
+DROP VIEW IF EXISTS stimmen_qpartei_wahlkreis CASCADE;
 
 CREATE VIEW wahlkreisinformation
             (wahl, land, wk_nummer, wk_name, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
@@ -7,25 +7,28 @@ CREATE VIEW wahlkreisinformation
            bl.name,
            wk.nummer,
            wk.name,
-           k.vorname                                          AS sieger_vorname,
-           k.nachname                                         AS sieger_nachname,
-           p.kuerzel                                          AS sieger_partei,
-           SUM(ze.anzahlstimmen)::decimal * 100 / wk.deutsche AS wahlbeteiligung_prozent
+           k.vorname                                                AS sieger_vorname,
+           k.nachname                                               AS sieger_nachname,
+           p.kuerzel                                                AS sieger_partei,
+           (SUM(ze.anzahlstimmen) + use.anzahlstimmen)::DECIMAL * 100 / wk.deutsche AS wahlbeteiligung_prozent
     FROM wahlkreis wk,
          mandat m
              LEFT OUTER JOIN
          kandidat k ON k.kandid = m.kandidat,
          zweitstimmenergebnis ze,
+         ungueltige_stimmen_ergebnis use,
          partei p,
          bundesland bl
     WHERE m.ist_direktmandat
       AND wk.wkid = m.wahlkreis
       AND wk.wkid = ze.wahlkreis
+      AND wk.wkid = use.wahlkreis
+      AND use.stimmentyp = 2 --use zweitstimmen for wahlbeteiligung
       AND m.partei = p.parteiid
       AND wk.land = bl.landid
-    GROUP BY wk.wahl, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
+    GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche, use.anzahlstimmen;
 
-CREATE VIEW stimmen_qpartei_wahlkreis_rich
+CREATE VIEW stimmen_qpartei_wahlkreis
             (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
     WITH erststimmen_wahlkreis(wahlkreis, abs_stimmen) AS
              (SELECT dk.wahlkreis,
@@ -69,7 +72,7 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
            p.kuerzel,
            p.farbe,
            epw.abs_stimmen,
-           epw.abs_stimmen::decimal / ewk.abs_stimmen AS rel_stimmen
+           epw.abs_stimmen::DECIMAL / ewk.abs_stimmen AS rel_stimmen
     FROM erststimmen_partei_wahlkreis epw,
          partei p,
          qpartei qp,
@@ -87,7 +90,7 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
            'Sonstige',
            'DDDDDD',
            SUM(epw.abs_stimmen)                            AS abs_stimmen,
-           SUM(epw.abs_stimmen)::decimal / ewk.abs_stimmen AS rel_stimmen
+           SUM(epw.abs_stimmen)::DECIMAL / ewk.abs_stimmen AS rel_stimmen
     FROM erststimmen_partei_wahlkreis epw,
          wahlkreis wk,
          nicht_qpartei nqp,
@@ -104,7 +107,7 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
            p.kuerzel                                  AS partei,
            p.farbe                                    AS partei_farbe,
            zpw.abs_stimmen,
-           zpw.abs_stimmen::decimal / zwk.abs_stimmen AS rel_stimmen
+           zpw.abs_stimmen::DECIMAL / zwk.abs_stimmen AS rel_stimmen
     FROM zweitstimmen_partei_wahlkreis zpw,
          partei p,
          qpartei qp,
@@ -122,7 +125,7 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
            'Sonstige',
            'DDDDDD',
            SUM(zpw.abs_stimmen)                            AS abs_stimmen,
-           SUM(zpw.abs_stimmen)::decimal / zwk.abs_stimmen AS rel_stimmen
+           SUM(zpw.abs_stimmen)::DECIMAL / zwk.abs_stimmen AS rel_stimmen
     FROM zweitstimmen_partei_wahlkreis zpw,
          wahlkreis wk,
          nicht_qpartei nqp,

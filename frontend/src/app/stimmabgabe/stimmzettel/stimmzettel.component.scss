@@ -1,11 +1,8 @@
-@import "~@angular/material/theming";
-@import "../../../theme_variables.scss";
 @import "../../../styles.scss";
 
 :host {
   @extend .host-container
 }
-
 
 .mat-column-erststimme, .mat-column-zweitstimme {
   padding-left: 20px;
@@ -23,13 +20,11 @@
 }
 
 #cast-vote-btn {
-  background: mat-color($primaryPalette);
   color: white;
   margin-top: 1rem;
 }
 
 #reset-stimmzettel-btn {
-  background: mat-color($accentPalette);
   color: white;
   width: 100%;
   margin-top: 1rem;

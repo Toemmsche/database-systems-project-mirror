@@ -1,4 +1,25 @@
-build-job:
-  stage: build
+stages:
+  - deploy-backend
+  - deploy-frontend
+
+deploy-backend:
+  stage: deploy-backend
   script:
-    - echo "Hello World from the gitlab runner"
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app="datenbanken-ws22" --api-key=$HEROKU_API_KEY
+    - echo "Deployed to Server https://datenbanken-ws22.herokuapp.com"
+  only:
+    - main
+
+deploy-frontend:
+  stage: deploy-frontend
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app="datenbanken-ws22-frontend" --api-key=$HEROKU_API_KEY
+    - echo "Deployed to Server https://datenbanken-ws22-frontend.herokuapp.com"
+  only:
+    - main

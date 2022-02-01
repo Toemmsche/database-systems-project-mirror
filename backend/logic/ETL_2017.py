@@ -140,3 +140,31 @@ def load_zweitstimmen_2017(cursor: psycopg.cursor) -> None:
         )
     )
     load_into_db(cursor, zweitstimmenergebnisse, 'Zweitstimmenergebnis')
+
+
+def load_ungueltige_stimmen_2017(cursor: psycopg.Cursor):
+    records = download_csv(ergebnisse_2017, delimiter=';', skip=9)
+
+    wahlkreis_mapping = key_dict(
+        cursor,
+        'wahlkreis',
+        ('nummer', 'wahl',),
+        'wkId'
+    )
+    ungueltige_stimmen_ergebnisse = list(
+        seq(records)
+            .filter(
+            lambda row: row['Gebietsart'] == 'Wahlkreis' and
+                        row['Gruppenart'] == 'System-Gruppe' and
+                        row['Gruppenname'] == 'Ungültige'
+        ).map(
+            lambda row: (
+                (
+                    int(row['Stimme']),
+                    wahlkreis_mapping[(int(row['Gebietsnummer']), 19)],
+                    int(row['Anzahl'])
+                )
+            )
+        )
+    )
+    load_into_db(cursor, ungueltige_stimmen_ergebnisse, 'ungueltige_stimmen_ergebnis')

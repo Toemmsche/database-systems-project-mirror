@@ -1,14 +1,13 @@
 DROP FUNCTION IF EXISTS update_erststimmen_aggregate CASCADE;
 DROP TRIGGER IF EXISTS erststimmen_aggregat_refresh ON erststimme CASCADE;
 DROP FUNCTION IF EXISTS update_zweitstimmen_aggregate CASCADE;
-DROP TRIGGER IF EXISTS zweitstimmen_aggregat_refresh ON erststimme CASCADE;
-DROP FUNCTION IF EXISTS refresh_mandat CASCADE;
-DROP TRIGGER IF EXISTS mandat_erststimmen_refresh ON direktkandidatur CASCADE;
-DROP TRIGGER IF EXISTS mandat_zweitimmen_refresh ON direktkandidatur CASCADE;
+DROP TRIGGER IF EXISTS zweitstimmen_aggregat_refresh ON zweitstimme CASCADE;
+DROP FUNCTION IF EXISTS update_ungueltige_stimmen_aggregate CASCADE;
+DROP TRIGGER IF EXISTS ungueltige_stimmen_aggregat_refresh ON ungueltige_stimme CASCADE;
 
 --ERSTSTIMMENAGGREGAT
 CREATE FUNCTION update_erststimmen_aggregate()
-    RETURNS trigger
+    RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
 $$
@@ -29,14 +28,15 @@ EXECUTE PROCEDURE update_erststimmen_aggregate();
 
 --ZWEITSTIMMENAGGREGAT
 CREATE FUNCTION update_zweitstimmen_aggregate()
-    RETURNS trigger
+    RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
     UPDATE zweitstimmenergebnis
     SET anzahlstimmen = anzahlstimmen + 1
-    WHERE liste = new.liste;
+    WHERE liste = new.liste
+      AND wahlkreis = new.wahlkreis;
     RETURN NULL;
 END
 $$;
@@ -48,24 +48,23 @@ CREATE TRIGGER zweitstimmen_aggregat_refresh
 EXECUTE PROCEDURE update_zweitstimmen_aggregate();
 
 
---MANDATE
-CREATE FUNCTION refresh_mandat()
+--Ungültige Stimmen Aggregat
+CREATE FUNCTION update_ungueltige_stimmen_aggregate()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
-    REFRESH MATERIALIZED VIEW mandat;
+    UPDATE ungueltige_stimmen_ergebnis
+    SET anzahlstimmen = anzahlstimmen + 1
+    WHERE stimmentyp = new.stimmentyp
+      AND wahlkreis = new.wahlkreis;
     RETURN NULL;
-END;
+END
 $$;
 
-CREATE TRIGGER mandat_erststimmen_refresh
-    AFTER UPDATE
-    ON direktkandidatur
-EXECUTE PROCEDURE refresh_mandat();
-
-CREATE TRIGGER mandat_zweitstimmen_refresh
-    AFTER UPDATE
-    ON zweitstimmenergebnis
-EXECUTE PROCEDURE refresh_mandat();
+CREATE TRIGGER ungueltige_stimmen_aggregat_refresh
+    AFTER INSERT
+    ON ungueltige_stimme
+    FOR EACH ROW
+EXECUTE PROCEDURE update_ungueltige_stimmen_aggregate();

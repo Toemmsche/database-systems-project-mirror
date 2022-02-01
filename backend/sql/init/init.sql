@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS landesliste CASCADE;
 DROP TABLE IF EXISTS listenplatz CASCADE;
 DROP TABLE IF EXISTS erststimme CASCADE;
 DROP TABLE IF EXISTS zweitstimme CASCADE;
+DROP TABLE IF EXISTS ungueltige_stimme CASCADE;
+DROP TABLE IF EXISTS ungueltige_stimmen_ergebnis;
 DROP TABLE IF EXISTS zweitstimmenergebnis CASCADE;
 DROP TABLE IF EXISTS admin_token CASCADE;
 DROP TABLE IF EXISTS wahl_token CASCADE;
@@ -162,6 +164,20 @@ CREATE TABLE zweitstimme
 (
     liste     INTEGER REFERENCES landesliste (listenid),
     wahlkreis INTEGER REFERENCES wahlkreis (wkid)
+);
+
+CREATE TABLE ungueltige_stimme
+(
+    stimmentyp INTEGER NOT NULL,
+    wahlkreis  INTEGER REFERENCES wahlkreis (wkid)
+);
+
+CREATE TABLE ungueltige_stimmen_ergebnis
+(
+    stimmentyp    INTEGER NOT NULL,
+    wahlkreis     INTEGER REFERENCES wahlkreis (wkid),
+    anzahlstimmen INTEGER,
+    PRIMARY KEY (stimmentyp, wahlkreis)
 );
 
 CREATE TABLE zweitstimmenergebnis

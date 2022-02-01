@@ -58,8 +58,8 @@ export class StimmzettelComponent implements OnInit {
     REST_POST(`20/wahlkreis/${this.nummer}/stimmabgabe`,
       new Stimmabgabe(this.nummer,
         this.token.value,
-        this.erststimmeSelection ?? undefined,
-        this.zweitstimmeSelection ?? undefined))
+        this.erststimmeSelection ?? -1,
+        this.zweitstimmeSelection ?? -1))
       .then(response => {
         this.voteStatus = RS.SUCCESS;
       })

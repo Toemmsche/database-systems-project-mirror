@@ -1,9 +1,18 @@
 import os
+from urllib.parse import urlparse
 
-db_config = {
-    'dbname': os.environ.get('POSTGRES_DB') if 'POSTGRES_DB' in os.environ else 'wahl',
-    'user': os.environ.get('POSTGRES_USER') if 'POSTGRES_USER' in os.environ else 'postgres',
-    'password': os.environ.get('POSTGRES_PWD')
-}
+heroku = False
+if 'DYNO' in os.environ:
+    heroku = True
+    print("Detected heroku deployment")
 
-conn_string = f"host=localhost port=5432 dbname={db_config['dbname']} user={db_config['user']} password={db_config['password']}"
+
+# Parse database URI
+result = urlparse(os.environ.get('DATABASE_URL'))
+username = result.username
+password = result.password
+database = result.path[1:]
+hostname = result.hostname
+port = result.port
+
+conn_string = f"host={hostname} port={port} dbname={database} user={username} password={password}"

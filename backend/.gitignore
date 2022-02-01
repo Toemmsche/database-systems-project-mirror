@@ -1,4 +1,8 @@
 /.idea/
 .idea/
 
+/logic/__pycache__/
+/__pycache__/
+
 TODO.md
+test.http
