@@ -47,7 +47,7 @@ CREATE VIEW stimmen_qpartei_wahlkreis
              (SELECT btw.nummer, p.parteiid
               FROM bundestagswahl btw,
                    partei p
-                  EXCEPT
+              EXCEPT
               SELECT *
               FROM qpartei),
          erststimmen_partei_wahlkreis(wahlkreis, partei, abs_stimmen) AS
@@ -95,7 +95,8 @@ CREATE VIEW stimmen_qpartei_wahlkreis
          wahlkreis wk,
          nicht_qpartei nqp,
          erststimmen_wahlkreis ewk
-    WHERE epw.wahlkreis = wk.wkid
+    WHERE wk.wahl = nqp.wahl
+      AND epw.wahlkreis = wk.wkid
       AND epw.partei = nqp.partei
       AND epw.wahlkreis = ewk.wahlkreis
     GROUP BY wk.wahl, wk.nummer, ewk.abs_stimmen
@@ -129,7 +130,8 @@ CREATE VIEW stimmen_qpartei_wahlkreis
          wahlkreis wk,
          nicht_qpartei nqp,
          zweitstimmen_wahlkreis zwk
-    WHERE zpw.wahlkreis = wk.wkid
+    WHERE wk.wahl = nqp.wahl
+      AND zpw.wahlkreis = wk.wkid
       AND zpw.partei = nqp.partei
       AND zpw.wahlkreis = zwk.wahlkreis
     GROUP BY wk.wahl, wk.nummer, zwk.abs_stimmen;

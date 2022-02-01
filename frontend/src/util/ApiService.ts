@@ -1,7 +1,7 @@
 import ServerError from "./ServerError";
-import {environment} from "../environments/environment.prod";
+import {environment} from "../environments/environment";
 
-const BASE_URL = environment.production ? "https://datenbanken-ws22.herokuapp.com/" :  "http://127.0.0.1:5000";
+const BASE_URL = environment.API_URL;
 console.log("API_URL:", BASE_URL);
 const URL_PREFIX = "/api/"
 

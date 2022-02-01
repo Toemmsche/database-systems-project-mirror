@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS bundestagswahl CASCADE;
 DROP TABLE IF EXISTS bundesland CASCADE;
 DROP TABLE IF EXISTS wahlkreis CASCADE;
+DROP TABLE IF EXISTS strukturdaten CASCADE;
 DROP TABLE IF EXISTS gemeinde CASCADE;
 DROP TABLE IF EXISTS partei CASCADE;
 DROP TABLE IF EXISTS kandidat CASCADE;
@@ -32,16 +33,57 @@ CREATE TABLE bundesland
 
 CREATE TABLE wahlkreis
 (
-    nummer            INTEGER                                    NOT NULL,
-    name              VARCHAR(100)                               NOT NULL,
-    land              INTEGER REFERENCES bundesland (landid)     NOT NULL,
-    wahl              INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
-    deutsche          INTEGER                                    NOT NULL,
-    begrenzung        TEXT                                       NOT NULL,
-    arbeitslosenquote DECIMAL                                    NOT NULL,
-    wkid              SERIAL PRIMARY KEY,
+    nummer     INTEGER                                    NOT NULL,
+    name       VARCHAR(100)                               NOT NULL,
+    land       INTEGER REFERENCES bundesland (landid)     NOT NULL,
+    wahl       INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
+    deutsche   INTEGER                                    NOT NULL,
+    begrenzung TEXT                                       NOT NULL,
+    wkid       SERIAL PRIMARY KEY,
     UNIQUE (nummer, wahl),
     UNIQUE (name, wahl)
+);
+
+CREATE TABLE strukturdaten
+(
+    wahlkreis                                                      INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
+    auslaenderanteil                                               DECIMAL                             NOT NULL,
+    bevoelkerungsdichte                                            DECIMAL                             NOT NULL,
+    bevoelkerungsveraenderung_pro_1000_ew                          DECIMAL                             NOT NULL,
+    altersanteil_unter_18                                          DECIMAL                             NOT NULL,
+    altersanteil_18_bis_24                                         DECIMAL                             NOT NULL,
+    altersanteil_25_bis_34                                         DECIMAL                             NOT NULL,
+    altersanteil_35_bis_59                                         DECIMAL                             NOT NULL,
+    altersanteil_60_bis_74                                         DECIMAL                             NOT NULL,
+    altersanteil_ueber_74                                          DECIMAL                             NOT NULL,
+    bodenflaechenanteil_siedlung_verkehr                           DECIMAL,
+    bodenflaechenanteil_vegation_gewaesser                         DECIMAL,
+    wohnungen_pro_1000_ew                                          DECIMAL                             NOT NULL,
+    wohnflaeche_pro_wohnung                                        DECIMAL,
+    wohnflaeche_pro_ew                                             DECIMAL,
+    pkw_bestand_pro_1000_ew                                        DECIMAL                             NOT NULL,
+    pkw_anteil_elektro_hybrid                                      DECIMAL,
+    unternehmen_pro_1000_ew                                        DECIMAL                             NOT NULL,
+    handwerksunternehmen_pro_1000_ew                               DECIMAL                             NOT NULL,
+    schulabgaenger_beruflich_pro_1000_ew                           DECIMAL,
+    schulabgaenger_allgemeinbildend_pro_1000_ew                    DECIMAL                             NOT NULL,
+    schulabgaengeranteil_allgemeinbildend_ohne_hauptschulabschluss DECIMAL                             NOT NULL,
+    schulabgaengeranteil_allgemeinbildend_hauptschulabschluss      DECIMAL                             NOT NULL,
+    schulabgaengeranteil_allgemeinbildend_mittlerer_schulabschluss DECIMAL                             NOT NULL,
+    schulabgaengeranteil_allgemeinbildend_hochschulreife           DECIMAL                             NOT NULL,
+    einkommen_pro_ew                                               DECIMAL                             NOT NULL,
+    bip_pro_ew                                                     DECIMAL                             NOT NULL,
+    beschaeftigte_pro_1000_ew                                      DECIMAL                             NOT NULL,
+    beschaeftigtenanteil_landwirtschaft_forstwirtschaft_fischerei  DECIMAL,
+    beschaeftigtenanteil_produzierendes_gewerbe                    DECIMAL,
+    beschaeftigtenanteil_handel_gastgewerbe_verkehr                DECIMAL,
+    beschaeftigtenanteil_dienstleister                             DECIMAL,
+    leistungsempfaenger_pro_1000_ew                                DECIMAL                             NOT NULL,
+    arbeitslosenquote                                              DECIMAL                             NOT NULL,
+    arbeitslosenquote_maenner                                      DECIMAL                             NOT NULL,
+    arbeitslosenquote_frauen                                       DECIMAL                             NOT NULL,
+    arbeitslosenquote_15_bis_24                                    DECIMAL,
+    arbeitslosenquote_55_bis_64                                    DECIMAL                             NOT NULL
 );
 
 CREATE TABLE gemeinde

@@ -14,25 +14,10 @@ logging.root.setLevel(logging.NOTSET)
 logger = logging.getLogger('DB')
 
 
-def reset_aggregates(cursor: psycopg.cursor, wahl: str, wknr: str):
+def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int):
     # recalculate aggregate
-    exec_sql_statement(
-        cursor,
-        f"""
-                UPDATE direktkandidatur
-                        SET anzahlstimmen =
-                                (SELECT COUNT(*)
-                                FROM erststimme e
-                                WHERE e.kandidatur = direktid)    
-                        WHERE wahlkreis = (
-                            SELECT wk.wkid
-                            FROM wahlkreis wk
-                            WHERE wk.nummer = {wknr}
-                            AND wk.wahl = {wahl}
-                        )
-                """
-        , 'ResetAggregates.sql'
-    )
+    exec_sql_statement(cursor, f"SELECT reset_stimmen_aggregat({wahl}, {wknr})", 'ResetAggregate.sql')
+    logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
 
 
 def exec_sql_statement(cursor: psycopg.cursor, script: str, script_name: str) -> None:
@@ -88,15 +73,22 @@ def download_csv(url: str, delimiter=',', encoding='utf-8-sig', skip=0) -> list[
     return parse_csv(content, delimiter, skip)
 
 
-def parse_float_de(str: str) -> float:
-    return float(str.replace('.', '').replace(',', '.'))
+def parse_float_de(str: str) -> float or None:
+    try:
+        return float(str.replace('.', '').replace(',', '.'))
+    except:
+        return None
 
 
 def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dict]:
-    kwargs_str = " AND ".join([key + " = " + value for key, value in kwargs.items()])
-    if len(kwargs) > 0:
-        kwargs_str = "WHERE " + kwargs_str
-    query = f"SELECT * FROM {table} {kwargs_str}"
+    # check if table is a query
+    if 'query' in kwargs:
+        query = kwargs['query']
+    else:
+        kwargs_str = " AND ".join([key + " = " + value for key, value in kwargs.items()])
+        if len(kwargs) > 0:
+            kwargs_str = "WHERE " + kwargs_str
+        query = f"SELECT * FROM {table} {kwargs_str}"
 
     res = cursor.execute(query).fetchall()
 

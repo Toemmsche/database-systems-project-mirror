@@ -40,9 +40,10 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import { DatenComponent } from './daten/daten.component';
 import { StimmabgabeComponent } from './stimmabgabe/stimmabgabe.component';
 import {MatExpansionModule} from "@angular/material/expansion";
-import { AQVergleichComponent } from './stat/aqvergleich/aqvergleich.component';
 import {MatInputModule} from "@angular/material/input";
 import {MatIconModule} from "@angular/material/icon";
+import { StrukturdatenComponent } from './stat/strukturdaten/strukturdaten.component';
+import { SvgKarteComponent } from './karte/svg-karte/svg-karte.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import {MatIconModule} from "@angular/material/icon";
     WahlkreislisteComponent,
     DatenComponent,
     StimmabgabeComponent,
-    AQVergleichComponent
+    StrukturdatenComponent,
+    SvgKarteComponent
   ],
   imports: [
     BrowserModule,

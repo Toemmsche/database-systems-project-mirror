@@ -5,6 +5,7 @@ import {Wahlkreis} from "../../../model/Walhkreis";
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {sortWithSonstige} from "../../../util/ArrayHelper";
 
 @Component({
   selector   : 'app-wahlkreis',
@@ -101,14 +102,7 @@ export class WahlkreisComponent implements OnInit {
     REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
-        data = data.sort((a, b) => {
-          if (a.partei == 'Sonstige') {
-            return 1;
-          } else if (b.partei == 'Sonstige') {
-            return -1;
-          }
-          return b.abs_stimmen - a.abs_stimmen;
-        });
+        data = data.sort(sortWithSonstige);
 
         // Populate bar chart
         const esData = data.filter(pe => pe.stimmentyp == 1);

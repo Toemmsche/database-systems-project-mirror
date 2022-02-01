@@ -11,13 +11,7 @@
       <mat-button-toggle [value]="2">Zweitstimme</mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-  <svg *ngIf="bDataLoaded()" height="500" width="1000">
-    <a *ngFor="let b of bData" routerLink="/Daten/Wahlkreis/{{b.wk_nummer}}">
-      <path #begrenzung class="begrenzung" [attr.d]="b.begrenzung" id="karte_{{b.wk_nummer}}">
-        <title>{{b.wk_nummer}} - {{b.wk_name}}</title>
-      </path>
-    </a>
-  </svg>
+  <app-svg-karte *ngIf="bDataLoaded()" [bData]="bData"></app-svg-karte>
 </div>
 <mat-spinner *ngIf="!wksLoaded()"></mat-spinner>
 

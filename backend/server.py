@@ -1,7 +1,9 @@
 from flask import Flask, abort, request
 from flask_cors import CORS
 from psycopg_pool import ConnectionPool
+
 from logic.config import conn_string
+from logic.metrics import *
 from logic.util import *
 
 app = Flask("db-backend")
@@ -9,6 +11,7 @@ CORS(app)
 
 # new database connection pool
 conn_pool = ConnectionPool(conn_string)
+
 
 @app.route("/api/", methods=['GET'])
 def sayHello():
@@ -45,19 +48,37 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:  # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
-            reset_aggregates(cursor, wahl, wknr)
+            reset_aggregates(cursor, int(wahl), int(wknr))
         return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wk_nummer=wknr, single=True)
 
 
 @app.route("/api/<wahl>/wahlkreis/<wknr>/stimmen", methods=['GET'])
-def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
+def get_wahlkreisergebnis_stimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
-            reset_aggregates(cursor, wahl, wknr)
+            reset_aggregates(cursor, int(wahl), int(wknr))
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis', wahl=wahl, wk_nummer=wknr)
+
+
+@app.route("/api/<wahl>/zweitstimmen_aggregiert", methods=['POST'])
+def get_zweitstimmen(wahl: str):
+    wahlkreise = request.json
+    if not valid_wahl(wahl) or any([not valid_wahlkreis(wknr) for wknr in wahlkreise]):
+        abort(404)
+
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        # if specified, reset aggregates
+        if request.args.get('einzelstimmen') == 'true':
+            for wknr in wahlkreise:
+                reset_aggregates(cursor, int(wahl), int(wknr))
+        strIds = ', '.join(map(str, wahlkreise))
+        return table_to_json(
+            cursor,
+            f"zweitstimmen_aggregiert({wahl}, '{{ {strIds} }}')"
+        )  # postgres integer array initializer
 
 
 @app.route("/api/<wahl>/wahlkreissieger", methods=['GET'])
@@ -214,6 +235,21 @@ def cast_vote(wknr: str):
                     err_str = f"Invalid second vote for wahlkreis {wknr}: {str(zweitstimme)}"
                     logger.error(err_str)
         return 'processed\n'
+
+
+@app.route("/api/<wahl>/rangliste", methods=['GET'])
+def get_metriken(wahl: str):
+    if not valid_wahl(wahl):
+        abort(404)
+    return all_metrics_to_json(int(wahl))
+
+
+@app.route("/api/<wahl>/rangliste/<metrik>", methods=['GET'])
+def get_metrik(wahl: str, metrik: str):
+    if not valid_wahl(wahl) or not valid_metrik(metrik):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return get_wahlkreise_ranked_by_metric(cursor, int(wahl), metrik)
 
 
 if __name__ == '__main__':

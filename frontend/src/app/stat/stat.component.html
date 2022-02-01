@@ -1,4 +1,4 @@
-<mat-accordion>
+<mat-accordion multi="true">
   <mat-expansion-panel hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title>
@@ -32,16 +32,24 @@
     </mat-expansion-panel-header>
     <app-knapp></app-knapp>
   </mat-expansion-panel>
-  <mat-expansion-panel hideToggle>
+  <mat-expansion-panel *ngFor="let comp of vergleichComponents; let i = index;" hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title>
-        Vergleich: Hohe vs. niedrige Arbeitslosenquote
+        <div class="vergleich-expansion-panel-header">
+          <div>Vergleich mit Strukturdaten</div>
+          <div>
+            <button mat-icon-button (click)="vergleichComponents.splice(i, 1);">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
       </mat-panel-title>
       <mat-panel-description>
-        Zweitstimmenergebnis der Bundestagsparteien in den 10 Wahlkreisen mit der höchsten bzw. niedrigsten
-        Arbeitslosenquote
+        Zweitstimmenergebnis der Bundestagsparteien in den N Wahlkreisen mit dem höchsten bzw. niedrigsten
+        Wert für eine Strukturdatenmetrik
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <app-aqvergleich></app-aqvergleich>
+    <app-strukturdaten></app-strukturdaten>
   </mat-expansion-panel>
 </mat-accordion>
+<button id="add-vergleich-btn" color="primary" mat-raised-button (click)="vergleichComponents.push(vergleichComponents.length);">Neuer Vergleich</button>

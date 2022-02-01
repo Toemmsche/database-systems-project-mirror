@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AQVergleichComponent } from './aqvergleich.component';
+import { SvgKarteComponent } from './svg-karte.component';
 
-describe('AQVergleichComponent', () => {
-  let component: AQVergleichComponent;
-  let fixture: ComponentFixture<AQVergleichComponent>;
+describe('SvgKarteComponent', () => {
+  let component: SvgKarteComponent;
+  let fixture: ComponentFixture<SvgKarteComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AQVergleichComponent ]
+      declarations: [ SvgKarteComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AQVergleichComponent);
+    fixture = TestBed.createComponent(SvgKarteComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
