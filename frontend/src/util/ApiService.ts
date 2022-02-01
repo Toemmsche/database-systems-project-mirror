@@ -1,7 +1,9 @@
 import ServerError from "./ServerError";
+import {environment} from "../environments/environment.prod";
 
-const BASE_URL = 'http://127.0.0.1:5000'
-const URL_PREFIX = '/api/'
+const BASE_URL = environment.production ? "https://datenbanken-ws22.herokuapp.com/" :  "http://127.0.0.1:5000";
+console.log("API_URL:", BASE_URL);
+const URL_PREFIX = "/api/"
 
 export enum HttpMethod {
   POST = "POST",

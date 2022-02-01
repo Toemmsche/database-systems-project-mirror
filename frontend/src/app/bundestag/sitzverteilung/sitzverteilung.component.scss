@@ -1,9 +1,4 @@
-@import "~@angular/material/theming";
-@import "../../../theme_variables.scss";
-
-
 #mdb-btn {
-  background: mat-color($primaryPalette);
   color: white;
   width: 20%;
   transform: translateY(-50px);
