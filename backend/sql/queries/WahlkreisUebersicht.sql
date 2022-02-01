@@ -26,7 +26,7 @@ CREATE VIEW wahlkreisinformation
     GROUP BY wk.wahl, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche;
 
 CREATE VIEW stimmen_qpartei_wahlkreis_rich
-    (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
+            (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
     WITH erststimmen_wahlkreis(wahlkreis, abs_stimmen) AS
              (SELECT dk.wahlkreis,
                      SUM(dk.anzahlstimmen) AS abs_stimmen
@@ -44,7 +44,7 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
              (SELECT btw.nummer, p.parteiid
               FROM bundestagswahl btw,
                    partei p
-                  EXCEPT
+              EXCEPT
               SELECT *
               FROM qpartei),
          erststimmen_partei_wahlkreis(wahlkreis, partei, abs_stimmen) AS
@@ -86,13 +86,14 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
            wk.nummer,
            'Sonstige',
            'DDDDDD',
-           SUM(epw.abs_stimmen) AS abs_stimmen,
+           SUM(epw.abs_stimmen)                            AS abs_stimmen,
            SUM(epw.abs_stimmen)::decimal / ewk.abs_stimmen AS rel_stimmen
     FROM erststimmen_partei_wahlkreis epw,
          wahlkreis wk,
          nicht_qpartei nqp,
          erststimmen_wahlkreis ewk
-    WHERE epw.wahlkreis = wk.wkid
+    WHERE wk.wahl = nqp.wahl
+      AND epw.wahlkreis = wk.wkid
       AND epw.partei = nqp.partei
       AND epw.wahlkreis = ewk.wahlkreis
     GROUP BY wk.wahl, wk.nummer, ewk.abs_stimmen
@@ -100,8 +101,8 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
     SELECT 2,
            wk.wahl,
            wk.nummer,
-           p.kuerzel AS partei,
-           p.farbe   AS partei_farbe,
+           p.kuerzel                                  AS partei,
+           p.farbe                                    AS partei_farbe,
            zpw.abs_stimmen,
            zpw.abs_stimmen::decimal / zwk.abs_stimmen AS rel_stimmen
     FROM zweitstimmen_partei_wahlkreis zpw,
@@ -120,13 +121,14 @@ CREATE VIEW stimmen_qpartei_wahlkreis_rich
            wk.nummer,
            'Sonstige',
            'DDDDDD',
-           SUM(zpw.abs_stimmen) AS abs_stimmen,
+           SUM(zpw.abs_stimmen)                            AS abs_stimmen,
            SUM(zpw.abs_stimmen)::decimal / zwk.abs_stimmen AS rel_stimmen
     FROM zweitstimmen_partei_wahlkreis zpw,
          wahlkreis wk,
          nicht_qpartei nqp,
          zweitstimmen_wahlkreis zwk
-    WHERE zpw.wahlkreis = wk.wkid
+    WHERE wk.wahl = nqp.wahl
+      AND zpw.wahlkreis = wk.wkid
       AND zpw.partei = nqp.partei
       AND zpw.wahlkreis = zwk.wahlkreis
     GROUP BY wk.wahl, wk.nummer, zwk.abs_stimmen;
