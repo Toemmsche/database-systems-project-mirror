@@ -5,7 +5,7 @@
       <mat-select (selectionChange)="updateFiltered()" [(ngModel)]="istSiegFilter">
         <mat-option value="Beide">
           Beide
-        </mat-option>        
+        </mat-option>
         <mat-option value="Sieg">
           Sieg
         </mat-option>
@@ -37,25 +37,36 @@
 
   <table id="knapp-table" mat-table *ngIf="knappLoaded()" [dataSource]="filteredKnappData" class="mat-elevation-z8">
     <ng-container matColumnDef="sieger-partei">
-      <th mat-header-cell *matHeaderCellDef>Siegerpartei</th>
+      <th mat-header-cell *matHeaderCellDef>Siegerpartei (SP)</th>
       <td mat-cell *matCellDef="let row"> {{row.sieger_partei}} </td>
     </ng-container>
+    <ng-container matColumnDef="stimmen-sieger-partei">
+      <th mat-header-cell *matHeaderCellDef>Stimmen SP</th>
+      <td mat-cell *matCellDef="let row"> {{row.anzahlstimmen_sieger}} </td>
+    </ng-container>
     <ng-container matColumnDef="verlierer-partei">
-      <th mat-header-cell *matHeaderCellDef>Verliererpartei</th>
+      <th mat-header-cell *matHeaderCellDef>Verliererpartei (VP)</th>
       <td mat-cell *matCellDef="let row"> {{row.verlierer_partei}} </td>
+    </ng-container>
+    <ng-container matColumnDef="stimmen-verlierer-partei">
+      <th mat-header-cell *matHeaderCellDef>Stimmen VP</th>
+      <td mat-cell *matCellDef="let row"> {{row.anzahlstimmen_verlierer}} </td>
     </ng-container>
     <ng-container matColumnDef="wahlkreis">
       <th mat-header-cell *matHeaderCellDef>Wahlkreis</th>
       <td mat-cell *matCellDef="let row">{{row.wk_name}} </td>
     </ng-container>
     <ng-container matColumnDef="differenz-stimmen">
-      <th mat-header-cell *matHeaderCellDef>Vorsprung bzw. Rückstand (Stimmen)</th>
-      <td mat-cell *matCellDef="let row"> {{row.differenz_stimmen}} </td>
+      <th mat-header-cell *matHeaderCellDef>Differenz (Stimmen)</th>
+      <td mat-cell *matCellDef="let row"> {{row.is_sieg ? '+' : '-'}}{{row.differenz_stimmen}} </td>
+    </ng-container>
+    <ng-container matColumnDef="differenz-relativ">
+      <th mat-header-cell *matHeaderCellDef>Differenz (relativ)</th>
+      <td mat-cell *matCellDef="let row"> {{row.differenz_stimmen / (row.is_sieg ? row.anzahlstimmen_sieger : row.anzahlstimmen_verlierer) | number: '1.3-3'}}%</td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
     <tr mat-row class="row-hover" *matRowDef="let row; columns: columnsToDisplay" [routerLink]="'/Daten/Wahlkreis/' + row.wk_nummer"
         [ngStyle]="{'background':  (row.is_sieg ? '#00FF0040' : '#FF000040'  )}"></tr>
-
   </table>
 </div>
 <mat-spinner *ngIf="!knappLoaded()"></mat-spinner>

@@ -16,7 +16,10 @@ export class KnappComponent implements OnInit, OnDestroy {
     'sieger-partei',
     'verlierer-partei',
     'wahlkreis',
-    'differenz-stimmen'
+    'stimmen-sieger-partei',
+    'stimmen-verlierer-partei',
+    'differenz-stimmen',
+    'differenz-relativ'
   ];
   siegerParteien !: Set<string>;
   siegerParteiFilter: string = "Alle";

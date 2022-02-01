@@ -1,7 +1,7 @@
 DROP VIEW IF EXISTS knappste_siege_oder_niederlagen CASCADE;
 
 CREATE VIEW knappste_siege_oder_niederlagen
-            (is_sieg, wahl, wk_nummer, wk_name, sieger_partei, verlierer_partei, differenz_stimmen) AS
+            (is_sieg, wahl, wk_nummer, wk_name, sieger_partei, verlierer_partei, anzahlstimmen_sieger, anzahlstimmen_verlierer, differenz_stimmen) AS
     WITH direktkandidatur_nummeriert(partei, wahlkreis, kandidatur, anzahlstimmen, wk_rang) AS
              (SELECT dk.partei,
                      dk.wahlkreis,
@@ -20,7 +20,7 @@ CREATE VIEW knappste_siege_oder_niederlagen
               WHERE dkn.wahlkreis = wk.wkid
                 AND dkn.wk_rang = 1),
          vorsprung_direktmandat_nummeriert
-             (wahl, sieger_kandidatur, sieger_partei, verlierer_kandidatur, verlierer_partei, differenz_stimmen,
+             (wahl, sieger_kandidatur, sieger_partei, verlierer_kandidatur, verlierer_partei, anzahlstimmen_sieger, anzahlstimmen_verlierer, differenz_stimmen,
               wk_rang)
              AS
              (SELECT dm.wahl,
@@ -28,6 +28,8 @@ CREATE VIEW knappste_siege_oder_niederlagen
                      dm.partei,
                      dkn.kandidatur,
                      dkn.partei,
+                     dm.anzahlstimmen AS anzahlstimmen_sieger,
+                     dkn.anzahlstimmen AS anzahlstimmen_verlierer,
                      dm.anzahlstimmen - dkn.anzahlstimmen,
                      dkn.wk_rang
               FROM direktkandidatur_nummeriert dkn,
@@ -41,7 +43,7 @@ CREATE VIEW knappste_siege_oder_niederlagen
               FROM vorsprung_direktmandat_nummeriert vdn
               WHERE vdn.wk_rang = 2),
          kleinster_vorsprung_partei
-             (wahl, sieger_kandidatur, sieger_partei, verlierer_kandidatur, verlierer_partei, differenz_stimmen,
+             (wahl, sieger_kandidatur, sieger_partei, verlierer_kandidatur, verlierer_partei, anzahlstimmen_sieger, anzahlstimmen_verlierer, differenz_stimmen,
               wk_rang, knappheit_rang)
              AS
              (SELECT *
@@ -53,7 +55,7 @@ CREATE VIEW knappste_siege_oder_niederlagen
                      OVER (PARTITION BY vdn.wahl, vdn.verlierer_partei ORDER BY vdn.differenz_stimmen ASC) AS knappheit_rang
               FROM vorsprung_direktmandat_nummeriert vdn),
          kleinster_rueckstand_partei
-             (wahl, sieger_kandidatur, sieger_partei, verlierer_kandidatur, verlierer_partei, differenz_stimmen,
+             (wahl, sieger_kandidatur, sieger_partei, verlierer_kandidatur, verlierer_partei, anzahlstimmen_sieger, anzahlstimmen_verlierer, differenz_stimmen,
               wk_rang, knappheit_rang)
              AS
              (SELECT *
@@ -66,7 +68,7 @@ CREATE VIEW knappste_siege_oder_niederlagen
                   EXCEPT
               SELECT DISTINCT dm.wahl, dm.partei
               FROM direktmandat_stimmen dm)
-    SELECT TRUE, kvp.wahl, wk.nummer, wk.name, sp.kuerzel, vp.kuerzel, kvp.differenz_stimmen
+    SELECT TRUE, kvp.wahl, wk.nummer, wk.name, sp.kuerzel, vp.kuerzel, kvp.anzahlstimmen_sieger, kvp.anzahlstimmen_verlierer, kvp.differenz_stimmen
     FROM kleinster_vorsprung_partei kvp,
          partei sp,
          partei vp,
@@ -77,7 +79,7 @@ CREATE VIEW knappste_siege_oder_niederlagen
       AND kvp.sieger_kandidatur = dk.direktid
       AND dk.wahlkreis = wk.wkid
     UNION
-    SELECT FALSE, krp.wahl, wk.nummer, wk.name, sp.kuerzel, vp.kuerzel, krp.differenz_stimmen
+    SELECT FALSE, krp.wahl, wk.nummer, wk.name, sp.kuerzel, vp.kuerzel, krp.anzahlstimmen_sieger, krp.anzahlstimmen_verlierer, krp.differenz_stimmen
     FROM kleinster_rueckstand_partei krp,
          partei sp,
          partei_ohne_direktmandat pod,
