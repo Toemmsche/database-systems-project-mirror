@@ -1,5 +1,5 @@
 DROP VIEW IF EXISTS wahlkreisinformation CASCADE;
-DROP VIEW IF EXISTS stimmen_qpartei_wahlkreis_rich CASCADE;
+DROP VIEW IF EXISTS stimmen_qpartei_wahlkreis CASCADE;
 
 CREATE VIEW wahlkreisinformation
             (wahl, land, wk_nummer, wk_name, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
@@ -28,7 +28,7 @@ CREATE VIEW wahlkreisinformation
       AND wk.land = bl.landid
     GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche, use.anzahlstimmen;
 
-CREATE VIEW stimmen_qpartei_wahlkreis_rich
+CREATE VIEW stimmen_qpartei_wahlkreis
             (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
     WITH erststimmen_wahlkreis(wahlkreis, abs_stimmen) AS
              (SELECT dk.wahlkreis,

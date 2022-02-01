@@ -57,7 +57,7 @@ def get_wahlkreisergebnis_erststimmen(wahl: str, wknr: str):
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
             reset_aggregates(cursor, wahl, wknr)
-        return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl, wk_nummer=wknr)
+        return table_to_json(cursor, 'stimmen_qpartei_wahlkreis', wahl=wahl, wk_nummer=wknr)
 
 
 @app.route("/api/<wahl>/wahlkreissieger", methods=['GET'])
@@ -116,7 +116,7 @@ def get_wahlkreisergebnisse(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        return table_to_json(cursor, 'stimmen_qpartei_wahlkreis_rich', wahl=wahl)
+        return table_to_json(cursor, 'stimmen_qpartei_wahlkreis', wahl=wahl)
 
 
 # Voting is only available for the latest election
