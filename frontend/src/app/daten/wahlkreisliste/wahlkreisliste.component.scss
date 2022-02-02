@@ -7,7 +7,6 @@
   align-items: center;
 }
 
-
 #wahlkreis-selection {
   display: flex;
   flex-direction: column;
@@ -17,4 +16,23 @@
 
 #wahlkreis-list {
   width: 100%;
+}
+
+.wahlkreis-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 40px;
+  margin: 5px;
+}
+
+.begrenzung-container {
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 100px;
+}
+
+.wahlkreis-name {
+  flex-grow: 1;
+  flex-shrink: 0;
 }

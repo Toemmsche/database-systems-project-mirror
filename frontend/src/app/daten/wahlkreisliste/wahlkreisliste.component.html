@@ -10,8 +10,14 @@
     </mat-select>
   </mat-form-field>
   <mat-nav-list id="wahlkreis-list">
-    <a mat-list-item href="{{routePrefix + wk.wk_nummer}}" *ngFor="let wk of filteredWahlkreise"> {{ wk.wk_nummer }}-{{wk.wk_name}}</a>
+    <div mat-list-item *ngFor="let wk of filteredWahlkreise">
+      <a href="{{routePrefix + wk.wk_nummer}}">
+        <div class="wahlkreis-container">
+          <app-begrenzung class="begrenzung-container" [svgPath]="wk.wk_begrenzung" [height]="40"></app-begrenzung>
+          <div class="wahlkreis-name"> {{ wk.wk_nummer }} - {{wk.wk_name}} </div>
+        </div>
+      </a>
+    </div>
   </mat-nav-list>
 </div>
 <mat-spinner *ngIf="!wahlkreiseLoaded()"></mat-spinner>
-
