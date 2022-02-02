@@ -1,16 +1,17 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, Input, OnInit} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
 import {REST_GET} from "../../../util/ApiService";
 import {Wahlkreis} from "../../../model/Walhkreis";
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {sortWithSonstige} from "../../../util/ArrayHelper";
+import ServerError from "../../../util/ServerError";
 
 @Component({
-  selector   : 'app-wahlkreis',
-  templateUrl: './wahlkreis.component.html',
-  styleUrls  : ['./wahlkreis.component.scss']
+  selector   : "app-wahlkreis",
+  templateUrl: "./wahlkreis.component.html",
+  styleUrls  : ["./wahlkreis.component.scss"]
 })
 export class WahlkreisComponent implements OnInit {
 
@@ -22,7 +23,7 @@ export class WahlkreisComponent implements OnInit {
 
   erststimmenergebnisse !: Array<ParteiErgebnis>;
   erststimmenConfig = {
-    type   : 'bar',
+    type   : "bar",
     data   : {
       labels  : [] as Array<string>,
       datasets: [
@@ -49,7 +50,7 @@ export class WahlkreisComponent implements OnInit {
 
   zweitstimmenergebnisse !: Array<ParteiErgebnis>;
   zweitstimmenConfig = {
-    type   : 'bar',
+    type   : "bar",
     data   : {
       labels  : [] as Array<string>,
       datasets: [
@@ -89,7 +90,7 @@ export class WahlkreisComponent implements OnInit {
 
   ngOnInit(): void {
     // Get wahlkreis nummer
-    this.nummer = parseInt(<string>this.route.snapshot.paramMap.get('nummer'));
+    this.nummer = parseInt(<string>this.route.snapshot.paramMap.get("nummer"));
     this.populate();
   }
 
@@ -98,7 +99,16 @@ export class WahlkreisComponent implements OnInit {
       .then(response => response.json())
       .then((data: Wahlkreis) => {
         this.wahlkreis = data;
-      });
+      })
+      .catch((error) => {
+      if (error instanceof ServerError) {
+        window.alert("Einzelstimmen liegen nicht vor");
+        // Simulate toggle back
+        this.useEinzelstimmen = false;
+        this.onEinzelstimmenToggleChanged();
+      }
+    });
+
     REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
@@ -109,7 +119,7 @@ export class WahlkreisComponent implements OnInit {
         const esChartData = this.erststimmenConfig.data;
         esChartData.labels = esData.map((result) => result.partei);
         esChartData.datasets[0].data = esData.map((result) => result.abs_stimmen);
-        esChartData.datasets[0].backgroundColor = esData.map((result) => '#' +
+        esChartData.datasets[0].backgroundColor = esData.map((result) => "#" +
           result.partei_farbe);
 
         // Save for later
@@ -120,11 +130,15 @@ export class WahlkreisComponent implements OnInit {
         const zsChartData = this.zweitstimmenConfig.data;
         zsChartData.labels = zsData.map((result) => result.partei);
         zsChartData.datasets[0].data = zsData.map((result) => result.abs_stimmen);
-        zsChartData.datasets[0].backgroundColor = zsData.map((result) => '#' +
+        zsChartData.datasets[0].backgroundColor = zsData.map((result) => "#" +
           result.partei_farbe);
 
         // Save for later
         this.zweitstimmenergebnisse = zsData;
+      })
+
+      .catch((error) => {
+        // ServerErrors due to impossible aggregate reset are caught earlier
       });
   }
 
@@ -136,12 +150,7 @@ export class WahlkreisComponent implements OnInit {
       this.zweitstimmenergebnisse.length > 0;
   }
 
-  onEinzelstimmenToggleChanged(event: MatSlideToggleChange) {
-    if (this.nummer != 222 || this.wahl != 20) {
-      window.alert("Einzelstimmen liegen nicht vor")
-      return;
-    }
-    this.useEinzelstimmen = event.checked;
+  onEinzelstimmenToggleChanged() {
     this.erststimmenergebnisse = [];
     this.zweitstimmenergebnisse = [];
     this.ngOnInit();

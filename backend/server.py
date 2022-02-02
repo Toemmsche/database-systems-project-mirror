@@ -48,7 +48,10 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:  # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
-            reset_aggregates(cursor, int(wahl), int(wknr))
+            if not reset_aggregates(cursor, int(wahl), int(wknr)):
+                err_str = f"Could not reset aggregates for wahlkreis {wknr} in wahl {wahl}"
+                logger.error(err_str)
+                abort(409)  # conflict
         return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wk_nummer=wknr, single=True)
 
 
@@ -59,25 +62,24 @@ def get_wahlkreisergebnis_stimmen(wahl: str, wknr: str):
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         # if specified, reset aggregates
         if request.args.get('einzelstimmen') == 'true':
-            reset_aggregates(cursor, int(wahl), int(wknr))
+            if not reset_aggregates(cursor, int(wahl), int(wknr)):
+                err_str = f"Could not reset aggregates for wahlkreis {wknr} in wahl {wahl}"
+                logger.error(err_str)
+                abort(409)  # conflict
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis', wahl=wahl, wk_nummer=wknr)
 
 
 @app.route("/api/<wahl>/zweitstimmen_aggregiert", methods=['POST'])
-def get_zweitstimmen(wahl: str):
+def get_zweitstimmen_aggregiert(wahl: str):
     wahlkreise = request.json
     if not valid_wahl(wahl) or any([not valid_wahlkreis(wknr) for wknr in wahlkreise]):
         abort(404)
 
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        # if specified, reset aggregates
-        if request.args.get('einzelstimmen') == 'true':
-            for wknr in wahlkreise:
-                reset_aggregates(cursor, int(wahl), int(wknr))
-        strIds = ', '.join(map(str, wahlkreise))
-        return table_to_json(
+        ids_string = ', '.join(map(str, wahlkreise))
+        return exec_sql_function_to_json(
             cursor,
-            f"zweitstimmen_aggregiert({wahl}, '{{ {strIds} }}')"
+            "zweitstimmen_aggregiert", (wahl, ids_string)
         )  # postgres integer array initializer
 
 

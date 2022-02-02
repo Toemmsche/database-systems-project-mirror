@@ -14,10 +14,17 @@ logging.root.setLevel(logging.NOTSET)
 logger = logging.getLogger('DB')
 
 
-def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int):
+def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int) -> bool:
+    '''
+    Returns True if the reset was successfull or False if the reset was impossible, usually because not all votes
+    for this constituency have been
+    '''
     # recalculate aggregate
-    exec_sql_statement(cursor, f"SELECT reset_stimmen_aggregat({wahl}, {wknr})", 'ResetAggregate.sql')
-    logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
+    function_name = "reset_stimmen_aggregat"
+    success = exec_sql_function_to_dict_list(cursor, function_name, (wahl, wknr))[0][function_name]
+    if success:
+        logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
+    return success
 
 
 def exec_sql_statement(cursor: psycopg.cursor, script: str, script_name: str) -> None:
@@ -29,8 +36,18 @@ def exec_sql_statement_from_file(cursor: psycopg.cursor, path: str) -> None:
         exec_sql_statement(cursor, script.read(), path)
 
 
+def exec_sql_function_to_dict_list(cursor: psycopg.cursor, function_name: str, params: tuple) -> list[dict]:
+    param_string = ', '.join(map(str, params))
+    return table_to_dict_list(cursor, "", query=f"SELECT {function_name}({param_string})")
+
+
+def exec_sql_function_to_json(cursor: psycopg.cursor, function_name: str, params: tuple) -> str:
+    param_string = ', '.join(map(str, params))
+    return table_to_json(cursor, "", query=f"SELECT {function_name}({param_string})")
+
+
 def get_column_names(cursor: psycopg.cursor, table: str) -> list[str]:
-    cursor.execute('SELECT * FROM %s' % table)
+    cursor.execute(f"SELECT * FROM {table}")
     col_names = [desc[0] for desc in cursor.description]
     return col_names
 
