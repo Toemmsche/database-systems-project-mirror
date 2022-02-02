@@ -60,12 +60,7 @@ def get_wahlkreisergebnis_stimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        # if specified, reset aggregates
-        if request.args.get('einzelstimmen') == 'true':
-            if not reset_aggregates(cursor, int(wahl), int(wknr)):
-                err_str = f"Could not reset aggregates for wahlkreis {wknr} in wahl {wahl}"
-                logger.error(err_str)
-                abort(409)  # conflict
+        # only check for reset aggregates in wahlkreis_information
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis', wahl=wahl, wk_nummer=wknr)
 
 
@@ -77,9 +72,9 @@ def get_zweitstimmen_aggregiert(wahl: str):
 
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         ids_string = ', '.join(map(str, wahlkreise))
-        return exec_sql_function_to_json(
+        return sql_function_to_json(
             cursor,
-            "zweitstimmen_aggregiert", (wahl, ids_string)
+            "zweitstimmen_aggregiert", (wahl, f"'{{ {ids_string} }}'")
         )  # postgres integer array initializer
 
 

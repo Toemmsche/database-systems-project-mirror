@@ -136,10 +136,6 @@ export class WahlkreisComponent implements OnInit {
         // Save for later
         this.zweitstimmenergebnisse = zsData;
       })
-
-      .catch((error) => {
-        // ServerErrors due to impossible aggregate reset are caught earlier
-      });
   }
 
   wahlkreisLoaded(): boolean {
