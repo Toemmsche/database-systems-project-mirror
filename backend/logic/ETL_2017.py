@@ -33,13 +33,16 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
             lambda row: (
                 partei_mapping[(row['Gruppenname'],)],
                 None,
-                None,
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
                 int(row['Anzahl'])
             ),
             ergebnisse_partei
         )
     )
+
+    # ========================================================================
+    # Parteilose Direktkandidaten
+    # ========================================================================
 
     ergebnisse_parteilos = list(
         filter(
@@ -50,19 +53,38 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
             ergebnisse
         )
     )
+
+    # insert party for each parteiloser direktkandidat
+    einzelbewerber_parteien = seq(ergebnisse_parteilos).map(
+        lambda row: (
+            True,  # is Einzelbewerber
+            f"WK-{int(row['Gebietsnummer'])}-{row['Gruppenname']}",
+            row['Gruppenname'],
+            False,
+            None,
+            'B07802',  # random color
+        )
+    ).to_set()
+
+    load_into_db(cursor, list(einzelbewerber_parteien), "partei")
+
+    # Reload partei mapping with 'name' and 'kuerzel'
+    partei_mapping = key_dict(cursor, 'partei', ('name', 'kuerzel'), 'parteiId')
+
     direktkandidaten_parteilos = list(
         map(
             lambda row: (
+                partei_mapping[(f"WK-{int(row['Gebietsnummer'])}-{row['Gruppenname']}", row['Gruppenname'])],
                 None,
-                row['Gruppenname'],
-                None,
-                wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
+                int(row['Gebietsnummer']),
                 int(row['Anzahl'])
             ),
             ergebnisse_parteilos
         )
     )
 
+    # Reload partei mapping with 'name' and 'kuerzel'
+    partei_mapping = key_dict(cursor, 'partei', ('name', 'kuerzel'), 'parteiId')
     load_into_db(
         cursor,
         direktkandidaten_partei + direktkandidaten_parteilos,

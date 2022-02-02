@@ -87,14 +87,16 @@ CREATE TABLE strukturdaten
 
 CREATE TABLE partei
 (
-
-    name                VARCHAR(100) UNIQUE NOT NULL,
+    ist_einzelbewerbung BOOLEAN      NOT NULL,
+    name                VARCHAR(200) NOT NULL,
     kuerzel             VARCHAR(40),
-    nationaleminderheit BOOLEAN             NOT NULL,
+    nationaleminderheit BOOLEAN      NOT NULL,
     gruendungsjahr      INTEGER,
     farbe               VARCHAR(6),
-    parteiid            SERIAL PRIMARY KEY
+    parteiid            SERIAL PRIMARY KEY,
+    UNIQUE (name, kuerzel)
 );
+
 CREATE TABLE kandidat
 (
 
@@ -112,12 +114,11 @@ CREATE TABLE kandidat
 
 CREATE TABLE direktkandidatur
 (
-    partei               INTEGER REFERENCES partei (parteiid),
-    parteilosgruppenname VARCHAR(200),
-    kandidat             INTEGER REFERENCES kandidat (kandid),
-    wahlkreis            INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
-    anzahlstimmen        INTEGER,
-    direktid             SERIAL PRIMARY KEY
+    partei        INTEGER REFERENCES partei (parteiid),
+    kandidat      INTEGER REFERENCES kandidat (kandid),
+    wahlkreis     INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
+    anzahlstimmen INTEGER,
+    direktid      SERIAL PRIMARY KEY
 );
 
 CREATE TABLE landesliste
