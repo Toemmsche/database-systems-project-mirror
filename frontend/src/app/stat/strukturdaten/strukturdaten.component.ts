@@ -90,6 +90,7 @@ export class StrukturdatenComponent implements OnInit {
     wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = wahlService.getWahlNumber(selection);
       this.metriken = [];
+      this.rangliste = [];
       this.populateMetriken();
       this.populateBegrenzungen();
     });
@@ -231,7 +232,7 @@ export class StrukturdatenComponent implements OnInit {
 
   getTooltipText(b: Begrenzung): string {
     const def = `${b.wk_nummer} - ${b.wk_name}`;
-    if (this.rangliste) {
+    if (this.rangliste && this.rangliste.length > 0) {
       const wahlkreis = this.rangliste.find(r => r.nummer == b.wk_nummer);
       return `${def} ${this.metrikFormControl.value.displayName}: ${wahlkreis!.metrik_wert}`;
     }
