@@ -10,7 +10,7 @@ def init_tables(cursor: psycopg.Cursor) -> None:
     # reset first
     exec_sql_statement_from_file(cursor, 'sql/init/init.sql')
     # indices
-    exec_sql_statement_from_file(cursor, 'sql/init/Indices.sql')
+    exec_sql_statement_from_file(cursor, 'sql/init/Indizes.sql')
 
 
     logger.info("Initialized tables and indices")
@@ -82,9 +82,9 @@ def init_data(cursor: psycopg.Cursor) -> None:
 
 def exec_util_queries(cursor: psycopg.Cursor):
     exec_sql_statement_from_file(cursor, 'sql/core/DivisorVerfahren.sql')
-    exec_sql_statement_from_file(cursor, 'sql/core/bundestag.sql')
+    exec_sql_statement_from_file(cursor, 'sql/core/Bundestag.sql')
     exec_sql_statement_from_file(cursor, 'sql/init/Triggers.sql')
-    exec_sql_statement_from_file(cursor, 'sql/core/bundestag_triggers.sql')
+    exec_sql_statement_from_file(cursor, 'sql/core/BundestagTriggers.sql')
     logger.info("Loaded utility views and triggers")
 
 
