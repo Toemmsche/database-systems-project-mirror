@@ -63,7 +63,8 @@ CREATE VIEW knappste_siege_oder_niederlagen
              (SELECT btw.nummer, p.parteiid
               FROM bundestagswahl btw,
                    partei p
-                  EXCEPT
+              WHERE NOT p.ist_einzelbewerbung --Einzelbewerbungen "verschmutzen" die Statistik
+              EXCEPT
               SELECT DISTINCT dm.wahl, dm.partei
               FROM direktmandat_stimmen dm)
     SELECT TRUE, kvp.wahl, wk.nummer, wk.name, sp.kuerzel, vp.kuerzel, kvp.differenz_stimmen
