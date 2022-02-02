@@ -19,7 +19,7 @@ WITH stimmen AS (
     FROM direktkandidatur dk,
          wahlkreis wk
     WHERE dk.wahlkreis = wk.wkid
-      AND wk.nummer = 222
+      AND wk.nummer IN (217, 218, 219, 220, 221)
       AND wk.wahl = 20
 )
 INSERT
@@ -35,7 +35,7 @@ WITH stimmen AS
           FROM zweitstimmenergebnis zse,
                wahlkreis wk
           WHERE zse.wahlkreis = wk.wkid
-            AND wk.nummer = 222
+            AND wk.nummer IN (217, 218, 219, 220, 221)
             AND wk.wahl = 20)
 INSERT
 INTO zweitstimme (liste, wahlkreis)
@@ -53,7 +53,7 @@ WITH stimmen AS
           FROM ungueltige_stimmen_ergebnis use,
                wahlkreis wk
           WHERE use.wahlkreis = wk.wkid
-            AND wk.nummer = 222
+            AND wk.nummer IN (217, 218, 219, 220, 221)
             AND wk.wahl = 20)
 INSERT
 INTO ungueltige_stimme (stimmentyp, wahlkreis)
