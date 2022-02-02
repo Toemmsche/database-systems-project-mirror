@@ -4,9 +4,9 @@ import logging
 import math
 from uuid import *
 
-import psycopg
+
 import requests
-import simplejson as json
+from logic.SQL_util import *
 
 # adjust logger config
 logging.basicConfig()
@@ -14,36 +14,17 @@ logging.root.setLevel(logging.NOTSET)
 logger = logging.getLogger('DB')
 
 
-def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int):
+def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int) -> bool:
+    '''
+    Returns True if the reset was successfull or False if the reset was impossible, usually because not all votes
+    for this constituency have been
+    '''
     # recalculate aggregate
-    exec_sql_statement(cursor, f"SELECT reset_stimmen_aggregat({wahl}, {wknr})", 'ResetAggregate.sql')
-    logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
-
-
-def exec_sql_statement(cursor: psycopg.cursor, script: str, script_name: str) -> None:
-    cursor.execute(script)
-
-
-def exec_sql_statement_from_file(cursor: psycopg.cursor, path: str) -> None:
-    with open(path) as script:
-        exec_sql_statement(cursor, script.read(), path)
-
-
-def get_column_names(cursor: psycopg.cursor, table: str) -> list[str]:
-    cursor.execute('SELECT * FROM %s' % table)
-    col_names = [desc[0] for desc in cursor.description]
-    return col_names
-
-
-def load_into_db(cursor: psycopg.cursor, records: list, table: str) -> None:
-    col_names = get_column_names(cursor, table)
-    record_len = len(records[0])
-    # Cut columns if necessary
-    col_names = col_names[:record_len]
-    with cursor.copy(f'COPY  {table}({",".join(col_names)}) FROM STDIN') as copy:
-        for record in records:
-            copy.write_row(record)
-
+    function_name = "reset_stimmen_aggregat"
+    success = sql_function_to_dict_list(cursor, function_name, (wahl, wknr))[0][function_name]
+    if success:
+        logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
+    return success
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
     lines = string.split('\n')
@@ -78,40 +59,6 @@ def parse_float_de(str: str) -> float or None:
         return float(str.replace('.', '').replace(',', '.'))
     except:
         return None
-
-
-def table_to_dict_list(cursor: psycopg.cursor, table: str, **kwargs) -> list[dict]:
-    # check if table is a query
-    if 'query' in kwargs:
-        query = kwargs['query']
-    else:
-        kwargs_str = " AND ".join([key + " = " + value for key, value in kwargs.items()])
-        if len(kwargs) > 0:
-            kwargs_str = "WHERE " + kwargs_str
-        query = f"SELECT * FROM {table} {kwargs_str}"
-
-    res = cursor.execute(query).fetchall()
-
-    col_names = [desc.name for desc in cursor.description]
-    arr = []
-    for r in res:
-        arr.append({col_names[i]: r[i] for i in range(0, len(col_names))})
-    return arr
-
-
-def key_dict(cursor: psycopg.cursor, table: str, keys: tuple[str, ...], target: str) -> dict:
-    keys = tuple(map(lambda key: key.lower(), keys))
-    target = target.lower()
-    return {tuple(row[key] for key in keys): row[target] for row in table_to_dict_list(cursor, table)}
-
-
-def table_to_json(cursor: psycopg.cursor, table: str, **kwargs):
-    return_single = kwargs.pop('single', False)
-    table = table_to_dict_list(cursor, table, **kwargs)
-    if return_single:
-        return json.dumps(table[0])
-    else:
-        return json.dumps(table)
 
 
 def make_unique(dicts: list[dict], key_values: tuple):

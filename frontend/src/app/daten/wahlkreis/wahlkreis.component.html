@@ -1,8 +1,7 @@
 <mat-card id="wahlkreis-card" *ngIf="wahlkreisLoaded()">
   <div id="wahlkreis-card-header">
     <mat-card-title>{{"Wahlkreis " + nummer}}</mat-card-title>
-    <mat-slide-toggle id="einzelstimmen-toggle" (change)="onEinzelstimmenToggleChanged($event)"
-                      checked="{{useEinzelstimmen}}">Neuberechnung mit Einzelstimmen
+    <mat-slide-toggle id="einzelstimmen-toggle"  [(ngModel)]="useEinzelstimmen" (change)="onEinzelstimmenToggleChanged()">Neuberechnung mit Einzelstimmen
     </mat-slide-toggle>
   </div>
   <mat-divider inset></mat-divider>

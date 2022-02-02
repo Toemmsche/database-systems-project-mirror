@@ -2,7 +2,7 @@
   <div id="knapp-filter">
     <mat-form-field appearance="fill">
       <mat-label>Sieg/Niederlage</mat-label>
-      <mat-select (selectionChange)="this.istSiegFilter = $event.value; updateFiltered()" value="Beide">
+      <mat-select [(ngModel)]="istSiegFilter" (selectionChange)="updateFiltered()" value="Beide">
         <mat-option value="Sieg">
           Sieg
         </mat-option>
@@ -16,7 +16,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Siegerpartei</mat-label>
-      <mat-select (selectionChange)="this.siegerParteiFilter = $event.value; updateFiltered()" value="Alle">
+      <mat-select [(ngModel)]="siegerParteiFilter" (selectionChange)="updateFiltered()" value="Alle">
         <mat-option *ngFor="let sp of this.siegerParteien" [value]="sp">
           {{sp}}
         </mat-option>
@@ -24,7 +24,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Verliererpartei</mat-label>
-      <mat-select (selectionChange)="this.verliererParteiFilter = $event.value; updateFiltered()" value="Alle">
+      <mat-select [(ngModel)]="verliererParteiFilter"(selectionChange)="updateFiltered()" value="Alle">
         <mat-option *ngFor="let vp of this.verliererParteien" [value]="vp">
           {{vp}}
         </mat-option>
