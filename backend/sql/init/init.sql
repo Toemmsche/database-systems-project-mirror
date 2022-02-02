@@ -114,9 +114,9 @@ CREATE TABLE kandidat
 
 CREATE TABLE direktkandidatur
 (
-    partei        INTEGER REFERENCES partei (parteiid),
+    partei        INTEGER REFERENCES partei (parteiid) NOT NULL,
     kandidat      INTEGER REFERENCES kandidat (kandid),
-    wahlkreis     INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
+    wahlkreis     INTEGER REFERENCES wahlkreis (wkid)  NOT NULL,
     anzahlstimmen INTEGER,
     direktid      SERIAL PRIMARY KEY
 );
