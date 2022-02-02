@@ -100,7 +100,7 @@ sd_mapping = {
     },
     'Durchschnittliche Wohnfläche pro Einwohner': {
         20: 'Wohnfläche am 31.12.2019 (je EW)',
-        "db": 'wohnflaeche_pro_einwohner'
+        "db": 'wohnflaeche_pro_ew'
     },
     'PKW-Bestand pro 1000 Einwohner': {
         20: 'PKW-Bestand am 01.01.2020 - PKW insgesamt (je 1000 EW)',
