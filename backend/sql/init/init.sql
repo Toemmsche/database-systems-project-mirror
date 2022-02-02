@@ -27,19 +27,18 @@ CREATE TABLE bundesland
     kuerzel CHAR(2) UNIQUE NOT NULL,
     name    VARCHAR(50),
     osten   BOOLEAN        NOT NULL,
-    wappen  BYTEA,
     landid  INTEGER PRIMARY KEY
 );
 
 CREATE TABLE wahlkreis
 (
-    nummer     INTEGER                                    NOT NULL,
-    name       VARCHAR(100)                               NOT NULL,
-    land       INTEGER REFERENCES bundesland (landid)     NOT NULL,
-    wahl       INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
-    deutsche   INTEGER                                    NOT NULL,
-    begrenzung TEXT                                       NOT NULL,
-    wkid       SERIAL PRIMARY KEY,
+    nummer          INTEGER                                    NOT NULL,
+    name            VARCHAR(100)                               NOT NULL,
+    land            INTEGER REFERENCES bundesland (landid)     NOT NULL,
+    wahl            INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
+    wahlberechtigte INTEGER                                    NOT NULL,
+    begrenzung      TEXT                                       NOT NULL,
+    wkid            SERIAL PRIMARY KEY,
     UNIQUE (nummer, wahl),
     UNIQUE (name, wahl)
 );
@@ -86,28 +85,18 @@ CREATE TABLE strukturdaten
     arbeitslosenquote_55_bis_64                                    DECIMAL                             NOT NULL
 );
 
-CREATE TABLE gemeinde
-(
-
-    name       VARCHAR(100)                        NOT NULL,
-    plz        CHAR(5),
-    wahlkreis  INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
-    zusatz     VARCHAR(100),
-    gemeindeid SERIAL PRIMARY KEY
-    --UNIQUE (name, plz, wahlkreis)
-);
-
 CREATE TABLE partei
 (
-
-    name                VARCHAR(100) UNIQUE NOT NULL,
+    ist_einzelbewerbung BOOLEAN      NOT NULL,
+    name                VARCHAR(200) NOT NULL,
     kuerzel             VARCHAR(40),
-    nationaleminderheit BOOLEAN             NOT NULL,
+    nationaleminderheit BOOLEAN      NOT NULL,
     gruendungsjahr      INTEGER,
     farbe               VARCHAR(6),
-    logo                BYTEA,
-    parteiid            SERIAL PRIMARY KEY
+    parteiid            SERIAL PRIMARY KEY,
+    UNIQUE (name, kuerzel)
 );
+
 CREATE TABLE kandidat
 (
 
@@ -117,7 +106,6 @@ CREATE TABLE kandidat
     zusatz      VARCHAR(50),
     geburtsjahr INTEGER      NOT NULL,
     geburtsort  VARCHAR(200) NOT NULL,
-    wohnort     VARCHAR(200),
     beruf       VARCHAR(200) NOT NULL,
     geschlecht  VARCHAR(20)  NOT NULL,
     kandid      SERIAL PRIMARY KEY,
@@ -126,18 +114,15 @@ CREATE TABLE kandidat
 
 CREATE TABLE direktkandidatur
 (
-
-    partei               INTEGER REFERENCES partei (parteiid),
-    parteilosgruppenname VARCHAR(200),
-    kandidat             INTEGER REFERENCES kandidat (kandid),
-    wahlkreis            INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
-    anzahlstimmen        INTEGER,
-    direktid             SERIAL PRIMARY KEY
+    partei        INTEGER REFERENCES partei (parteiid) NOT NULL,
+    kandidat      INTEGER REFERENCES kandidat (kandid),
+    wahlkreis     INTEGER REFERENCES wahlkreis (wkid)  NOT NULL,
+    anzahlstimmen INTEGER,
+    direktid      SERIAL PRIMARY KEY
 );
 
 CREATE TABLE landesliste
 (
-
     partei              INTEGER REFERENCES partei (parteiid)       NOT NULL,
     wahl                INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
     land                INTEGER REFERENCES bundesland (landid)     NOT NULL,
@@ -200,4 +185,4 @@ CREATE TABLE wahl_token
     wahlkreis INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
     token     UUID PRIMARY KEY,
     gueltig   BOOLEAN                             NOT NULL
-)
+);

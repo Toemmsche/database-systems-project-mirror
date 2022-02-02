@@ -48,14 +48,13 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
                 row['Namenszusatz'],
                 row['Geburtsjahr'],
                 row['Geburtsort'],
-                # gemeinde_mapping[row['PLZ']],
-                None,  # TODO
                 row['Beruf'],
                 row['Geschlecht'],
             ),
             kandidaten,
         )
     )
+
     load_into_db(cursor, records, 'Kandidat')
 
 
@@ -151,39 +150,16 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
             ergebnis['Anzahl']
         ) for ergebnis in ergebnisse_partei
     }
-
-    ergebnisse_parteilos = list(
-        filter(
-            lambda row: row['Gebietsart'] == 'Wahlkreis' and row[
-                'Gruppenart'] == 'Einzelbewerber/Wählergruppe' and row[
-                            'Stimme'] == '1',
-            ergebnisse
-        )
-    )
-    ergebnisse_parteilos_dict = {
-        ergebnis['Gruppenname']: int(ergebnis['Anzahl']) for ergebnis in
-        ergebnisse_parteilos
-    }
-
     direktkandidaten = list(
         filter(
             lambda row: row['Kennzeichen'] == 'Kreiswahlvorschlag',
             records
         )
     )
-
-    direktkandidaten_parteilos = list(
-        filter(
-            lambda row: row['Kennzeichen'] == 'anderer Kreiswahlvorschlag',
-            records
-        )
-    )
-
     direktkandidaten = list(
         map(
             lambda row: (
                 partei_mapping[(row['Gruppenname'].upper(),)],
-                None,
                 kandidaten_mapping[(
                     row['Vornamen'], row['Nachname'],
                     int(row['Geburtsjahr']),)],
@@ -194,18 +170,71 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
             direktkandidaten
         )
     )
+
+    # ========================================================================
+    # Parteilose Direktkandidaten
+    # ========================================================================
+
+    ergebnisse_parteilos = seq(ergebnisse).filter(
+        lambda row: row['Gebietsart'] == 'Wahlkreis' and row[
+            'Gruppenart'] == 'Einzelbewerber/Wählergruppe' and row[
+                        'Stimme'] == '1'
+    )
+    ergebnisse_parteilos_dict = {
+        (int(ergebnis['Gebietsnummer']), ergebnis['Gruppenname']): ergebnis['Anzahl'] for ergebnis in
+        ergebnisse_parteilos
+    }
+
+    direktkandidaten_parteilos = list(
+        filter(
+            lambda row: row['Kennzeichen'] == 'anderer Kreiswahlvorschlag',
+            records
+        )
+    )
+
+    # insert party for each parteiloser direktkandidat
+    einzelbewerber_parteien = seq(direktkandidaten_parteilos).map(
+        lambda row: (
+            True,  # is Einzelbewerber
+            row['GruppennameLang'],
+            row['Gruppenname'],
+            False,
+            None,
+            'B07802',  # random color
+        )
+    ).to_set()
+
+    load_into_db(cursor, list(einzelbewerber_parteien), "partei")
+
+    # maps (wahlkreis, gruppenname) to (vorname, nachname, geburtsjahr)
+    einzelbewerber_wahlkreis_dict = {
+        (einzelbewerber['Vornamen'], einzelbewerber['Nachname'], einzelbewerber['Geburtsjahr'])
+        : int(einzelbewerber['Gebietsnummer'])
+        for einzelbewerber in direktkandidaten_parteilos
+    }
+
+    # Reload partei mapping with 'name' and 'kuerzel'
+    partei_mapping = key_dict(cursor, 'partei', ('name', 'kuerzel'), 'parteiId')
+
     direktkandidaten_parteilos = list(
         map(
             lambda row: (
-                None,
-                row['Gruppenname'],
+                partei_mapping[(row['GruppennameLang'], row['Gruppenname'])],
                 kandidaten_mapping[(
                     row['Vornamen'], row['Nachname'],
-                    int(row['Geburtsjahr']),)],
+                    int(row['Geburtsjahr']))],
                 wahlkreis_mapping[(int(row['Gebietsnummer']), 20,)],
-                int(ergebnisse_parteilos_dict[row['Gruppenname']]) if row[
-                                                                          'Gruppenname'] in ergebnisse_parteilos_dict else
-                int(ergebnisse_parteilos_dict[row['GruppennameLang']])
+                int(
+                    ergebnisse_parteilos_dict[
+                        (
+                            einzelbewerber_wahlkreis_dict[(row['Vornamen'], row['Nachname'], row['Geburtsjahr'])],
+                            row['GruppennameLang'] if (einzelbewerber_wahlkreis_dict[
+                                                           (row['Vornamen'], row['Nachname'], row['Geburtsjahr'])],
+                                                       row['GruppennameLang']) in ergebnisse_parteilos_dict
+                            else row['Gruppenname']  # they just cant decide which one to use
+                        )
+                    ]
+                )
             ),
             direktkandidaten_parteilos
         )
@@ -285,6 +314,7 @@ def load_ungueltige_stimmen_2021(cursor: psycopg.Cursor):
     ).to_list()
 
     load_into_db(cursor, ungueltige_stimmen_ergebnisse, 'ungueltige_stimmen_ergebnis')
+
 
 if __name__ == '__main__':
     load_landeslisten_2021(None)

@@ -2,7 +2,7 @@ import json
 
 import psycopg
 
-from logic.util import table_to_json
+from logic.util import query_to_json
 
 
 def get_wahlkreise_ranked_by_metric(
@@ -18,7 +18,7 @@ def get_wahlkreise_ranked_by_metric(
     """)
 
     # misuse table_to_json
-    return table_to_json(cursor, "", query=query)
+    return query_to_json(cursor, query)
 
 
 def valid_metrik(metrik: str):

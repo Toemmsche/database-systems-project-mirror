@@ -26,7 +26,6 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
                 row['label'],
                 row['name_de'],
                 row['label'] in osten_bundeslaender,  # osten
-                None,
                 row['id']),
             records,
         )
@@ -45,6 +44,7 @@ def load_wahlkreise(
 ) -> None:
     records = download_csv(url, delimiter=';', skip=1, encoding=encoding)
     bundesland_mapping = key_dict(cursor, 'bundesland', ('name',), 'landId')
+    ergebnisse = download_csv(ergebnisse_2021 if wahl == 20 else ergebnisse_2017, delimiter=';', skip=9)
     _, attributes, _ = svg2paths2(begrenzungen_url)
 
     filtered_wahlkreise = list(
@@ -54,6 +54,22 @@ def load_wahlkreise(
             records
         )
     )
+
+    wahlberechtigte = list(
+        filter(
+            lambda row: row['Gebietsart'] == 'Wahlkreis' and
+                        row['Gruppenart'] == 'System-Gruppe' and
+                        row['Gruppenname'] == 'Wahlberechtigte' and
+                        row['Anzahl'] != '',
+            ergebnisse
+        )
+    )
+
+    wahlberechtigte_dict = {
+        int(wb['Gebietsnummer']): wb['Anzahl']
+        for wb in wahlberechtigte
+    }
+
     records = list(
         map(
             lambda row: (
@@ -61,7 +77,7 @@ def load_wahlkreise(
                 row['Wahlkreis-Name'],
                 bundesland_mapping[(row['Land'],)],
                 wahl,
-                int(parse_float_de(row[deutsche_key]) * 1000),
+                int(wahlberechtigte_dict[int(row['Wahlkreis-Nr.'])]),
                 attributes[begrenzungen_dict[int(row['Wahlkreis-Nr.'])]]['d'].strip().replace(',', ' '),
             ),
             filtered_wahlkreise
@@ -76,32 +92,11 @@ def load_wahlkreise(
             tuple(
                 [wahlkreis_dict[(wahl, int(row['Wahlkreis-Nr.']))]] +
                 [parse_float_de(row[value[wahl]]) if wahl in value else None for value in sd_mapping.values()]
-                ),
+            ),
             filtered_wahlkreise
         )
     )
     load_into_db(cursor, struct_data_records, 'strukturdaten')
-
-
-def load_gemeinden(
-        url: str,
-        wahl: int,
-        cursor: psycopg.cursor,
-        encoding: str = 'utf-8-sig'
-) -> None:
-    records = local_csv(url, delimiter=';', encoding=encoding)
-    wk_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl'), 'wkid')
-    records = list(
-        map(
-            lambda row: (
-                row['Gemeindename'],
-                row['PLZ-GemVerwaltung'],
-                wk_mapping[(int(row['Wahlkreis-Nr']), wahl)],
-                None),
-            records,
-        )
-    )
-    load_into_db(cursor, records, 'Gemeinde')
 
 
 def load_parteien(cursor: psycopg.cursor) -> None:
@@ -121,12 +116,12 @@ def load_parteien(cursor: psycopg.cursor) -> None:
     records = list(
         map(
             lambda row: (
+                False,  # No einzelbewerbung
                 row['Name'],
                 row['Kurzbezeichnung'],
                 row['Kurzbezeichnung'] in nationale_minderheiten,
                 notFalsy(row['Gründungsdatum'][-4:], None),
-                parteifarben_dict[row['Kurzbezeichnung']] if row['Kurzbezeichnung'] in parteifarben_dict else 'DDDDDD',
-                None
+                parteifarben_dict[row['Kurzbezeichnung']] if row['Kurzbezeichnung'] in parteifarben_dict else 'DDDDDD'
             ),
             records,
         )

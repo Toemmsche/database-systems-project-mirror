@@ -3,31 +3,31 @@ DROP VIEW IF EXISTS stimmen_qpartei_wahlkreis CASCADE;
 
 CREATE VIEW wahlkreisinformation
             (wahl, land, wk_nummer, wk_name, wk_begrenzung, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
-SELECT wk.wahl,
-       bl.name,
-       wk.nummer,
-       wk.name,
-       wk.begrenzung,
-       k.vorname                                                AS sieger_vorname,
-       k.nachname                                               AS sieger_nachname,
-       p.kuerzel                                                AS sieger_partei,
-       (SUM(ze.anzahlstimmen) + use.anzahlstimmen)::DECIMAL * 100 / wk.deutsche AS wahlbeteiligung_prozent
-FROM wahlkreis wk,
-     mandat m
-         LEFT OUTER JOIN
-     kandidat k ON k.kandid = m.kandidat,
-     zweitstimmenergebnis ze,
-     ungueltige_stimmen_ergebnis use,
-     partei p,
-     bundesland bl
-WHERE m.ist_direktmandat
-  AND wk.wkid = m.wahlkreis
-  AND wk.wkid = ze.wahlkreis
-  AND wk.wkid = use.wahlkreis
-  AND use.stimmentyp = 2 --use zweitstimmen for wahlbeteiligung
-  AND m.partei = p.parteiid
-  AND wk.land = bl.landid
-GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche, use.anzahlstimmen;
+    SELECT wk.wahl,
+           bl.name,
+           wk.nummer,
+           wk.name,
+           wk.begrenzung,
+           k.vorname                                                AS sieger_vorname,
+           k.nachname                                               AS sieger_nachname,
+           p.kuerzel                                                AS sieger_partei,
+           (SUM(ze.anzahlstimmen) + use.anzahlstimmen)::DECIMAL * 100 / wk.wahlberechtigte AS wahlbeteiligung_prozent
+    FROM wahlkreis wk,
+         mandat m
+             LEFT OUTER JOIN
+         kandidat k ON k.kandid = m.kandidat,
+         zweitstimmenergebnis ze,
+         ungueltige_stimmen_ergebnis use,
+         partei p,
+         bundesland bl
+    WHERE m.ist_direktmandat
+      AND wk.wkid = m.wahlkreis
+      AND wk.wkid = ze.wahlkreis
+      AND wk.wkid = use.wahlkreis
+      AND use.stimmentyp = 2 --use zweitstimmen for wahlbeteiligung
+      AND m.partei = p.parteiid
+      AND wk.land = bl.landid
+    GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.wahlberechtigte, use.anzahlstimmen;
 
 CREATE VIEW stimmen_qpartei_wahlkreis
             (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS

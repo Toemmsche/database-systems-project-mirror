@@ -6,12 +6,13 @@ import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {sortWithSonstige} from "../../../util/ArrayHelper";
+import ServerError from "../../../util/ServerError";
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector   : 'app-wahlkreis',
-  templateUrl: './wahlkreis.component.html',
-  styleUrls  : ['./wahlkreis.component.scss']
+  selector   : "app-wahlkreis",
+  templateUrl: "./wahlkreis.component.html",
+  styleUrls  : ["./wahlkreis.component.scss"]
 })
 export class WahlkreisComponent implements OnInit, OnDestroy {
 
@@ -23,7 +24,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
 
   erststimmenergebnisse !: Array<ParteiErgebnis>;
   erststimmenConfig = {
-    type   : 'bar',
+    type   : "bar",
     data   : {
       labels  : [] as Array<string>,
       datasets: [
@@ -63,7 +64,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
 
   zweitstimmenergebnisse !: Array<ParteiErgebnis>;
   zweitstimmenConfig = {
-    type   : 'bar',
+    type   : "bar",
     data   : {
       labels  : [] as Array<string>,
       datasets: [
@@ -117,7 +118,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Get wahlkreis nummer
-    this.nummer = parseInt(<string>this.route.snapshot.paramMap.get('nummer'));
+    this.nummer = parseInt(<string>this.route.snapshot.paramMap.get("nummer"));
     this.populate();
   }
 
@@ -130,7 +131,16 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
       .then(response => response.json())
       .then((data: Wahlkreis) => {
         this.wahlkreis = data;
-      });
+      })
+      .catch((error) => {
+      if (error instanceof ServerError) {
+        window.alert("Einzelstimmen liegen nicht vor");
+        // Simulate toggle back
+        this.useEinzelstimmen = false;
+        this.onEinzelstimmenToggleChanged();
+      }
+    });
+
     REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
@@ -168,12 +178,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
       this.zweitstimmenergebnisse.length > 0;
   }
 
-  onEinzelstimmenToggleChanged(event: MatSlideToggleChange) {
-    if (this.nummer != 222 || this.wahl != 20) {
-      window.alert("Einzelstimmen liegen nicht vor")
-      return;
-    }
-    this.useEinzelstimmen = event.checked;
+  onEinzelstimmenToggleChanged() {
     this.erststimmenergebnisse = [];
     this.zweitstimmenergebnisse = [];
     this.ngOnInit();

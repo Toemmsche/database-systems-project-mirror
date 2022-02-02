@@ -10,7 +10,8 @@ def init_tables(cursor: psycopg.Cursor) -> None:
     # reset first
     exec_sql_statement_from_file(cursor, 'sql/init/init.sql')
     # indices
-    exec_sql_statement_from_file(cursor, 'sql/init/Indices.sql')
+    exec_sql_statement_from_file(cursor, 'sql/init/Indizes.sql')
+
 
     logger.info("Initialized tables and indices")
 
@@ -39,9 +40,6 @@ def init_data(cursor: psycopg.Cursor) -> None:
         begrenzungen_dict,
         cursor
     )
-    # There are over 10k communities in Germany
-    if not heroku:
-        load_gemeinden(gemeinden_2021, 20, cursor)
     load_parteien(cursor)
     load_landeslisten_2021(cursor)
     load_kandidaten_2021(cursor)
@@ -61,9 +59,6 @@ def init_data(cursor: psycopg.Cursor) -> None:
         cursor,
         'cp1252'
     )
-    # There are over 10k communities in Germany
-    if not heroku:
-        load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
     load_landeslisten_2017(cursor)
     load_zweitstimmen_2017(cursor)
     load_ungueltige_stimmen_2017(cursor)
@@ -80,9 +75,10 @@ def init_data(cursor: psycopg.Cursor) -> None:
 
 
 def exec_util_queries(cursor: psycopg.Cursor):
-    exec_sql_statement_from_file(cursor, 'sql/core/bundestag_with_2017.sql')
-    exec_sql_statement_from_file(cursor, 'sql/core/Triggers.sql')
-    exec_sql_statement_from_file(cursor, 'sql/core/bundestag_triggers.sql')
+    exec_sql_statement_from_file(cursor, 'sql/core/DivisorVerfahren.sql')
+    exec_sql_statement_from_file(cursor, 'sql/core/Bundestag.sql')
+    exec_sql_statement_from_file(cursor, 'sql/init/Triggers.sql')
+    exec_sql_statement_from_file(cursor, 'sql/core/BundestagTriggers.sql')
     logger.info("Loaded utility views and triggers")
 
 

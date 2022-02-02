@@ -31,13 +31,13 @@ CREATE MATERIALIZED VIEW mandat
                AND ze.liste = ll.listenid
              GROUP BY wk.wahl, wk.wkid, ll.partei),
         zweitstimmen_partei_bundesland(wahl, land, partei, anzahlstimmen) AS
-            (SELECT zpw.wahl, wk.land, zpw.partei, SUM(zpw.anzahlstimmen)
+            (SELECT zpw.wahl, wk.land, zpw.partei, SUM(zpw.anzahlstimmen)::INTEGER
              FROM wahlkreis wk,
                   zweitstimmen_partei_wahlkreis zpw
              WHERE wk.wkid = zpw.wahlkreis
              GROUP BY zpw.wahl, wk.land, zpw.partei),
         zweitstimmen_partei(wahl, partei, anzahlstimmen) AS
-            (SELECT zpb.wahl, zpb.partei, SUM(zpb.anzahlstimmen)
+            (SELECT zpb.wahl, zpb.partei, SUM(zpb.anzahlstimmen)::INTEGER
              FROM zweitstimmen_partei_bundesland zpb
              GROUP BY zpb.wahl, zpb.partei),
         zweitstimmen(wahl, anzahlstimmen) AS
@@ -64,24 +64,25 @@ CREATE MATERIALIZED VIEW mandat
                   partei p
              WHERE p.nationaleminderheit),
         zweitstimmen_qpartei_bundesland
-            (wahl, land, partei, anzahlstimmen)
-            AS
-            (SELECT *
-             FROM zweitstimmen_partei_bundesland zpb
-             WHERE zpb.partei IN (SELECT p.partei FROM qpartei p WHERE zpb.wahl = p.wahl)),
+            (wahl, land, partei, anzahlstimmen) AS
+            (SELECT zpb.*
+             FROM zweitstimmen_partei_bundesland zpb,
+                  qpartei qp
+             WHERE zpb.wahl = qp.wahl
+               AND zpb.partei = qp.partei),
         zweitstimmen_qpartei(wahl, partei, anzahlstimmen) AS
             (SELECT zpb.wahl, zpb.partei, SUM(anzahlstimmen)
              FROM zweitstimmen_qpartei_bundesland zpb
              GROUP BY zpb.wahl, zpb.partei),
         direktmandate_qpartei_bundesland(wahl, land, partei, direktmandate) AS
-            (SELECT dm.wahl, dm.land, p.partei, COUNT(*)
+            (SELECT dm.wahl, dm.land, p.partei, COUNT(*)::INTEGER
              FROM direktmandat dm,
                   qpartei p
              WHERE dm.wahl = p.wahl
                AND dm.partei = p.partei
              GROUP BY dm.wahl, dm.land, p.partei),
         gesamtsitze(wahl, anzahlsitze) AS
-            (SELECT wahl, 2 * COUNT(*)
+            (SELECT wahl, 2 * COUNT(*)::INTEGER
              FROM wahlkreis
              GROUP BY wahl),
         bundesland_bevoelkerung(wahl, land, bevoelkerung) AS
@@ -118,144 +119,40 @@ CREATE MATERIALIZED VIEW mandat
                     (20, 14, 3826905),
                     (20, 15, 2056177),
                     (20, 16, 1996822)),
-        gesamtbevoelkerung(wahl, bevoelkerung) AS
-            (SELECT wahl, SUM(bevoelkerung)
-             FROM bundesland_bevoelkerung
-             GROUP BY wahl),
         divisor_kandidat(divisor) AS
                 (VALUES (0), (1)),
-        bund_divisor(wahl, sitze, divisor, next_divisor) AS
-            (SELECT b.wahl,
-                    SUM(ROUND(b.bevoelkerung / (gb.bevoelkerung::DECIMAL / gs.anzahlsitze))),
-                    SUM(b.bevoelkerung)::DECIMAL / gs.anzahlsitze,
-                    SUM(b.bevoelkerung)::DECIMAL / gs.anzahlsitze
-             FROM bundesland_bevoelkerung b,
-                  gesamtsitze gs,
-                  gesamtbevoelkerung gb
-             WHERE b.wahl = gs.wahl
-               AND b.wahl = gb.wahl
-             GROUP BY b.wahl, gs.anzahlsitze
-             UNION ALL
-             (SELECT sv.wahl,
-                     (SELECT SUM(ROUND(b.bevoelkerung / sv.next_divisor))
-                      FROM bundesland_bevoelkerung b
-                      WHERE b.wahl = sv.wahl),
-                     sv.next_divisor,
-                     CASE
-                         WHEN sitze < gs.anzahlsitze THEN
-                             (SELECT AVG(d.divisor)
-                              FROM (SELECT b.bevoelkerung /
-                                           (ROUND(b.bevoelkerung / sv.next_divisor) + 0.5 + dk.divisor) AS divisor
-                                    FROM bundesland_bevoelkerung b,
-                                         divisor_kandidat dk
-                                    WHERE b.wahl = sv.wahl
-                                    ORDER BY divisor DESC
-                                    LIMIT 2) AS d)
-                         WHEN sitze > gs.anzahlsitze THEN
-                             (SELECT AVG(d.divisor)
-                              FROM (SELECT b.bevoelkerung /
-                                           (ROUND(b.bevoelkerung / sv.next_divisor) - 0.5 - dk.divisor) AS divisor
-                                    FROM bundesland_bevoelkerung b,
-                                         divisor_kandidat dk
-                                    WHERE b.wahl = sv.wahl
-                                    ORDER BY divisor
-                                    LIMIT 2) AS d)
-                         ELSE sv.next_divisor
-                         END
-              FROM bund_divisor sv,
-                   gesamtsitze gs
-              WHERE sv.wahl = gs.wahl
-                AND sv.sitze != gs.anzahlsitze)),
-        divisor AS
-            (SELECT sv.wahl, sv.divisor
-             FROM bund_divisor sv,
-                  gesamtsitze gs
-             WHERE sv.wahl = gs.wahl
-               AND sv.sitze = gs.anzahlsitze),
+        bund_divisor(wahl, divisor) AS
+            (SELECT gs.wahl,
+                    divisorverfahren(gs.anzahlsitze, ARRAY_AGG(bb.bevoelkerung))
+             FROM gesamtsitze gs,
+                  bundesland_bevoelkerung bb
+             WHERE bb.wahl = gs.wahl
+             GROUP BY gs.anzahlsitze, gs.wahl),
         sitze_bundesland(wahl, land, sitze, divisor) AS
-            (SELECT b.wahl, b.land, ROUND(b.bevoelkerung::DECIMAL / d.divisor) AS sitze, d.divisor
+            (SELECT b.wahl, b.land, ROUND(b.bevoelkerung::DECIMAL / bd.divisor)::INTEGER AS sitze, bd.divisor
              FROM bundesland_bevoelkerung b,
-                  divisor d
-             WHERE d.wahl = b.wahl),
-        zweitstimmen_bundesland(wahl, land, anzahlstimmen) AS
-            (SELECT zpb.wahl, zpb.land, SUM(zpb.anzahlstimmen)
-             FROM zweitstimmen_qpartei_bundesland zpb
-             GROUP BY zpb.wahl, zpb.land),
-        laender_divisor(wahl, land, sitze_ld, divisor, next_divisor) AS
-            (SELECT zbl.wahl,
-                    zbl.land                                                                 AS land,
-                    SUM(ROUND(zpb.anzahlstimmen / (zbl.anzahlstimmen::NUMERIC / sbl.sitze))) AS sitze_ld,
-                    zbl.anzahlstimmen::NUMERIC / sbl.sitze                                   AS divisor,
-                    zbl.anzahlstimmen::NUMERIC / sbl.sitze                                   AS next_divisor
-             FROM zweitstimmen_qpartei_bundesland zpb,
-                  zweitstimmen_bundesland zbl,
-                  sitze_bundesland sbl
-             WHERE zpb.wahl = zbl.wahl
-               AND zpb.wahl = sbl.wahl
-               AND zpb.land = zbl.land
-               AND zpb.land = sbl.land
-             GROUP BY zbl.wahl,
-                      zbl.land,
-                      zbl.anzahlstimmen,
-                      sbl.sitze
-             UNION ALL
-             (SELECT zbl.wahl,
-                     zbl.land,
-                     (SELECT SUM(ROUND(zpb.anzahlstimmen / ld.next_divisor))
-                      FROM zweitstimmen_qpartei_bundesland zpb
-                      WHERE zpb.wahl = ld.wahl
-                        AND zpb.land = ld.land) AS sitze_ld,
-                     ld.next_divisor,
-                     CASE
-                         WHEN sbl.sitze < ld.sitze_ld THEN
-                             (SELECT AVG(d.divisor)
-                              FROM (SELECT zpb.anzahlstimmen /
-                                           (ROUND(zpb.anzahlstimmen / ld.next_divisor) - 0.5 - dk.divisor) AS divisor
-                                    FROM divisor_kandidat dk,
-                                         zweitstimmen_qpartei_bundesland zpb
-                                    WHERE zpb.wahl = zbl.wahl
-                                      AND zpb.land = zbl.land
-                                      AND ROUND(zpb.anzahlstimmen / ld.next_divisor) > dk.divisor
-                                    ORDER BY divisor
-                                    LIMIT 2) AS d)
-                         WHEN sbl.sitze > ld.sitze_ld THEN
-                             (SELECT AVG(d.divisor)
-                              FROM (SELECT zpb.anzahlstimmen /
-                                           (ROUND(zpb.anzahlstimmen / ld.next_divisor) + 0.5 + dk.divisor) AS divisor
-                                    FROM divisor_kandidat dk,
-                                         zweitstimmen_qpartei_bundesland zpb
-                                    WHERE zpb.wahl = zbl.wahl
-                                      AND zpb.land = zbl.land
-                                    ORDER BY divisor DESC
-                                    LIMIT 2) AS d)
-                         ELSE ld.next_divisor
-                         END
-              FROM zweitstimmen_bundesland zbl,
-                   laender_divisor ld,
-                   sitze_bundesland sbl
-              WHERE zbl.wahl = sbl.wahl
-                AND zbl.wahl = ld.wahl
-                AND zbl.land = ld.land
-                AND zbl.land = sbl.land
-                AND sbl.sitze != ld.sitze_ld)
-            ),
+                  bund_divisor bd
+             WHERE bd.wahl = b.wahl),
+        laender_divisor(wahl, land, divisor) AS (
+            SELECT zpb.wahl, zpb.land, divisorverfahren(sbl.sitze, ARRAY_AGG(zpb.anzahlstimmen))
+            FROM zweitstimmen_qpartei_bundesland zpb,
+                 sitze_bundesland sbl
+            WHERE sbl.wahl = zpb.wahl
+              AND sbl.land = zpb.land
+            GROUP BY zpb.wahl, zpb.land, sbl.sitze
+        ),
         sitzkontingent_qpartei_bundesland (wahl, land, partei, sitzkontingent) AS
             (SELECT zpb.wahl,
                     zpb.land,
                     zpb.partei,
-                    ROUND(zpb.anzahlstimmen / ld.divisor) AS sitzkontingent,
-                    ld.sitze_ld,
-                    sbl.sitze,
-                    ld.divisor,
-                    zpb.anzahlstimmen
+                    ROUND(zpb.anzahlstimmen / ld.divisor) AS sitzkontingent
              FROM laender_divisor ld,
                   zweitstimmen_qpartei_bundesland zpb,
                   sitze_bundesland sbl
              WHERE zpb.wahl = ld.wahl
                AND zpb.wahl = sbl.wahl
                AND ld.land = zpb.land
-               AND zpb.land = sbl.land
-               AND sbl.sitze = ld.sitze_ld),
+               AND zpb.land = sbl.land),
         mindestsitze_qpartei_bundesland
             (wahl, land, partei, sitzkontingent, direktmandate, mindestsitze, ueberhang) AS
             (SELECT sk.wahl,
@@ -369,10 +266,10 @@ CREATE MATERIALIZED VIEW mandat
         landeslisten_divisor(wahl, partei, sitze_ll_sum, divisor, next_divisor) AS (
             (SELECT zp.wahl,
                     zp.partei,
-                    SUM(GREATEST(ROUND(zpb.anzahlstimmen / (zp.anzahlstimmen::numeric / svl.sitze)),
+                    SUM(GREATEST(ROUND(zpb.anzahlstimmen / (zp.anzahlstimmen::NUMERIC / svl.sitze)),
                                  mp.mindestsitze))        AS sitze_ll_sum,
-                    zp.anzahlstimmen::numeric / svl.sitze AS divisor,
-                    zp.anzahlstimmen::numeric / svl.sitze AS next_divisor
+                    zp.anzahlstimmen::NUMERIC / svl.sitze AS divisor,
+                    zp.anzahlstimmen::NUMERIC / svl.sitze AS next_divisor
              FROM zweitstimmen_qpartei zp,
                   zweitstimmen_qpartei_bundesland zpb,
                   sitze_nach_erhoehung svl,
@@ -471,7 +368,7 @@ CREATE MATERIALIZED VIEW mandat
             (SELECT sll.wahl,
                     sll.partei,
                     sll.land,
-                    sll.sitze_ll - COALESCE(dm.direktmandate, 0)
+                    (sll.sitze_ll - COALESCE(dm.direktmandate, 0))::INTEGER
              FROM sitze_landesliste sll
                       LEFT OUTER JOIN
                   direktmandate_qpartei_bundesland dm ON
