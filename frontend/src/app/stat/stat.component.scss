@@ -13,7 +13,20 @@ mat-panel-title {
   font-size: larger;
 }
 
+#add-vergleich-btn {
+  color: white;
+  width: 20%;
+  margin-top: 1rem;
+}
+
 .mat-expansion-panel-header-description {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.vergleich-expansion-panel-header {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
 }

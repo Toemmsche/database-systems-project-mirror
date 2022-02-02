@@ -43,7 +43,7 @@ class WahlUser(HttpUser):
         wahlkreis = 222
         self.query_random_wahlen(
             [f"/wahlkreisinformation?wk_nummer=eq.{wahlkreis}&wahl=eq.{{wahl}}",
-             f"/stimmen_qpartei_wahlkreis_rich?wk_nummer=eq.{wahlkreis}&wahl=eq.{{wahl}}"])
+             f"/stimmen_qpartei_wahlkreis?wk_nummer=eq.{wahlkreis}&wahl=eq.{{wahl}}"])
 
     # Q4
     @task(10)

@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
 import {REST_GET} from "../../../util/ApiService";
+import {sortWithSonstige} from "../../../util/ArrayHelper";
 
 @Component({
   selector: 'app-ostenergebnis',
@@ -62,14 +63,7 @@ export class OstenergebnisComponent implements OnInit, OnDestroy {
     REST_GET(`${this.wahl}/stat/ostenergebnis`)
       .then(response => response.json())
       .then((data: Array<ParteiErgebnis>) => {
-        data = data.sort((a, b) => {
-          if (a.partei == 'Sonstige') {
-            return 1;
-          } else if (b.partei == 'Sonstige') {
-            return -1;
-          }
-          return b.abs_stimmen - a.abs_stimmen;
-        });
+        data = data.sort(sortWithSonstige);
 
         // Populate bar chart
         const chartData = this.ostenConfig.data;

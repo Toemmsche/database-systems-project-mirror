@@ -2,6 +2,7 @@ from psycopg.types import datetime
 from svgpathtools import svg2paths2
 
 from logic.links import *
+from logic.metrics import *
 from logic.util import *
 
 
@@ -46,9 +47,13 @@ def load_wahlkreise(
     bundesland_mapping = key_dict(cursor, 'bundesland', ('name',), 'landId')
     _, attributes, _ = svg2paths2(begrenzungen_url)
 
-    # Advanced strukturdaten
-    aq_mapping = {20: 'Februar 2021', 19: 'März 2017'}
-
+    filtered_wahlkreise = list(
+        filter(
+            lambda row: row['Land'] != 'Deutschland' and
+                        row['Wahlkreis-Name'] != 'Land insgesamt',
+            records
+        )
+    )
     records = list(
         map(
             lambda row: (
@@ -58,16 +63,24 @@ def load_wahlkreise(
                 wahl,
                 int(parse_float_de(row[deutsche_key]) * 1000),
                 attributes[begrenzungen_dict[int(row['Wahlkreis-Nr.'])]]['d'].strip().replace(',', ' '),
-                parse_float_de(row[f'Arbeitslosenquote {aq_mapping[wahl]} - insgesamt'])
             ),
-            filter(
-                lambda row: row['Land'] != 'Deutschland' and
-                            row['Wahlkreis-Name'] != 'Land insgesamt',
-                records
-            )
+            filtered_wahlkreise
         )
     )
     load_into_db(cursor, records, 'Wahlkreis')
+
+    wahlkreis_dict = key_dict(cursor, 'Wahlkreis', ('wahl', 'nummer'), 'wkid')
+    struct_data_records = list(
+        map(
+            lambda row:
+            tuple(
+                [wahlkreis_dict[(wahl, int(row['Wahlkreis-Nr.']))]] +
+                [parse_float_de(row[value[wahl]]) if wahl in value else None for value in sd_mapping.values()]
+                ),
+            filtered_wahlkreise
+        )
+    )
+    load_into_db(cursor, struct_data_records, 'strukturdaten')
 
 
 def load_gemeinden(

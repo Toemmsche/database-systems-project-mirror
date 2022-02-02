@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  API_URL: "https://datenbanken-ws22.herokuapp.com/"
 };

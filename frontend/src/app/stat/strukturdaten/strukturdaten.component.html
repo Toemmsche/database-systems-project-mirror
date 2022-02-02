@@ -1,0 +1,36 @@
+<div class="strukturdaten-settings-container">
+  <div>
+    <mat-form-field appearance="fill">
+      <mat-label>Metrik</mat-label>
+      <mat-select [formControl]="metrik" (selectionChange)="populateRangliste()">
+        <mat-option *ngFor="let metrik of metriken" [value]="metrik">{{metrik.displayName}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field appearance="fill">
+      <mat-label>Top N</mat-label>
+      <input type="number" matInput [min]="1" [max]="20" [formControl]="topN" (input)="populateRangliste()">
+    </mat-form-field>
+  </div>
+</div>
+<div *ngIf="bDataLoaded()" class="strukturdaten-container">
+  <div>
+    <div>
+      <mat-button-toggle-group [disabled]="!stimmenLoaded()" name="kartenTyp" [(ngModel)]="kartenTyp" (change)="onKartenTypChange()">
+        <mat-button-toggle [value]="1">Gesamt</mat-button-toggle>
+        <mat-button-toggle [value]="2">Top N</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+    <div>
+      <app-svg-karte [bData]="bData" [getTooltipText]="getTooltipText.bind(this)"></app-svg-karte>
+    </div>
+  </div>
+  <div class="strukturdaten-result-container">
+    <div *ngIf="stimmenLoaded()">
+      <h2>{{this.metrik.value.displayName}}</h2>
+      <chart [type]="ergebnisseVergleichConfig.type" [data]="ergebnisseVergleichConfig.data"
+        [options]="ergebnisseVergleichConfig.options"></chart>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,12 @@
 DROP INDEX IF EXISTS erststimme_kandidatur;
+
 DROP INDEX IF EXISTS zweitstimme_wahlkreis;
 DROP INDEX IF EXISTS zweitstimme_liste;
 DROP INDEX IF EXISTS zweitstimme_wahlkreis_liste;
+
+DROP INDEX IF EXISTS ungueltige_stimme_wahlkreis;
+DROP INDEX IF EXISTS ungueltige_stimme_stimmentyp;
+DROP INDEX IF EXISTS ungueltige_stimme_wahlkreis_stimmentyp;
 
 DELETE
 FROM erststimme;
@@ -40,3 +45,20 @@ INTO zweitstimme (liste, wahlkreis)
 CREATE INDEX zweitstimme_wahlkreis ON zweitstimme (wahlkreis);
 CREATE INDEX zweitstimme_liste ON zweitstimme (liste);
 CREATE INDEX zweitstimme_wahlkreis_liste ON zweitstimme (wahlkreis, liste);
+
+
+--Ungültige Stimmen
+WITH stimmen AS
+         (SELECT use.*, GENERATE_SERIES(1, use.anzahlstimmen)
+          FROM ungueltige_stimmen_ergebnis use,
+               wahlkreis wk
+          WHERE use.wahlkreis = wk.wkid
+            AND wk.nummer = 222
+            AND wk.wahl = 20)
+INSERT
+INTO ungueltige_stimme (stimmentyp, wahlkreis)
+        (SELECT s.stimmentyp, s.wahlkreis FROM stimmen s);
+
+CREATE INDEX ungueltige_stimme_wahlkreis ON ungueltige_stimme (wahlkreis);
+CREATE INDEX ungueltige_stimme_stimmentyp ON ungueltige_stimme (stimmentyp);
+CREATE INDEX ungueltige_stimme_wahlkreis_stimmentyp ON ungueltige_stimme (stimmentyp, wahlkreis);

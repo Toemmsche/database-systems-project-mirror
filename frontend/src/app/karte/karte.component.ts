@@ -1,10 +1,11 @@
-import {Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { Subscription } from 'rxjs';
 import {Begrenzung} from 'src/model/Begrenzung';
 import {REST_GET} from 'src/util/ApiService';
 import {Wahlkreissieger} from "../../model/Wahlkreissieger";
 import {Wahlkreisstimmen} from "../../model/Wahlkreisstimmen";
 import {WahlSelectionService} from "../service/wahl-selection.service";
+import { SvgKarteComponent } from './svg-karte/svg-karte.component';
 
 @Component({
   selector   : 'app-karte',
@@ -17,8 +18,7 @@ export class KarteComponent implements OnInit, OnDestroy {
   @Input()
   wahl: number = 20;
 
-  @ViewChildren('begrenzung')
-  begrenzungElements!: QueryList<ElementRef<SVGPathElement>>;
+  @ViewChild(SvgKarteComponent) karte !: SvgKarteComponent;
 
   // DATA
   wksData !: Array<Wahlkreissieger>
@@ -77,27 +77,14 @@ export class KarteComponent implements OnInit, OnDestroy {
     return this.wksData != null && this.wksData.length > 0;
   }
 
-
   bDataLoaded() {
     return this.bData != null && this.bData.length > 0;
-  }
-
-  colorWahlkreis(nummer: number, color: string): void {
-    this.begrenzungElements.find(x => x.nativeElement.id === `karte_${nummer}`)
-        ?.nativeElement
-        .setAttribute('style', `fill: #${color};`);
-  }
-
-  resetColors() {
-    for (let wk_nummer = 1; wk_nummer <= 299; wk_nummer++) {
-      this.colorWahlkreis(wk_nummer, 'FFFFFF');
-    }
   }
 
   updateWahlkreisColorsSieger() {
     this.wksData.forEach(wks => {
       const color = this.siegerTyp === 1 ? wks.erststimme_sieger_farbe : wks.zweitstimme_sieger_farbe;
-      this.colorWahlkreis(wks.wk_nummer, color);
+      this.karte.colorWahlkreis(wks.wk_nummer, color);
     });
   }
 
@@ -110,12 +97,12 @@ export class KarteComponent implements OnInit, OnDestroy {
     filteredData.forEach(wkp => {
       const alpha = Math.round(wkp.rel_stimmen * 255 / maxRelative);
       const color = wkp.partei_farbe + (alpha < 16 ? '0' : '') + alpha.toString(16);
-      this.colorWahlkreis(wkp.wk_nummer, color);
+      this.karte.colorWahlkreis(wkp.wk_nummer, color);
     });
   }
 
   updateMap() {
-    this.resetColors();
+    this.karte.resetColors();
     if (this.partei === 'Gewinner') {
       this.updateWahlkreisColorsSieger();
     } else {
