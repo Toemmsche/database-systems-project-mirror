@@ -75,11 +75,12 @@ def load_wahlkreise(
             tuple(
                 [wahlkreis_dict[(wahl, int(row['Wahlkreis-Nr.']))]] +
                 [parse_float_de(row[value[wahl]]) if wahl in value else None for value in sd_mapping.values()]
-                ),
+            ),
             filtered_wahlkreise
         )
     )
     load_into_db(cursor, struct_data_records, 'strukturdaten')
+
 
 def load_parteien(cursor: psycopg.cursor) -> None:
     parteifarben_dict = {
@@ -98,6 +99,7 @@ def load_parteien(cursor: psycopg.cursor) -> None:
     records = list(
         map(
             lambda row: (
+                False,  # No einzelbewerbung
                 row['Name'],
                 row['Kurzbezeichnung'],
                 row['Kurzbezeichnung'] in nationale_minderheiten,
