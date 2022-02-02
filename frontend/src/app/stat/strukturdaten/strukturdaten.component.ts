@@ -16,8 +16,8 @@ import {ParteiErgebnisVergleich} from "../../../model/ParteiErgebnisVergleich";
 export class StrukturdatenComponent implements OnInit {
   wahl !: number;
   metriken !: Array<Metrik>;
-  topN = new FormControl(10, [Validators.min(1), Validators.max(20), Validators.required]);
-  metrik = new FormControl(undefined, [Validators.required]);
+  topNFormControl = new FormControl(10, [Validators.min(1), Validators.max(20), Validators.required]);
+  metrikFormControl = new FormControl(undefined, [Validators.required]);
   rangliste !: Array<Rangliste>;
   bData !: Array<Begrenzung>;
   kartenTyp: number = 1;
@@ -119,24 +119,24 @@ export class StrukturdatenComponent implements OnInit {
       .then((data: Array<Metrik>) => {
         this.ergebnisseHoch = [];
         this.ergebnisseNiedrig = [];
-        const oldValue = this.metrik?.value;
+        const oldValue = this.metrikFormControl?.value;
         this.metriken = data;
         if (oldValue) {
           const selectedValue = data.find(metrik => metrik.metrik == oldValue.metrik);
           if (selectedValue) {
-            this.metrik.setValue(selectedValue);
+            this.metrikFormControl.setValue(selectedValue);
           } else {
-            this.metrik.reset();
+            this.metrikFormControl.reset();
           }
         }
       });
   }
 
   populateRangliste(): void {
-    if (!this.metrik.valid || !this.topN.valid) {
+    if (!this.metrikFormControl.valid || !this.topNFormControl.valid) {
       return;
     }
-    REST_GET(`${this.wahl}/rangliste/${this.metrik.value.metrik}`)
+    REST_GET(`${this.wahl}/rangliste/${this.metrikFormControl.value.metrik}`)
       .then(response => response.json())
       .then((data: Array<Rangliste>) => {
         this.rangliste = data;
@@ -156,9 +156,9 @@ export class StrukturdatenComponent implements OnInit {
       });
     } else if (this.kartenTyp == 2) {
       this.rangliste.forEach(r => {
-        if (r.rank <= this.topN.value) {
+        if (r.rank <= this.topNFormControl.value) {
           this.karte.colorWahlkreis(r.nummer, this.colorNiedrig);
-        } else if (r.rank > this.rangliste.length - this.topN.value) {
+        } else if (r.rank > this.rangliste.length - this.topNFormControl.value) {
           this.karte.colorWahlkreis(r.nummer, this.colorHoch);
         }
       });
@@ -167,8 +167,8 @@ export class StrukturdatenComponent implements OnInit {
 
   async populateData() {
     const count = this.rangliste.length;
-    const lowestBody = this.rangliste.filter(r => r.rank <= this.topN.value).map(r => r.nummer);
-    const highestBody = this.rangliste.filter(r => r.rank > count - this.topN.value).map(r => r.nummer);
+    const lowestBody = this.rangliste.filter(r => r.rank <= this.topNFormControl.value).map(r => r.nummer);
+    const highestBody = this.rangliste.filter(r => r.rank > count - this.topNFormControl.value).map(r => r.nummer);
 
     let lowestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen_aggregiert`, lowestBody)
       .then(response => response.json());
@@ -233,7 +233,7 @@ export class StrukturdatenComponent implements OnInit {
     const def = `${b.wk_nummer} - ${b.wk_name}`;
     if (this.rangliste) {
       const wahlkreis = this.rangliste.find(r => r.nummer == b.wk_nummer);
-      return `${def} ${this.metrik.value.displayName}: ${wahlkreis!.metrik_wert}`;
+      return `${def} ${this.metrikFormControl.value.displayName}: ${wahlkreis!.metrik_wert}`;
     }
     return `${b.wk_nummer} - ${b.wk_name}`;
   }
