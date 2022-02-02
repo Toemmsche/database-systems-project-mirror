@@ -26,7 +26,6 @@ def load_bundeslaender(cursor: psycopg.cursor) -> None:
                 row['label'],
                 row['name_de'],
                 row['label'] in osten_bundeslaender,  # osten
-                None,
                 row['id']),
             records,
         )
@@ -82,28 +81,6 @@ def load_wahlkreise(
     )
     load_into_db(cursor, struct_data_records, 'strukturdaten')
 
-
-def load_gemeinden(
-        url: str,
-        wahl: int,
-        cursor: psycopg.cursor,
-        encoding: str = 'utf-8-sig'
-) -> None:
-    records = local_csv(url, delimiter=';', encoding=encoding)
-    wk_mapping = key_dict(cursor, 'wahlkreis', ('nummer', 'wahl'), 'wkid')
-    records = list(
-        map(
-            lambda row: (
-                row['Gemeindename'],
-                row['PLZ-GemVerwaltung'],
-                wk_mapping[(int(row['Wahlkreis-Nr']), wahl)],
-                None),
-            records,
-        )
-    )
-    load_into_db(cursor, records, 'Gemeinde')
-
-
 def load_parteien(cursor: psycopg.cursor) -> None:
     parteifarben_dict = {
         'CDU': '000000',
@@ -125,8 +102,7 @@ def load_parteien(cursor: psycopg.cursor) -> None:
                 row['Kurzbezeichnung'],
                 row['Kurzbezeichnung'] in nationale_minderheiten,
                 notFalsy(row['Gründungsdatum'][-4:], None),
-                parteifarben_dict[row['Kurzbezeichnung']] if row['Kurzbezeichnung'] in parteifarben_dict else 'DDDDDD',
-                None
+                parteifarben_dict[row['Kurzbezeichnung']] if row['Kurzbezeichnung'] in parteifarben_dict else 'DDDDDD'
             ),
             records,
         )
