@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { Subscription } from 'rxjs';
 import {Begrenzung} from 'src/model/Begrenzung';
 import {REST_GET} from 'src/util/ApiService';
@@ -12,7 +12,7 @@ import { SvgKarteComponent } from './svg-karte/svg-karte.component';
   templateUrl: './karte.component.html',
   styleUrls  : ['./karte.component.scss']
 })
-export class KarteComponent implements OnInit, OnDestroy {
+export class KarteComponent implements OnInit, OnDestroy, AfterViewInit {
   bData !: Array<Begrenzung>
 
   @Input()
@@ -29,11 +29,17 @@ export class KarteComponent implements OnInit, OnDestroy {
   parteien !: Array<string>;
   wahlSubscription !: Subscription;
 
-  constructor(private readonly wahlSelectionservice: WahlSelectionService) {
+  karteHeight: string = "0px";
+
+  constructor(private readonly wahlSelectionservice: WahlSelectionService, private readonly changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
     this.populateBegrenzungen();
+  }
+
+  ngAfterViewInit(): void {
+    this.updateKarteHeight();
   }
 
   ngOnDestroy(): void {
@@ -116,5 +122,18 @@ export class KarteComponent implements OnInit, OnDestroy {
 
   onParteiChange() {
     this.updateMap();
+  }
+
+  updateKarteHeight() {
+    const windowHeight = window.innerHeight;
+    const headerHeight = document.getElementById('app-header-container')!.clientHeight;
+    const footerHeight = document.getElementById('app-footer-container')!.clientHeight;
+    const karteHeaderElement = document.getElementById('karte-header')!; 
+    const karteHeaderHeight = karteHeaderElement.clientHeight;
+    const karteHeaderMargin = 16;
+    const contentMargin = 150;
+    const toggleContainerHeight = document.getElementById('karte-toggle-container')!.clientHeight;
+    this.karteHeight = `${windowHeight - headerHeight - footerHeight - karteHeaderHeight - karteHeaderMargin - toggleContainerHeight - contentMargin}px`;
+    this.changeDetector.detectChanges();
   }
 }

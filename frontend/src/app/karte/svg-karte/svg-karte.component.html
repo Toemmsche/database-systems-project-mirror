@@ -1,6 +1,6 @@
-<svg height="500" width="450">
+<svg height="100%" viewBox="200 0 460 500">
   <a *ngFor="let b of bData" routerLink="/Daten/Wahlkreis/{{b.wk_nummer}}">
-    <path #begrenzung class="begrenzung" [attr.d]="b.begrenzung" id="karte_{{b.wk_nummer}}" transform="translate(-200, 0)">
+    <path #begrenzung class="begrenzung" [attr.d]="b.begrenzung" id="karte_{{b.wk_nummer}}">
       <title>{{getTooltipText(b)}}</title>
     </path>
   </a>

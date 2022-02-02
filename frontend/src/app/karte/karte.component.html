@@ -1,5 +1,5 @@
 <div id="karte-container">
-  <h1>Wahlkreissieger nach Erst- und Zweitstimme</h1>
+  <h1 id="karte-header">Wahlkreissieger nach Erst- und Zweitstimme</h1>
   <div id="karte-toggle-container">
     <mat-button-toggle-group name="partei" [(ngModel)]="partei" (change)="onParteiChange()">
       <mat-button-toggle value="Gewinner">Gewinner</mat-button-toggle>
@@ -11,7 +11,9 @@
       <mat-button-toggle [value]="2">Zweitstimme</mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-  <app-svg-karte *ngIf="bDataLoaded()" [bData]="bData"></app-svg-karte>
+  <div id="svg-karte-container" [style.height]="karteHeight">
+    <app-svg-karte *ngIf="bDataLoaded()" [bData]="bData"></app-svg-karte>
+  </div>
 </div>
 <mat-spinner *ngIf="!wksLoaded()"></mat-spinner>
 
