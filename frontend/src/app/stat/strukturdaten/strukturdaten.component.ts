@@ -55,7 +55,10 @@ export class StrukturdatenComponent implements OnInit {
         yAxes: [
           {
             ticks: {
-              beginAtZero: true
+              beginAtZero: true,
+              callback: (item: any) => {
+                return item + '%';
+              }
             }
           }
         ]

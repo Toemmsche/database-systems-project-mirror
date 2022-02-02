@@ -32,10 +32,20 @@ export class OstenergebnisComponent implements OnInit, OnDestroy {
         yAxes: [
           {
             ticks: {
-              beginAtZero: true
+              beginAtZero: true,
+              callback: (item: any) => {
+                return item + '%';
+              }
             }
           }
         ]
+      },
+      tooltips: {
+        callbacks: {
+          label: (item: any) => {
+            return item.yLabel.toFixed(2) + '%';
+          }
+        }
       }
     }
   }
@@ -68,7 +78,7 @@ export class OstenergebnisComponent implements OnInit, OnDestroy {
         // Populate bar chart
         const chartData = this.ostenConfig.data;
         chartData.labels = data.map((result) => result.partei);
-        chartData.datasets[0].data = data.map((result) => result.abs_stimmen);
+        chartData.datasets[0].data = data.map((result) => 100 * result.rel_stimmen);
         chartData.datasets[0].backgroundColor = data.map((result) => '#' +
           result.partei_farbe);
         // Make sure chart is refreshed when new data is available

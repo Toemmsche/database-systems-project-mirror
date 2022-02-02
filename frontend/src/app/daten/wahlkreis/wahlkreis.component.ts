@@ -40,10 +40,20 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
         yAxes: [
           {
             ticks: {
-              beginAtZero: true
+              beginAtZero: true,
+              callback: (item: any) => {
+                return item + '%';
+              }
             }
           }
         ]
+      },
+      tooltips: {
+        callbacks: {
+          label: (item: any) => {
+            return item.yLabel.toFixed(2) + '%';
+          }
+        }
       }
     }
   }
@@ -67,10 +77,20 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
         yAxes: [
           {
             ticks: {
-              beginAtZero: true
+              beginAtZero: true,
+              callback: (item: any) => {
+                return item + '%';
+              }
             }
           }
         ]
+      },
+      tooltips: {
+        callbacks: {
+          label: (item: any) => {
+            return item.yLabel.toFixed(2) + '%';
+          }
+        }
       }
     }
   }
@@ -114,7 +134,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
         const esData = data.filter(pe => pe.stimmentyp == 1);
         const esChartData = this.erststimmenConfig.data;
         esChartData.labels = esData.map((result) => result.partei);
-        esChartData.datasets[0].data = esData.map((result) => result.abs_stimmen);
+        esChartData.datasets[0].data = esData.map((result) => 100 * result.rel_stimmen);
         esChartData.datasets[0].backgroundColor = esData.map((result) => '#' +
           result.partei_farbe);
 
@@ -125,7 +145,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
         const zsData = data.filter(pe => pe.stimmentyp == 2);
         const zsChartData = this.zweitstimmenConfig.data;
         zsChartData.labels = zsData.map((result) => result.partei);
-        zsChartData.datasets[0].data = zsData.map((result) => result.abs_stimmen);
+        zsChartData.datasets[0].data = zsData.map((result) => 100 * result.rel_stimmen);
         zsChartData.datasets[0].backgroundColor = zsData.map((result) => '#' +
           result.partei_farbe);
 
