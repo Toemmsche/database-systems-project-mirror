@@ -3,7 +3,7 @@ import unittest
 
 import psycopg
 
-from logic.DatabaseInitialization import conn_string
+from logic.config import conn_string
 from logic.util import table_to_json
 
 
@@ -11,7 +11,7 @@ class TestSitzeNachErhoehungSql(unittest.TestCase):
 
     def setUp(self):
         self.conn = psycopg.connect(
-            **conn_string,
+            conn_string,
             autocommit=True
         )
         self.cursor = self.conn.cursor()

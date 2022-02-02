@@ -15,6 +15,8 @@ DECLARE
           AND wk.wahl = wahl_input
     );
 BEGIN
+
+    --Erststimmen
     UPDATE direktkandidatur
     SET anzahlstimmen =
             (SELECT COUNT(*)
@@ -22,6 +24,7 @@ BEGIN
              WHERE e.kandidatur = direktid)
     WHERE wahlkreis = wkid_input;
 
+    --Zweitstimmen
     DELETE
     FROM zweitstimmenergebnis
     WHERE wahlkreis = wkid_input;
