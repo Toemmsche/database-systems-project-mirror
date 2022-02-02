@@ -76,7 +76,7 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
             lambda row: (
                 partei_mapping[(f"WK-{int(row['Gebietsnummer'])}-{row['Gruppenname']}", row['Gruppenname'])],
                 None,
-                int(row['Gebietsnummer']),
+                wahlkreis_mapping[(int(row['Gebietsnummer']), 19,)],
                 int(row['Anzahl'])
             ),
             ergebnisse_parteilos
