@@ -40,9 +40,6 @@ def init_data(cursor: psycopg.Cursor) -> None:
         begrenzungen_dict,
         cursor
     )
-    # There are over 10k communities in Germany
-    if not heroku:
-        load_gemeinden(gemeinden_2021, 20, cursor)
     load_parteien(cursor)
     load_landeslisten_2021(cursor)
     load_kandidaten_2021(cursor)
@@ -62,9 +59,6 @@ def init_data(cursor: psycopg.Cursor) -> None:
         cursor,
         'cp1252'
     )
-    # There are over 10k communities in Germany
-    if not heroku:
-        load_gemeinden(gemeinden_2017, 19, cursor, 'cp1252')
     load_landeslisten_2017(cursor)
     load_zweitstimmen_2017(cursor)
     load_ungueltige_stimmen_2017(cursor)

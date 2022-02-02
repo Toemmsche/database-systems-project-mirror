@@ -48,8 +48,6 @@ def load_kandidaten_2021(cursor: psycopg.cursor) -> None:
                 row['Namenszusatz'],
                 row['Geburtsjahr'],
                 row['Geburtsort'],
-                # gemeinde_mapping[row['PLZ']],
-                None,  # TODO
                 row['Beruf'],
                 row['Geschlecht'],
             ),

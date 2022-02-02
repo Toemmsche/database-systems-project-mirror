@@ -10,7 +10,7 @@ CREATE VIEW wahlkreisinformation
            k.vorname                                                AS sieger_vorname,
            k.nachname                                               AS sieger_nachname,
            p.kuerzel                                                AS sieger_partei,
-           (SUM(ze.anzahlstimmen) + use.anzahlstimmen)::DECIMAL * 100 / wk.deutsche AS wahlbeteiligung_prozent
+           (SUM(ze.anzahlstimmen) + use.anzahlstimmen)::DECIMAL * 100 / wk.wahlberechtigte AS wahlbeteiligung_prozent
     FROM wahlkreis wk,
          mandat m
              LEFT OUTER JOIN
@@ -26,7 +26,7 @@ CREATE VIEW wahlkreisinformation
       AND use.stimmentyp = 2 --use zweitstimmen for wahlbeteiligung
       AND m.partei = p.parteiid
       AND wk.land = bl.landid
-    GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.deutsche, use.anzahlstimmen;
+    GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.wahlberechtigte, use.anzahlstimmen;
 
 CREATE VIEW stimmen_qpartei_wahlkreis
             (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
