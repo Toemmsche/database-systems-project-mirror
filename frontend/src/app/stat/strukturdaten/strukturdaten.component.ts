@@ -62,7 +62,7 @@ export class StrukturdatenComponent implements OnInit {
       },
       legend: {
         labels: {
-          generateLabels: function (chart: any) {
+          generateLabels: (chart: any) => {
             var data = chart.config.data;
 
             return data.datasets.map((ds: any, index: number) => ({
@@ -72,6 +72,13 @@ export class StrukturdatenComponent implements OnInit {
               hidden: chart.getDatasetMeta(index).hidden
             })
             );
+          }
+        },
+      },
+      tooltips: {
+        callbacks: {
+          label: (item: any) => {
+            return item.yLabel.toFixed(2) + '%';
           }
         }
       }
@@ -193,10 +200,10 @@ export class StrukturdatenComponent implements OnInit {
     // Populate bar chart
     const chartDataVergleich = this.ergebnisseVergleichConfig.data;
     chartDataVergleich.labels = lowestData.map((result) => result.partei);
-    chartDataVergleich.datasets[0].data = lowestData.map((result) => result.rel_stimmen);
+    chartDataVergleich.datasets[0].data = lowestData.map((result) => result.rel_stimmen * 100);
     chartDataVergleich.datasets[0].backgroundColor = lowestData.map((result) => '#' +
       result.partei_farbe);
-    chartDataVergleich.datasets[1].data = highestData.map((result) => result.rel_stimmen);
+    chartDataVergleich.datasets[1].data = highestData.map((result) => result.rel_stimmen * 100);
     chartDataVergleich.datasets[1].backgroundColor = highestData.map((result) => '#' +
       result.partei_farbe);
 
