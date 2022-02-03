@@ -4,7 +4,7 @@ import psycopg
 
 
 def kwargs_to_where_clause(kwargs: dict) -> str:
-    return "WHERE " + " AND ".join([key + " = " + value for key, value in kwargs.items()]) if len(kwargs) > 0 else ""
+    return "WHERE " + " AND ".join([key + " = " + str(value) for key, value in kwargs.items()]) if len(kwargs) > 0 else ""
 
 
 def query_to_dict_list(cursor: psycopg.cursor, query: str, **kwargs) -> list[dict]:
