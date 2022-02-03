@@ -40,7 +40,7 @@ class WahlUser(HttpUser):
     # Q3
     @task(25)
     def query_wahlkreisuebersicht(self):
-        wahlkreis = 22
+        wahlkreis = 222
         self.query_random_wahlen(
             [f"/api/{{wahl}}/wahlkreis/{wahlkreis}", f"/api/{{wahl}}/wahlkreis/{wahlkreis}/stimmen"]
         )
