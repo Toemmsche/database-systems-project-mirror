@@ -32,13 +32,13 @@ class TestMdbSql(unittest.TestCase):
         res_list = table_to_dict_list(self.cursor, 'mitglieder_bundestag', wahl=20)
 
         mdb_actual = set(
-            [(row['vorname'], row['nachname'], row['geburtsjahr'], row['grund'].startswith('Direktmandat')) for row in
+            [(row['vorname'], row['nachname'], row['geburtsjahr'], row['partei'], row['grund'].startswith('Direktmandat')) for row in
              res_list])
 
         self.assertEqual(len(mdb_expected), len(mdb_actual))
         for row in mdb_expected:
             key = (
-                row['Vornamen'], row['Nachname'], int(row['Geburtsjahr']), row['Kennzeichen'] == 'Kreiswahlvorschlag')
+                row['Vornamen'], row['Nachname'], int(row['Geburtsjahr']), row['Gruppenname'], row['Kennzeichen'] == 'Kreiswahlvorschlag')
             if key not in mdb_actual:
                 self.fail(f"Cannot find {key}")
 
