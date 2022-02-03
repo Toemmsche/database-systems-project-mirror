@@ -1,17 +1,26 @@
-<div id="mdb-container" *ngIf="mdbLoaded()">
+<div id="mdb-container">
   <h1>Mitglieder des Deutschen Bundestages</h1>
-  <div id="mdb-filter">
+  <div class="filter-row">
     <mat-form-field appearance="fill">
       <mat-label>Partei</mat-label>
-      <mat-select [(ngModel)]="parteiFilter" (selectionChange)="updateFiltered()" value="Alle">
+      <mat-select [formControl]="parteiFilter" value="Alle">
         <mat-option value="Alle">Alle</mat-option>
         <mat-option *ngFor="let p of this.parteien" [value]="p">
           {{p}}
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Geschlecht</mat-label>
+      <mat-select [formControl]="geschlechtFilter" value="Alle">
+        <mat-option value="Alle">Alle</mat-option>
+        <mat-option *ngFor="let g of this.geschlechter" [value]="g">
+          {{g}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
-  <table id="mdb-table" mat-table  [dataSource]="filteredMdbData" class="mat-elevation-z8">
+  <table id="mdb-table" mat-table [dataSource]="mdbDataSource" class="mat-elevation-z8" *ngIf="mdbLoaded()">
     <ng-container matColumnDef="nachname">
       <th mat-header-cell *matHeaderCellDef>Nachname</th>
       <td mat-cell *matCellDef="let mdb"> {{mdb.nachname}} </td>
@@ -28,6 +37,10 @@
       <th mat-header-cell *matHeaderCellDef>Geburtsjahr</th>
       <td mat-cell *matCellDef="let mdb"> {{mdb.geburtsjahr}} </td>
     </ng-container>
+    <ng-container matColumnDef="geschlecht">
+      <th mat-header-cell *matHeaderCellDef>Geschlecht</th>
+      <td mat-cell *matCellDef="let kandidat"> {{kandidat.geschlecht}} </td>
+    </ng-container>
     <ng-container matColumnDef="grund">
       <th mat-header-cell *matHeaderCellDef>Grund</th>
       <td mat-cell *matCellDef="let mdb"> {{mdb.grund}} </td>
@@ -35,5 +48,6 @@
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
     <tr mat-row *matRowDef="let mdb; columns: columnsToDisplay"></tr>
   </table>
+  <mat-paginator #paginator></mat-paginator>
 </div>
 <mat-spinner *ngIf="!mdbLoaded()"></mat-spinner>

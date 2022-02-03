@@ -1,13 +1,8 @@
-:host {
-  margin-top: 50px;
-  margin-bottom: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 60%;
-}
+@import "../../styles.scss";
 
+:host {
+  @extend .host-container
+}
 
 mat-panel-title {
   font-size: larger;

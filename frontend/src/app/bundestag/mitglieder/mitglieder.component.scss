@@ -7,14 +7,9 @@
   align-items: center;
 }
 
-#mdb-filter {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
 
-.mat-column-vorname, .mat-column-nachname, .mat-column-grund, .mat-column-geburtsjahr {
+.mat-column-vorname, .mat-column-nachname, .mat-column-partei,
+.mat-column-grund, .mat-column-geburtsjahr, .mat-column-geschlecht {
   padding-left: 20px;
   padding-right: 20px;
 }

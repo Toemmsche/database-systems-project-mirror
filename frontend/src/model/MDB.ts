@@ -4,5 +4,6 @@ export class MDB {
   nachname !: string;
   partei !: string;
   geburtsjahr !: number;
+  geschlecht !: string;
   grund !: string;
 }

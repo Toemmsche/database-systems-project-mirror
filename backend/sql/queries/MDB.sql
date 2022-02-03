@@ -1,11 +1,12 @@
 DROP VIEW IF EXISTS mitglieder_bundestag CASCADE;
 
-CREATE VIEW mitglieder_bundestag(wahl, vorname, nachname, partei, geburtsjahr, grund) AS
+CREATE VIEW mitglieder_bundestag(wahl, vorname, nachname, partei, geburtsjahr, geschlecht, grund) AS
     SELECT m.wahl,
            k.vorname,
            k.nachname,
            p.kuerzel,
            k.geburtsjahr,
+           k.geschlecht,
            'Direktmandat aus Wahlkreis ' || wk.nummer || ' - ' || wk.name
     FROM mandat m
              LEFT OUTER JOIN kandidat k ON m.kandidat = k.kandid,
@@ -21,7 +22,9 @@ CREATE VIEW mitglieder_bundestag(wahl, vorname, nachname, partei, geburtsjahr, g
            k.vorname,
            k.nachname,
            p.kuerzel,
+
            k.geburtsjahr,
+           k.geschlecht,
            'Landeslistenmandat von Listenplatz ' || m.position || ' in ' || bl.name
     FROM mandat m
              LEFT OUTER JOIN kandidat k ON m.kandidat = k.kandid,
