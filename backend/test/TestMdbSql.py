@@ -23,8 +23,7 @@ class TestMdbSql(unittest.TestCase):
 
     # test only feasible for 2021
     def test_mandate_2021(self):
-        mdb_expected = local_csv('../' + mdb_2021, delimiter=';')
-
+        mdb_expected = local_csv(mdb_2021, delimiter=';')
 
         # The bottom 4 candidates are 'nachrücker', we disregard them
         mdb_expected = mdb_expected[:-4]

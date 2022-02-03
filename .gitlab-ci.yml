@@ -1,6 +1,7 @@
 stages:
   - deploy-backend
   - deploy-frontend
+  - test
 
 deploy-backend:
   stage: deploy-backend
@@ -23,3 +24,13 @@ deploy-frontend:
     - echo "Deployed to Server https://datenbanken-ws22-frontend.herokuapp.com"
   only:
     - main
+
+
+test:
+  stage: test
+  script:
+    - apt-get update -qy
+    - apt-get install -y python
+    - cd backend
+    - pip install -r requirements.txt
+    - python -m unittest test/*.py
