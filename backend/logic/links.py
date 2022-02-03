@@ -11,3 +11,4 @@ ergebnisse_2021 = 'https://www.bundeswahlleiter.de/bundestagswahlen/2021/ergebni
 ergebnisse_2017 = 'https://www.bundeswahlleiter.de/dam/jcr/0d1ea773-f3ca-40ea-b8ff-b031712707e1/btw17_kerg2.csv'
 begrenzungen_2021 = 'data/begrenzungen_2021.svg'
 begrenzungen_2017 = 'data/begrenzungen_2017.svg'
+mdb_2021 = 'data/mdb_2021.csv'
