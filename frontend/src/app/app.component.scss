@@ -1,10 +1,17 @@
+#app-header-container {
+  position: fixed;
+  top: 0;
+  min-width: 100%;
+  z-index: 10;
+}
+
 #app-container {
-  height: 100%;
+  padding-top: 64px;
+  min-height: calc(100% - 64px);
   display: flex;
   flex-direction: column;
 }
 
 #app-content-container {
-  overflow: scroll;
   flex-grow: 1;
 }

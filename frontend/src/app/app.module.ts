@@ -44,6 +44,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatIconModule} from "@angular/material/icon";
 import { StrukturdatenComponent } from './stat/strukturdaten/strukturdaten.component';
 import { SvgKarteComponent } from './karte/svg-karte/svg-karte.component';
+import { BegrenzungComponent } from './daten/wahlkreisliste/begrenzung/begrenzung.component';
 
 @NgModule({
   declarations: [
@@ -64,7 +65,8 @@ import { SvgKarteComponent } from './karte/svg-karte/svg-karte.component';
     DatenComponent,
     StimmabgabeComponent,
     StrukturdatenComponent,
-    SvgKarteComponent
+    SvgKarteComponent,
+    BegrenzungComponent
   ],
   imports: [
     BrowserModule,

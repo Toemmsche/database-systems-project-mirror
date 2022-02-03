@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Subscription } from 'rxjs';
 import {WahlSelectionService} from 'src/app/service/wahl-selection.service';
 import {Ueberhang} from "../../../model/Ueberhang";
 import {REST_GET} from "../../../util/ApiService";
@@ -8,15 +9,16 @@ import {REST_GET} from "../../../util/ApiService";
   templateUrl: './ueberhang.component.html',
   styleUrls  : ['./ueberhang.component.scss']
 })
-export class UeberhangComponent implements OnInit {
+export class UeberhangComponent implements OnInit, OnDestroy {
 
   columnsToDisplay = ['bundesland', 'partei', 'ueberhang'];
   wahl !: number;
   ueberhangData !: Array<Ueberhang>;
+  wahlSubscription !: Subscription;
 
   constructor(private readonly wahlService: WahlSelectionService) {
     this.wahl = this.wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
-    this.wahlService.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlService.getWahlNumber(selection);
       this.ueberhangData = [];
       this.ngOnInit();
@@ -25,6 +27,10 @@ export class UeberhangComponent implements OnInit {
 
   ngOnInit(): void {
     this.populate();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate(): void {

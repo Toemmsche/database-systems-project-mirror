@@ -1,5 +1,5 @@
-import {Component, Input, OnInit} from "@angular/core";
-import {ActivatedRoute} from "@angular/router";
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {REST_GET} from "../../../util/ApiService";
 import {Wahlkreis} from "../../../model/Walhkreis";
 import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
@@ -7,13 +7,14 @@ import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {sortWithSonstige} from "../../../util/ArrayHelper";
 import ServerError from "../../../util/ServerError";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector   : "app-wahlkreis",
   templateUrl: "./wahlkreis.component.html",
   styleUrls  : ["./wahlkreis.component.scss"]
 })
-export class WahlkreisComponent implements OnInit {
+export class WahlkreisComponent implements OnInit, OnDestroy {
 
   @Input()
   nummer !: number;
@@ -40,10 +41,23 @@ export class WahlkreisComponent implements OnInit {
         yAxes: [
           {
             ticks: {
-              beginAtZero: true
+              beginAtZero: true,
+              callback: (item: any) => {
+                return item + '%';
+              }
             }
           }
         ]
+      },
+      legend: {
+        display: false
+      },
+      tooltips: {
+        callbacks: {
+          label: (item: any) => {
+            return item.yLabel.toFixed(2) + '%';
+          }
+        }
       }
     }
   }
@@ -67,20 +81,34 @@ export class WahlkreisComponent implements OnInit {
         yAxes: [
           {
             ticks: {
-              beginAtZero: true
+              beginAtZero: true,
+              callback: (item: any) => {
+                return item + '%';
+              }
             }
           }
         ]
+      },
+      legend: {
+        display: false
+      },
+      tooltips: {
+        callbacks: {
+          label: (item: any) => {
+            return item.yLabel.toFixed(2) + '%';
+          }
+        }
       }
     }
   }
+  wahlSubscription !: Subscription;
 
   constructor(
     private route: ActivatedRoute,
     private readonly wahlservice: WahlSelectionService
   ) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    wahlservice.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlservice.getWahlNumber(selection);
       this.erststimmenergebnisse = [];
       this.zweitstimmenergebnisse = [];
@@ -92,6 +120,10 @@ export class WahlkreisComponent implements OnInit {
     // Get wahlkreis nummer
     this.nummer = parseInt(<string>this.route.snapshot.paramMap.get("nummer"));
     this.populate();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populate(): void {
@@ -118,8 +150,8 @@ export class WahlkreisComponent implements OnInit {
         const esData = data.filter(pe => pe.stimmentyp == 1);
         const esChartData = this.erststimmenConfig.data;
         esChartData.labels = esData.map((result) => result.partei);
-        esChartData.datasets[0].data = esData.map((result) => result.abs_stimmen);
-        esChartData.datasets[0].backgroundColor = esData.map((result) => "#" +
+        esChartData.datasets[0].data = esData.map((result) => 100 * result.rel_stimmen);
+        esChartData.datasets[0].backgroundColor = esData.map((result) => '#' +
           result.partei_farbe);
 
         // Save for later
@@ -129,13 +161,13 @@ export class WahlkreisComponent implements OnInit {
         const zsData = data.filter(pe => pe.stimmentyp == 2);
         const zsChartData = this.zweitstimmenConfig.data;
         zsChartData.labels = zsData.map((result) => result.partei);
-        zsChartData.datasets[0].data = zsData.map((result) => result.abs_stimmen);
-        zsChartData.datasets[0].backgroundColor = zsData.map((result) => "#" +
+        zsChartData.datasets[0].data = zsData.map((result) => 100 * result.rel_stimmen);
+        zsChartData.datasets[0].backgroundColor = zsData.map((result) => '#' +
           result.partei_farbe);
 
         // Save for later
         this.zweitstimmenergebnisse = zsData;
-      })
+      });
   }
 
   wahlkreisLoaded(): boolean {

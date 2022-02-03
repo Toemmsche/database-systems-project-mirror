@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Subscription } from 'rxjs';
 import {WahlSelectionService} from 'src/app/service/wahl-selection.service';
 import {KnapperSiegOderNierderlage} from "../../../model/KnapperSiegOderNierderlage";
 import {REST_GET} from "../../../util/ApiService";
@@ -8,14 +9,17 @@ import {REST_GET} from "../../../util/ApiService";
   templateUrl: './knapp.component.html',
   styleUrls  : ['./knapp.component.scss']
 })
-export class KnappComponent implements OnInit {
+export class KnappComponent implements OnInit, OnDestroy {
 
   wahl !: number;
   columnsToDisplay = [
     'sieger-partei',
     'verlierer-partei',
     'wahlkreis',
-    'differenz-stimmen'
+    'stimmen-sieger-partei',
+    'stimmen-verlierer-partei',
+    'differenz-stimmen',
+    'differenz-relativ'
   ];
   siegerParteien !: Set<string>;
   siegerParteiFilter: string = "Alle";
@@ -25,9 +29,11 @@ export class KnappComponent implements OnInit {
   knappData !: Array<KnapperSiegOderNierderlage>;
   filteredKnappData !: Array<KnapperSiegOderNierderlage>;
 
+  wahlSubscription !: Subscription;
+
   constructor(private readonly wahlService: WahlSelectionService) {
     this.wahl = this.wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
-    this.wahlService.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlService.getWahlNumber(selection);
       this.knappData = [];
       this.ngOnInit();
@@ -38,6 +44,10 @@ export class KnappComponent implements OnInit {
     this.populate();
   }
 
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
+  }
+
   populate(): void {
     REST_GET(`${this.wahl}/stat/knapp`)
       .then(response => response.json())
@@ -46,9 +56,7 @@ export class KnappComponent implements OnInit {
           return a.differenz_stimmen - b.differenz_stimmen;
         })
         this.siegerParteien = new Set(this.knappData.map(k => k.sieger_partei));
-        this.siegerParteien.add("Alle");
         this.verliererParteien = new Set(this.knappData.map(k => k.verlierer_partei));
-        this.verliererParteien.add("Alle");
         this.filteredKnappData = this.knappData.slice();
       })
   }

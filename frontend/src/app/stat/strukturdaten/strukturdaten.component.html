@@ -2,7 +2,7 @@
   <div>
     <mat-form-field appearance="fill">
       <mat-label>Metrik</mat-label>
-      <mat-select [formControl]="metrik" (selectionChange)="populateRangliste()">
+      <mat-select [formControl]="metrikFormControl" (selectionChange)="populateRangliste()">
         <mat-option *ngFor="let metrik of metriken" [value]="metrik">{{metrik.displayName}}</mat-option>
       </mat-select>
     </mat-form-field>
@@ -10,27 +10,26 @@
   <div>
     <mat-form-field appearance="fill">
       <mat-label>Top N</mat-label>
-      <input type="number" matInput [min]="1" [max]="20" [formControl]="topN" (input)="populateRangliste()">
+      <input type="number" matInput [min]="1" [max]="20" [formControl]="topNFormControl" (input)="populateRangliste()">
     </mat-form-field>
   </div>
 </div>
 <div *ngIf="bDataLoaded()" class="strukturdaten-container">
-  <div>
+  <div class="strukturdaten-karte-container">
     <div>
-      <mat-button-toggle-group [disabled]="!stimmenLoaded()" name="kartenTyp" [(ngModel)]="kartenTyp" (change)="onKartenTypChange()">
+      <mat-button-toggle-group [disabled]="!stimmenLoaded()" name="kartenTyp" [(ngModel)]="kartenTyp"
+        (change)="onKartenTypChange()">
         <mat-button-toggle [value]="1">Gesamt</mat-button-toggle>
         <mat-button-toggle [value]="2">Top N</mat-button-toggle>
       </mat-button-toggle-group>
     </div>
-    <div>
+    <div class="strukturdaten-karte">
       <app-svg-karte [bData]="bData" [getTooltipText]="getTooltipText.bind(this)"></app-svg-karte>
     </div>
   </div>
-  <div class="strukturdaten-result-container">
-    <div *ngIf="stimmenLoaded()">
-      <h2>{{this.metrik.value.displayName}}</h2>
-      <chart [type]="ergebnisseVergleichConfig.type" [data]="ergebnisseVergleichConfig.data"
-        [options]="ergebnisseVergleichConfig.options"></chart>
-    </div>
+  <div *ngIf="stimmenLoaded()" class="strukturdaten-ergebnis-container">
+    <h2>{{this.metrikFormControl.value.displayName}}</h2>
+    <chart [type]="ergebnisseVergleichConfig.type" [data]="ergebnisseVergleichConfig.data"
+      [options]="ergebnisseVergleichConfig.options"></chart>
   </div>
 </div>

@@ -5,8 +5,19 @@
   justify-content: space-around;
 }
 
-.mat-column-sieger-partei, .mat-column-verlierer-partei, .mat-column-wahlkreis, .mat-column-differenz-stimmen {
+.mat-column-sieger-partei, .mat-column-verlierer-partei, .mat-column-wahlkreis, .mat-column-differenz-stimmen,
+.mat-column-stimmen-sieger-partei, .mat-column-stimmen-verlierer-partei {
   padding-left: 20px;
   padding-right: 20px;
-  text-align: center;
+}
+
+.mat-column-differenz-stimmen, .mat-column-stimmen-sieger-partei, .mat-column-stimmen-verlierer-partei, .mat-column-differenz-relativ {
+  text-align: right;
+}
+
+#knapp-filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 10px;
 }

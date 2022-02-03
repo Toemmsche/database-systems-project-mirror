@@ -1,4 +1,5 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { Subscription } from 'rxjs';
 import {Begrenzung} from 'src/model/Begrenzung';
 import {REST_GET} from 'src/util/ApiService';
 import {Wahlkreissieger} from "../../model/Wahlkreissieger";
@@ -11,7 +12,7 @@ import { SvgKarteComponent } from './svg-karte/svg-karte.component';
   templateUrl: './karte.component.html',
   styleUrls  : ['./karte.component.scss']
 })
-export class KarteComponent implements OnInit {
+export class KarteComponent implements OnInit, OnDestroy, AfterViewInit {
   bData !: Array<Begrenzung>
 
   @Input()
@@ -26,12 +27,23 @@ export class KarteComponent implements OnInit {
   siegerTyp: number = 1;
   partei: string = "Gewinner";
   parteien !: Array<string>;
+  wahlSubscription !: Subscription;
 
-  constructor(private readonly wahlSelectionservice: WahlSelectionService) {
+  karteHeight: string = "0px";
+
+  constructor(private readonly wahlSelectionservice: WahlSelectionService, private readonly changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
     this.populateBegrenzungen();
+  }
+
+  ngAfterViewInit(): void {
+    this.updateKarteHeight();
+  }
+
+  ngOnDestroy(): void {
+    this.wahlSubscription.unsubscribe();
   }
 
   populateBegrenzungen(): void {
@@ -45,7 +57,7 @@ export class KarteComponent implements OnInit {
 
   ready(): void {
     this.populateDaten(this.wahlSelectionservice.wahlSubject.getValue());
-    this.wahlSelectionservice.wahlSubject.subscribe((selection: number) => {
+    this.wahlSubscription = this.wahlSelectionservice.wahlSubject.subscribe((selection: number) => {
       this.populateDaten(selection);
     });
   }
@@ -110,5 +122,18 @@ export class KarteComponent implements OnInit {
 
   onParteiChange() {
     this.updateMap();
+  }
+
+  updateKarteHeight() {
+    const windowHeight = window.innerHeight;
+    const headerHeight = document.getElementById('app-header-container')!.clientHeight;
+    const footerHeight = document.getElementById('app-footer-container')!.clientHeight;
+    const karteHeaderElement = document.getElementById('karte-header')!; 
+    const karteHeaderHeight = karteHeaderElement.clientHeight;
+    const karteHeaderMargin = 16;
+    const contentMargin = 150;
+    const toggleContainerHeight = document.getElementById('karte-toggle-container')!.clientHeight;
+    this.karteHeight = `${windowHeight - headerHeight - footerHeight - karteHeaderHeight - karteHeaderMargin - toggleContainerHeight - contentMargin}px`;
+    this.changeDetector.detectChanges();
   }
 }

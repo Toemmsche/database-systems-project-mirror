@@ -3,6 +3,7 @@ export class Wahlkreis {
   land !: string;
   wk_nummer !: number;
   wk_name !: string;
+  wk_begrenzung !: string;
   sieger_vorname !: string;
   sieger_nachname !: String;
   sieger_partei !: string;

@@ -1,9 +1,11 @@
 #footer-content {
   display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
-  padding: 2%;
+  column-gap: 10px;
+  padding: 1%;
+  background-color: rgba(0,0,0,.04);
 }
 
 :host {

@@ -2,11 +2,12 @@ DROP VIEW IF EXISTS wahlkreisinformation CASCADE;
 DROP VIEW IF EXISTS stimmen_qpartei_wahlkreis CASCADE;
 
 CREATE VIEW wahlkreisinformation
-            (wahl, land, wk_nummer, wk_name, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
+            (wahl, land, wk_nummer, wk_name, wk_begrenzung, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
     SELECT wk.wahl,
            bl.name,
            wk.nummer,
            wk.name,
+           wk.begrenzung,
            k.vorname                                                AS sieger_vorname,
            k.nachname                                               AS sieger_nachname,
            p.kuerzel                                                AS sieger_partei,
