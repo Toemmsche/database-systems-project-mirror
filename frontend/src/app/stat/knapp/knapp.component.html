@@ -1,4 +1,4 @@
-<div [hidden]="!knappLoaded()">
+<div class="stretch" [hidden]="!knappLoaded()">
   <div class="filter-row">
     <mat-form-field appearance="fill">
       <mat-label>Sieg/Niederlage</mat-label>
@@ -35,7 +35,7 @@
   </div>
 
 
-  <table id="knapp-table" mat-table [dataSource]="knappDataSource" class="mat-elevation-z8">
+  <table mat-table [dataSource]="knappDataSource" class="stretch mat-elevation-z8">
     <ng-container matColumnDef="sieger-partei">
       <th mat-header-cell *matHeaderCellDef>Siegerpartei (SP)</th>
       <td mat-cell *matCellDef="let row"> {{row.sieger_partei}} </td>
