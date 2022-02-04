@@ -1,15 +1,18 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
-import {WahlSelectionService} from 'src/app/service/wahl-selection.service';
-import {KnapperSiegOderNierderlage} from "../../../model/KnapperSiegOderNierderlage";
-import {REST_GET} from "../../../util/ApiService";
+import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
+import { KnapperSiegOderNierderlage } from "../../../model/KnapperSiegOderNierderlage";
+import { REST_GET } from "../../../util/ApiService";
+import { MatTableDataSource } from "@angular/material/table";
+import { MatPaginator } from "@angular/material/paginator";
+import { FormControl } from "@angular/forms";
 
 @Component({
-  selector   : 'app-knapp',
+  selector: 'app-knapp',
   templateUrl: './knapp.component.html',
-  styleUrls  : ['./knapp.component.scss']
+  styleUrls: ['./knapp.component.scss']
 })
-export class KnappComponent implements OnInit, OnDestroy {
+export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
 
   wahl !: number;
   columnsToDisplay = [
@@ -21,13 +24,34 @@ export class KnappComponent implements OnInit, OnDestroy {
     'differenz-stimmen',
     'differenz-relativ'
   ];
-  siegerParteien !: Set<string>;
-  siegerParteiFilter: string = "Alle";
-  verliererParteien !: Set<string>;
-  verliererParteiFilter: string = "Alle";
-  istSiegFilter : string = "Beide";
-  knappData !: Array<KnapperSiegOderNierderlage>;
-  filteredKnappData !: Array<KnapperSiegOderNierderlage>;
+
+  knappDataSource: MatTableDataSource<KnapperSiegOderNierderlage> = new MatTableDataSource();
+
+  @ViewChild('paginator')
+  kandidatenTablePaginator !: MatPaginator
+
+  typFilter = new FormControl("")
+  siegerParteiFilter = new FormControl("")
+  siegerParteien !: Set<string>
+  verliererParteiFilter = new FormControl("")
+  verliererParteien !: Set<string>
+
+  filter = {
+    typ: "Beide",
+    siegerPartei: "Alle",
+    verliererPartei: "Alle"
+  }
+
+  filterPredicate = (k: KnapperSiegOderNierderlage, filterJson: string) => {
+    const all = "Alle"
+    let filter = JSON.parse(filterJson);
+    return (filter.siegerPartei === all || (k.sieger_partei === filter.siegerPartei)) &&
+           (filter.verliererPartei === all || (k.verlierer_partei === filter.verliererPartei)) &&
+           (filter.typ ===
+            "Beide" ||
+            (filter.typ === "Sieg" && k.is_sieg) ||
+            (filter.typ === "Niederlage" && !k.is_sieg));
+  }
 
   wahlSubscription !: Subscription;
 
@@ -35,13 +59,41 @@ export class KnappComponent implements OnInit, OnDestroy {
     this.wahl = this.wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
     this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlService.getWahlNumber(selection);
-      this.knappData = [];
-      this.ngOnInit();
+      this.knappDataSource.data = [];
+      this.ngAfterViewInit();
     });
   }
 
   ngOnInit(): void {
+    this.initFilterListeners();
+  }
+
+  ngAfterViewInit() {
+    // Paginator
+    this.knappDataSource.paginator = this.kandidatenTablePaginator
     this.populate();
+  }
+
+  updateFilter(): void {
+    this.knappDataSource.filter = JSON.stringify(this.filter);
+  }
+
+  initFilterListeners(): void {
+    this.typFilter.valueChanges.subscribe(value => {
+      this.filter.typ = value;
+      // emulate user filter input
+      this.updateFilter();
+    });
+    this.siegerParteiFilter.valueChanges.subscribe(value => {
+      this.filter.siegerPartei = value;
+      // emulate user filter input
+      this.updateFilter();
+    });
+    this.verliererParteiFilter.valueChanges.subscribe(value => {
+      this.filter.verliererPartei = value;
+      // emulate user filter input
+      this.updateFilter();
+    });
   }
 
   ngOnDestroy(): void {
@@ -52,24 +104,19 @@ export class KnappComponent implements OnInit, OnDestroy {
     REST_GET(`${this.wahl}/stat/knapp`)
       .then(response => response.json())
       .then((data: Array<KnapperSiegOderNierderlage>) => {
-        this.knappData = data.sort((a, b) => {
+        data = data.sort((a, b) => {
           return a.differenz_stimmen - b.differenz_stimmen;
         })
-        this.siegerParteien = new Set(this.knappData.map(k => k.sieger_partei));
-        this.verliererParteien = new Set(this.knappData.map(k => k.verlierer_partei));
-        this.filteredKnappData = this.knappData.slice();
+        this.siegerParteien = new Set(data.map(k => k.sieger_partei));
+        this.verliererParteien = new Set(data.map(k => k.verlierer_partei));
+        this.knappDataSource.filterPredicate = this.filterPredicate;
+        this.knappDataSource.data = data;
       })
+
   }
 
   knappLoaded(): boolean {
-    return this.knappData != null && this.knappData.length > 0;
-  }
-
-  updateFiltered(): void {
-    this.filteredKnappData = this.knappData.filter(k =>
-      (this.siegerParteiFilter == "Alle" || k.sieger_partei == this.siegerParteiFilter) &&
-      (this.verliererParteiFilter == "Alle" || k.verlierer_partei == this.verliererParteiFilter) &&
-      (this.istSiegFilter == "Beide" || k.is_sieg && this.istSiegFilter == "Sieg" || !k.is_sieg && this.istSiegFilter == "Niederlage"));
+    return this.knappDataSource.data != null && this.knappDataSource.data.length > 0;
   }
 
 }

@@ -1,0 +1,21 @@
+@import "../../styles.scss";
+
+:host {
+  @extend .host-container
+}
+
+mat-panel-title {
+  font-size: larger;
+}
+
+.mat-expansion-panel-header-description {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.vergleich-expansion-panel-header {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}

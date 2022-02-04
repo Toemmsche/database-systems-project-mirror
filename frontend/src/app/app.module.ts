@@ -45,6 +45,8 @@ import {MatIconModule} from "@angular/material/icon";
 import { StrukturdatenComponent } from './stat/strukturdaten/strukturdaten.component';
 import { SvgKarteComponent } from './karte/svg-karte/svg-karte.component';
 import { BegrenzungComponent } from './daten/wahlkreisliste/begrenzung/begrenzung.component';
+import { KandidatenComponent } from './daten/kandidaten/kandidaten.component';
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
 
 @NgModule({
   declarations: [
@@ -66,36 +68,38 @@ import { BegrenzungComponent } from './daten/wahlkreisliste/begrenzung/begrenzun
     StimmabgabeComponent,
     StrukturdatenComponent,
     SvgKarteComponent,
-    BegrenzungComponent
+    BegrenzungComponent,
+    KandidatenComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    MatToolbarModule,
-    ChartModule,
-    MatTableModule,
-    MatCardModule,
-    CommonModule,
-    MatDividerModule,
-    MatListModule,
-    MatGridListModule,
-    MatSlideToggleModule,
-    MatButtonToggleModule,
-    MatSliderModule,
-    MatRadioModule,
-    MatButtonModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatOptionModule,
-    MatSelectModule,
-    MatProgressSpinnerModule,
-    MatExpansionModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    MatIconModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        FormsModule,
+        MatToolbarModule,
+        ChartModule,
+        MatTableModule,
+        MatCardModule,
+        CommonModule,
+        MatDividerModule,
+        MatListModule,
+        MatGridListModule,
+        MatSlideToggleModule,
+        MatButtonToggleModule,
+        MatSliderModule,
+        MatRadioModule,
+        MatButtonModule,
+        MatPaginatorModule,
+        MatFormFieldModule,
+        MatOptionModule,
+        MatSelectModule,
+        MatProgressSpinnerModule,
+        MatExpansionModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatAutocompleteModule
+    ],
   providers: [
     WahlSelectionService
   ],

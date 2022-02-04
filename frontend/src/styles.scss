@@ -35,6 +35,18 @@ h3 {
   background: lightgrey !important;
 }
 
+.filter-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.filter-reset-btn {
+  align-self: end;
+  height: 100%;
+}
+
 .host-container {
   margin-top: 50px;
   margin-bottom: 100px;
