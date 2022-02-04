@@ -22,20 +22,20 @@ CREATE MATERIALIZED VIEW mandat
                   wahlkreis wk
              WHERE dkn.wahlkreis = wk.wkid
                AND dkn.wk_rang = 1),
-        zweitstimmen_partei_wahlkreis(wahl, wahlkreis, partei, anzahlstimmen) AS
-            (SELECT wk.wahl, wk.wkid, ll.partei, SUM(ze.anzahlstimmen)
+        zweitstimmen_partei_wahlkreis(wahlkreis, partei, anzahlstimmen) AS
+            (SELECT wk.wkid, ll.partei, SUM(ze.anzahlstimmen)
              FROM wahlkreis wk,
                   landesliste ll,
                   zweitstimmenergebnis ze
              WHERE wk.wkid = ze.wahlkreis
                AND ze.liste = ll.listenid
-             GROUP BY wk.wahl, wk.wkid, ll.partei),
+             GROUP BY wk.wkid, ll.partei),
         zweitstimmen_partei_bundesland(wahl, land, partei, anzahlstimmen) AS
-            (SELECT zpw.wahl, wk.land, zpw.partei, SUM(zpw.anzahlstimmen)::INTEGER
+            (SELECT wk.wahl, wk.land, zpw.partei, SUM(zpw.anzahlstimmen)::INTEGER
              FROM wahlkreis wk,
                   zweitstimmen_partei_wahlkreis zpw
              WHERE wk.wkid = zpw.wahlkreis
-             GROUP BY zpw.wahl, wk.land, zpw.partei),
+             GROUP BY wk.wahl, wk.land, zpw.partei),
         zweitstimmen_partei(wahl, partei, anzahlstimmen) AS
             (SELECT zpb.wahl, zpb.partei, SUM(zpb.anzahlstimmen)::INTEGER
              FROM zweitstimmen_partei_bundesland zpb
