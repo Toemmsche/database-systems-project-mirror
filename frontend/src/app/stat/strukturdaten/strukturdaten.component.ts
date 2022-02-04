@@ -200,7 +200,6 @@ export class StrukturdatenComponent implements OnInit {
     lowestData.sort((a, b) => a.partei.localeCompare(b.partei));
     highestData.sort((a, b) => a.partei.localeCompare(b.partei));
 
-
     // Populate bar chart
     const chartDataVergleich = this.ergebnisseVergleichConfig.data;
     chartDataVergleich.labels = lowestData.map((result) => result.partei);

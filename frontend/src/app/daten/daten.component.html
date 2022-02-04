@@ -10,10 +10,18 @@
   <mat-expansion-panel hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title>
+       Bundesländer
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <app-bundeslandliste></app-bundeslandliste>
+  </mat-expansion-panel>
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
         Kandidaten
       </mat-panel-title>
     </mat-expansion-panel-header>
-    <app-kandidaten [hidefilter]="false" [mdbOnly]="true"></app-kandidaten>
+    <app-kandidaten [hidefilter]="false" [mdbOnly]="false"></app-kandidaten>
   </mat-expansion-panel>
 </mat-accordion>
 

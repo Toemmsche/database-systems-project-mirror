@@ -4,30 +4,31 @@
   @extend .host-container
 }
 
-#wahlkreis-card {
+#bundesland-card {
   margin: 5rem;
-  width: 80%;
+  width: 60%;
 }
 
-.wahlkreis-card-key mat-card-content {
+.bundesland-card-key mat-card-content {
   font-weight: bold;
 }
 
-#wahlkreis-chart-container {
+#bundesland-chart-container {
   display: flex;
   flex-direction: row;
   width: 100%;
 }
 
-.wahlkreis-chart-titled {
+.bundesland-chart-titled {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-#wahlkreis-card-header {
+#bundesland-card-header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
+
 

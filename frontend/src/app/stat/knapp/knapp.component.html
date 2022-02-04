@@ -1,4 +1,4 @@
-<div>
+<div [hidden]="!knappLoaded()">
   <div class="filter-row">
     <mat-form-field appearance="fill">
       <mat-label>Sieg/Niederlage</mat-label>
@@ -35,7 +35,7 @@
   </div>
 
 
-  <table id="knapp-table" mat-table [dataSource]="knappDataSource" class="mat-elevation-z8" *ngIf="knappLoaded()">
+  <table id="knapp-table" mat-table [dataSource]="knappDataSource" class="mat-elevation-z8">
     <ng-container matColumnDef="sieger-partei">
       <th mat-header-cell *matHeaderCellDef>Siegerpartei (SP)</th>
       <td mat-cell *matCellDef="let row"> {{row.sieger_partei}} </td>
@@ -72,6 +72,6 @@
         [routerLink]="'/Daten/Wahlkreis/' + row.wk_nummer"
         [ngClass]="row.is_sieg ? 'winner-row' : 'loser-row'"></tr>
   </table>
-  <mat-paginator #paginator></mat-paginator>
+  <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" #paginator></mat-paginator>
 </div>
 <mat-spinner *ngIf="!knappLoaded()"></mat-spinner>

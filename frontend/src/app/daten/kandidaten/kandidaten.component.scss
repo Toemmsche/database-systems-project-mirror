@@ -5,16 +5,19 @@
   align-items: center;
 }
 
+#kandidat-table {
+  width: 60vw !important;
+}
 
 .mat-column-vorname, .mat-column-nachname, .mat-column-titel, .mat-column-geburtsjahr, .mat-column-geschlecht,
-.mat-column-partei, .mat-column-bundesland, .mat-column-listenplatz, .mat-column-wahlkreisnummer,
-.mat-column-wahlkreisname, .mat-column-erststimmenanteil {
+.mat-column-partei, .mat-column-bundesland, .mat-column-listenplatz, .mat-column-wk_nummer, .mat-column-rel_stimmen {
   padding-left: 20px;
   padding-right: 20px;
 }
 
-.mat-column-erststimmenanteil {
+.mat-column-rel_stimmen {
   text-align: center;
+  flex-grow: 1;
 }
 
 

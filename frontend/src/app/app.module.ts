@@ -46,7 +46,9 @@ import { StrukturdatenComponent } from './stat/strukturdaten/strukturdaten.compo
 import { SvgKarteComponent } from './karte/svg-karte/svg-karte.component';
 import { BegrenzungComponent } from './daten/wahlkreisliste/begrenzung/begrenzung.component';
 import { KandidatenComponent } from './daten/kandidaten/kandidaten.component';
-import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import { BundeslandComponent } from './daten/bundesland/bundesland.component';
+import { BundeslandlisteComponent } from './daten/bundeslandliste/bundeslandliste.component';
+import { MatSortModule} from "@angular/material/sort";
 
 @NgModule({
   declarations: [
@@ -69,37 +71,40 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
     StrukturdatenComponent,
     SvgKarteComponent,
     BegrenzungComponent,
-    KandidatenComponent
+    KandidatenComponent,
+    BundeslandComponent,
+    BundeslandComponent,
+    BundeslandlisteComponent
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        MatToolbarModule,
-        ChartModule,
-        MatTableModule,
-        MatCardModule,
-        CommonModule,
-        MatDividerModule,
-        MatListModule,
-        MatGridListModule,
-        MatSlideToggleModule,
-        MatButtonToggleModule,
-        MatSliderModule,
-        MatRadioModule,
-        MatButtonModule,
-        MatPaginatorModule,
-        MatFormFieldModule,
-        MatOptionModule,
-        MatSelectModule,
-        MatProgressSpinnerModule,
-        MatExpansionModule,
-        MatInputModule,
-        ReactiveFormsModule,
-        MatIconModule,
-        MatAutocompleteModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    MatToolbarModule,
+    ChartModule,
+    MatTableModule,
+    MatCardModule,
+    CommonModule,
+    MatDividerModule,
+    MatListModule,
+    MatGridListModule,
+    MatSlideToggleModule,
+    MatButtonToggleModule,
+    MatSliderModule,
+    MatRadioModule,
+    MatButtonModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatOptionModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatExpansionModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    MatSortModule
+  ],
   providers: [
     WahlSelectionService
   ],

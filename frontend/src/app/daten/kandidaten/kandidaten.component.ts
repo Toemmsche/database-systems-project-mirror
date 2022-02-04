@@ -6,6 +6,7 @@ import {REST_GET} from "../../../util/ApiService";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
 import {FormControl} from "@angular/forms";
+import {MatSort} from "@angular/material/sort";
 
 @Component({
   selector   : "app-kandidaten",
@@ -25,21 +26,22 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
     "titel",
     "nachname",
     "vorname",
-    "partei",
     "geburtsjahr",
     "geschlecht",
     "beruf",
     "partei",
     "bundesland",
     "listenplatz",
-    "wahlkreis",
-    "erststimmenanteil"
+    "wk_nummer",
+    "rel_stimmen"
   ];
 
   kandidatenDataSource: MatTableDataSource<Kandidat> = new MatTableDataSource();
 
   @ViewChild("paginator")
   kandidatenTablePaginator !: MatPaginator
+
+  @ViewChild(MatSort) sort !: MatSort;
 
   titelFilter = new FormControl("");
 
@@ -63,19 +65,22 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
 
   wahlkreisFilter = new FormControl("");
 
-  erststimmenAnteilFilter = new FormControl("");
+  relStimmenVonFilter = new FormControl("");
+  relStimmenBisFilter = new FormControl("");
 
   filter = {
-    titel      : "",
-    vorname    : "",
-    nachname   : "",
-    geburtsjahr: "",
-    geschlecht : "Alle",
-    beruf      : "",
-    partei     : "",
-    mandat     : "Alle",
-    bundesland : "Alle",
-    wahlkreis  : "",
+    titel               : "",
+    vorname             : "",
+    nachname            : "",
+    geburtsjahr         : "",
+    geschlecht          : "Alle",
+    beruf               : "",
+    partei              : "",
+    mandat              : "Alle",
+    bundesland          : "Alle",
+    wahlkreis           : "",
+    relStimmenVon: "",
+    relStimmenBis: "",
   }
 
   filterPredicate = (k: Kandidat, filterJson: string) => {
@@ -96,9 +101,15 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
         (filter.mandat === "Direktmandat" && k.ist_einzug && k.ist_direktmandat) ||
         (filter.mandat === "Listenmandat" && k.ist_einzug && !k.ist_direktmandat)) &&
       (filter.bundesland === all || k.bundesland === filter.bundesland) &&
-
       (filter.titel === "" || k.titel.toLowerCase().indexOf(filter.titel) !== -1) &&
-      (filter.wahlkreis === "" || (k.wk_nummer + "-" + k.wk_name).toLowerCase().indexOf(filter.wahlkreis) !== -1);
+      (filter.wahlkreis === "" || (k.wk_nummer + "-" + k.wk_name).toLowerCase().indexOf(filter.wahlkreis) !== -1) &&
+      (filter.relStimmenVon ===
+        "" ||
+        (k.rel_stimmen != null && filter.relStimmenVon <= k.rel_stimmen * 100)) &&
+      (filter.relStimmenBis ===
+        "" ||
+        (k.rel_stimmen != null && filter.relStimmenBis >= k.rel_stimmen * 100))
+      ;
   }
 
   wahlSubscription !: Subscription;
@@ -121,6 +132,7 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // Paginator
     this.kandidatenDataSource.paginator = this.kandidatenTablePaginator
+    this.kandidatenDataSource.sort = this.sort;
     this.populate();
   }
 
@@ -131,57 +143,51 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   initFilterListeners(): void {
     this.mandatFilter.valueChanges.subscribe(value => {
       this.filter.mandat = value;
-      // emulate user filter input
       this.updateFilter();
     });
     this.titelFilter.valueChanges.subscribe(value => {
       this.filter.titel = value.toLowerCase();
-      // emulate user filter input
       this.updateFilter();
     });
     this.vornameFilter.valueChanges.subscribe(value => {
       this.filter.vorname = value.toLowerCase();
-      // emulate user filter input
       this.updateFilter();
     });
     this.nachnameFilter.valueChanges.subscribe(value => {
       this.filter.nachname = value.toLowerCase();
-      // emulate user filter input
       this.updateFilter();
     });
     this.geburtsjahrFilter.valueChanges.subscribe(value => {
       this.filter.geburtsjahr = value;
-      // emulate user filter input
       this.updateFilter();
     });
     this.geschlechtFilter.valueChanges.subscribe(value => {
       this.filter.geschlecht = value;
-      // emulate user filter input
       this.updateFilter();
     });
     this.berufFilter.valueChanges.subscribe(value => {
       this.filter.beruf = value.toLowerCase()
-      // emulate user filter input
       this.updateFilter();
     });
     this.parteiFilter.valueChanges.subscribe(value => {
       this.filter.partei = value.toLowerCase();
-      // emulate user filter input
       this.updateFilter();
     });
     this.bundeslandFilter.valueChanges.subscribe(value => {
       this.filter.bundesland = value;
-      // emulate user filter input
+
       this.updateFilter();
     });
     this.wahlkreisFilter.valueChanges.subscribe(value => {
       this.filter.wahlkreis = value.toLowerCase();
-      // emulate user filter input
       this.updateFilter();
     });
-    this.erststimmenAnteilFilter.valueChanges.subscribe(value => {
-      this.filter.wahlkreis = value;
-      // emulate user filter input
+    this.relStimmenVonFilter.valueChanges.subscribe(value => {
+      this.filter.relStimmenVon = value;
+      this.updateFilter();
+    });
+    this.relStimmenBisFilter.valueChanges.subscribe(value => {
+      this.filter.relStimmenBis = value;
       this.updateFilter();
     });
   }

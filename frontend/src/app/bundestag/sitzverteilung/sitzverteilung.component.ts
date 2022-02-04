@@ -12,8 +12,9 @@ import { Subscription } from 'rxjs';
 export class SitzverteilungComponent implements OnInit, OnDestroy {
 
   wahl !: number;
+  wahlSubscription !: Subscription;
+
   sitzverteilung !: Array<Sitzverteilung>;
-  columnsToDisplay = ['partei', 'sitze'];
   sitzVerteilungConfig = {
     type   : 'doughnut',
     data   : {
@@ -34,8 +35,6 @@ export class SitzverteilungComponent implements OnInit, OnDestroy {
       maintainAspectRatio: true
     }
   }
-  wahlSubscription !: Subscription;
-
 
   constructor(private readonly wahlservice: WahlSelectionService) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());

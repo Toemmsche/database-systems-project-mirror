@@ -1,7 +1,6 @@
-export class ParteiErgebnis {
-  stimmentyp !: number;
+export class BundeslandParteiErgebnis {
   wahl !: number;
-  wk_nummer !: number;
+  bl_kuerzel !: string;
   partei !: string;
   partei_farbe !: string;
   rel_stimmen !: number;

@@ -1,0 +1,32 @@
+:host {
+  margin-top: 50px;
+  margin-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#bundesland-selection {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#bundesland-list {
+  width: 100%;
+}
+
+.bundesland-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 40px;
+  margin: 5px;
+}
+
+.bundesland-name {
+  flex-grow: 1;
+  flex-shrink: 0;
+}
