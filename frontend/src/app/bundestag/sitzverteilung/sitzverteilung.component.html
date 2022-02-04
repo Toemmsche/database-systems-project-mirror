@@ -2,19 +2,31 @@
   <h1>Sitzverteilung im Deutschen Bundestag</h1>
   <div id="sitzverteilung-cards-container">
     <mat-card *ngFor="let sv of sitzverteilung" class="sitzverteilung-card">
-        <mat-card-title  [ngStyle]="{'color': '#' +  sv.partei_farbe}">{{sv.partei}}</mat-card-title>
+      <mat-card-title class="sitze-align-center" [ngStyle]="{'color': '#' +  sv.partei_farbe}">{{sv.partei}}</mat-card-title>
       <mat-card-content>
-        <span>{{sv.sitze}}</span>
+        <div class="sitze-align-center">
+          <span>{{sv.sitze}}</span>
+          <span *ngIf="hasVorperiode()" [ngClass]="getSitzeDiffClass(sv)"> {{getSitzeDiff(sv)}}</span>
+        </div>
+        <div class="sitze-align-center">
+          <span>{{(100 * sv.sitze_rel  | number: '1.0-2') + '%'}}</span>
+          <span *ngIf="hasVorperiode()" [ngClass]="getSitzeDiffClass(sv)"> {{getSitzeRelDiff(sv)}}</span>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
-  <chart id="sitzverteilung-chart"
-         [type]="sitzVerteilungConfig.type"
-         [data]="sitzVerteilungConfig.data"
-         [options]="sitzVerteilungConfig.options"></chart>
-  <button id="mdb-btn" mat-raised-button color="primary" routerLink="/Bundestag/Mitglieder">Mitglieder des Bundestags</button>
+  <chart id="sitzverteilung-chart" [type]="sitzVerteilungConfig.type" [data]="sitzVerteilungConfig.data"
+    [options]="sitzVerteilungConfig.options"></chart>
+  <button id="mdb-btn" mat-raised-button color="primary" routerLink="/Bundestag/Mitglieder">Mitglieder des
+    Bundestags</button>
+  <mat-card id="mdb-gesamt-card" class="sitzverteilung-card">
+    <mat-card-title class="sitze-align-center">Gesamt</mat-card-title>
+    <mat-card-content>
+      <div class="sitze-align-center">
+        <span>{{getSitzeBundestag()}}</span>
+        <span *ngIf="hasVorperiode()" [ngClass]="getSitzeGesamtDiffClass()"> {{getSitzeBundestagDiffText()}}</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>
 <mat-spinner *ngIf="!sitzVerteilungLoaded()"></mat-spinner>
-
-
-
