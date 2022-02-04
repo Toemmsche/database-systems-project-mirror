@@ -75,4 +75,58 @@ export class SitzverteilungComponent implements OnInit, OnDestroy {
   sitzVerteilungLoaded() {
     return this.sitzverteilung != null && this.sitzverteilung.length > 0;
   }
+
+  getSitzeDiff(sv: Sitzverteilung): string {
+    const diff = sv.sitze - sv.sitze_vor;
+    const diffText = `(${diff > 0 ? '+' : ''}${diff})`;
+    return diffText;
+  }
+
+  getSitzeRelDiff(sv: Sitzverteilung): string {
+    const diff = 100 * (sv.sitze_rel - sv.sitze_vor_rel);
+    const diffText = `(${diff > 0 ? '+' : ''}${diff.toFixed(2)}%)`;
+    return diffText;
+  }
+
+  getSitzeDiffClass(sv: Sitzverteilung): string {
+    const diff = sv.sitze - sv.sitze_vor;
+    if (Math.abs(diff) < 0.0000001) {
+      return 'stimmen-diff-neutral';
+    } else if (diff > 0) {
+      return 'stimmen-diff-pos';
+    } else {
+      return 'stimmen-diff-neg';
+    }
+  }
+
+  getSitzeBundestag(): number {
+    return this.sitzverteilung.filter(s => s.sitze).reduce((prev, curr) => prev + curr.sitze, 0);
+  }
+
+  getSitzeBundestagDiff(): number {
+    const sitzeVor = this.sitzverteilung.filter(s => s.sitze_vor).reduce((prev, curr) => prev + curr.sitze_vor, 0);
+    const diff = this.getSitzeBundestag() - sitzeVor;
+    return diff;
+  }
+
+  getSitzeBundestagDiffText(): string {
+    const diff = this.getSitzeBundestagDiff();
+    const diffText = `(${diff > 0 ? '+' : ''}${diff})`;
+    return diffText;
+  }
+
+  hasVorperiode(): boolean {
+    return this.sitzverteilung.some(s => s.sitze_vor != null);
+  }
+
+  getSitzeGesamtDiffClass(): string {
+    const diff = this.getSitzeBundestagDiff();
+    if (Math.abs(diff) < 0.0000001) {
+      return 'stimmen-diff-neutral';
+    } else if (diff > 0) {
+      return 'stimmen-diff-pos';
+    } else {
+      return 'stimmen-diff-neg';
+    }
+  }
 }
