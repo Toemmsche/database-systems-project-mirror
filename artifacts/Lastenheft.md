@@ -64,7 +64,7 @@ Wählerinnen und Wählern muss zudem ermöglicht werden ungültig zu wählen.
 ## Abnahmekriterien
 - korrekte Berechnung der Sitzverteilung unter Berücksichtigung relevanter Sonderregelungen
   - 5%-Hürde
-  - Überhangsmandate (außer die ersten drei Überhangsmandate, welche seit der Bundestagswahl 2021 nicht mehr ausgeglichen werden)
+  - Überhangsmandate (außer den ersten drei Überhangsmandaten pro Partei, welche seit der Bundestagswahl 2021 nicht mehr ausgeglichen werden)
   - nationale Minderheiten
 - Stimmeingabe funktioniert und identifiziert mögliche Fehlerfälle
 - direkter Vergleich der Ergebnisse der Bundestagswahl 2021 mit der Bundestagswahl 2017 möglich
