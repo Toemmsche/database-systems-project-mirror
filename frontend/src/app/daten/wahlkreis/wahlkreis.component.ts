@@ -181,7 +181,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
         this.populateBarChartData(zsData, this.zweitstimmenConfig, 0);
 
         if (this.wahl > 19) {
-          await REST_GET(`${this.wahl - 1}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
+          await REST_GET(`${this.wahl - 1}/wahlkreis/${this.nummer}/stimmen`)
             .then(response => response.json())
             .then((data: Array<ParteiErgebnis>) => {
               // Populate bar chart
