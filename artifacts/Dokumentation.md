@@ -57,3 +57,8 @@ Die Identifikation der Daten, welche vom System verwaltet werden müssen unter B
 ## UML-Modell
 Das Datenmodell basiert auf den identifizierten Entitäten, die im Datenbankmanagementsystem verwaltet werden müssen. 
 ![Datenmodell](datenmodell.png)
+
+## Ablauf der Stimmabgabe
+
+- TODO
+- Trigger beschreiben

@@ -112,3 +112,4 @@
  - *CI*: Continuous Integration
  - *CD*: Continuous Deployment
  - *SVG*: Scalable Vector Graphics
+ - *CTE*: Common Table Expression
