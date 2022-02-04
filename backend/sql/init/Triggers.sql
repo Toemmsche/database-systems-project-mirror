@@ -33,6 +33,11 @@ CREATE FUNCTION update_zweitstimmen_aggregate()
 AS
 $$
 BEGIN
+    --insert new zweitstimmenergebnis if missing
+    IF NOT EXISTS(SELECT * FROM zweitstimmenergebnis WHERE liste = new.liste AND wahlkreis = new.wahlkreis) THEN
+        INSERT INTO zweitstimmenergebnis VALUES (new.liste, new.wahlkreis, 0);
+    END IF;
+
     UPDATE zweitstimmenergebnis
     SET anzahlstimmen = anzahlstimmen + 1
     WHERE liste = new.liste

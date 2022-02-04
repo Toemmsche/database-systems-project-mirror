@@ -15,11 +15,11 @@ END;
 $$;
 
 CREATE TRIGGER mandat_erststimmen_refresh
-    AFTER UPDATE
+    AFTER UPDATE OR INSERT
     ON direktkandidatur
 EXECUTE PROCEDURE refresh_mandat();
 
 CREATE TRIGGER mandat_zweitstimmen_refresh
-    AFTER UPDATE
+    AFTER UPDATE OR INSERT
     ON zweitstimmenergebnis
 EXECUTE PROCEDURE refresh_mandat();
