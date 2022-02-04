@@ -51,7 +51,7 @@ Wählerinnen und Wählern muss zudem ermöglicht werden ungültig zu wählen.
 	- geeignet für knapp 2*60Mio. Stimmeingaben innerhalb des Wahlzeitfensters
 	- (Neu-)Berechnung der genauen Sizverteilung im Bundestag innerhalb von 5s (Speichermedium: SSD)
 	- effiziente Analysen auf universellen Datenbanksystemen und Consumer-Hardware ermöglichen
-    - Möglichkeit pro Wahlkreis Einzelstimmen zu Wahlkreisergebnissen vorzuaggregieren
+    - Möglichkeit pro Wahlkreis Einzelstimmen zu Wahlkreisergebnissen vorzuaggregieren (bewusste Einführung von Redundanz)
 - **Supportability**:
 	- Webapplikation global erreichbar
     - bedienbar auf allen gängigen Webbrowsern
