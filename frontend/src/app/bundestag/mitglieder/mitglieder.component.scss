@@ -1,3 +1,5 @@
+
+
 :host {
   width: 100%;
   margin-bottom: 100px;
@@ -6,19 +8,3 @@
   flex-direction: column;
   align-items: center;
 }
-
-
-.mat-column-vorname, .mat-column-nachname, .mat-column-partei,
-.mat-column-grund, .mat-column-geburtsjahr, .mat-column-geschlecht {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-#mdb-container {
-  width: 60%;
-}
-
-#mdb-table {
-  width: 100%;
-}
-
