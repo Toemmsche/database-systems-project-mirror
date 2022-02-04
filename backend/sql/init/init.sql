@@ -24,9 +24,9 @@ CREATE TABLE bundestagswahl
 
 CREATE TABLE bundesland
 (
-    kuerzel CHAR(2) UNIQUE NOT NULL,
-    name    VARCHAR(50),
-    osten   BOOLEAN        NOT NULL,
+    kuerzel CHAR(2) UNIQUE     NOT NULL,
+    name    VARCHAR(50) UNIQUE NOT NULL,
+    osten   BOOLEAN            NOT NULL,
     landid  INTEGER PRIMARY KEY
 );
 
