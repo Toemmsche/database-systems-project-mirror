@@ -55,6 +55,9 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
           }
         ]
       },
+      legend: {
+        display: false
+      },
       tooltips: {
         callbacks: {
           label: (item: any) => {
