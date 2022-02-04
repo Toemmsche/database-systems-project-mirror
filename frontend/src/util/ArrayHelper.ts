@@ -35,3 +35,11 @@ export function sortWithSonstige(a : ParteiErgebnis | ParteiErgebnisVergleich, b
   }
   return b.abs_stimmen - a.abs_stimmen;
 }
+
+export function sortWithSameSorting(sorting: Array<ParteiErgebnis | ParteiErgebnisVergleich>): (a: ParteiErgebnis | ParteiErgebnisVergleich, b: ParteiErgebnis | ParteiErgebnisVergleich) => number {
+  return (a: ParteiErgebnis | ParteiErgebnisVergleich, b: ParteiErgebnis | ParteiErgebnisVergleich) => {
+    const indexA = sorting.findIndex(r => r.partei == a.partei);
+    const indexB = sorting.findIndex(r => r.partei == b.partei);
+    return indexA - indexB;
+  }
+}
