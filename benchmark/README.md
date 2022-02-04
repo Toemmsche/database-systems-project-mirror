@@ -19,6 +19,26 @@
 
 Aus Performancegründen werden die Ergebnisse der "Bundestags-Query" in einer materialisierten Sicht gehalten. Beim Einfügen von neuen Stimmen wird diese Sicht jeweils neu berechnet, sodass stets das aktuellste Ergebnis sichtbar ist.
 
+## Reproduktion
+
+Voraussetzungen: [Python](https://www.python.org/) und [gunicorn](https://gunicorn.org/)
+
+Starten des backends:
+```
+cd backend
+pip install -r requirements.txt
+sh gunicorn.sh
+```
+Starten von locust:
+```
+cd benchmark
+pip install -r requirements.txt
+locust
+```
+
+Die Benchmarkingschnittstelle sollte unter `http://localhost:8089` erreichbar sein. Zum Anpassen des Parameters **t** muss
+`locustfile.py` geändert werden. **n** kann in der Webschnittstelle angepasst werden.
+
 ## Messreihen (Linux)
 
 ### 1. Messreihe
