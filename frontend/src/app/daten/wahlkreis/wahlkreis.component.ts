@@ -284,6 +284,6 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
   onEinzelstimmenToggleChanged() {
     this.erststimmenergebnisse = [];
     this.zweitstimmenergebnisse = [];
-    this.ngOnInit();
+    this.populate();
   }
 }
