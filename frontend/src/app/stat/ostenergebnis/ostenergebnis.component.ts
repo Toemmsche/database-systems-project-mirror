@@ -1,52 +1,55 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import { Subscription } from 'rxjs';
-import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
-import {WahlkreisParteiErgebnis} from "../../../model/WahlkreisParteiErgebnis";
+import {Component, OnDestroy, OnInit} from "@angular/core";
+import {Subscription} from "rxjs";
+import {WahlSelectionService} from "src/app/service/wahl-selection.service";
 import {REST_GET} from "../../../util/ApiService";
-import {sortWithSonstige} from "../../../util/ArrayHelper";
+import {mergeCduCsu} from "../../../util/ArrayHelper";
+import OstenParteiErgebnis from "../../../model/OstenParteiErgebnis";
+import ParteiErgebnis from "../../../model/ParteiErgebnis";
 
 @Component({
-  selector: 'app-ostenergebnis',
-  templateUrl: './ostenergebnis.component.html',
-  styleUrls: ['./ostenergebnis.component.scss']
+  selector   : "app-ostenergebnis",
+  templateUrl: "./ostenergebnis.component.html",
+  styleUrls  : ["./ostenergebnis.component.scss"]
 })
 export class OstenergebnisComponent implements OnInit, OnDestroy {
 
   wahl !: number;
-  ostenData !: Array<WahlkreisParteiErgebnis>
-  ostenConfig = {
-    type: 'bar',
-    data: {
-      labels: [] as Array<string>,
+  ostWestData !: Array<OstenParteiErgebnis>
+  ostWestConfig = {
+    type   : "bar",
+    data   : {
+      labels  : [] as Array<string>,
       datasets: [
         {
-          label: "Zweitstimmen",
-          borderWidth: 1,
-          data: [] as Array<number>,
+          label          : "Zweitstimmen (Osten)",
+          borderWidth    : 1,
+          data           : [] as Array<number>,
+          backgroundColor: [] as Array<string>,
+        }, {
+          label          : "Zweitstimmen (Westen)",
+          borderWidth    : 1,
+          data           : [] as Array<number>,
           backgroundColor: [] as Array<string>,
         }
       ]
     },
     options: {
-      scales: {
+      scales  : {
         yAxes: [
           {
             ticks: {
               beginAtZero: true,
-              callback: (item: any) => {
-                return item + '%';
+              callback   : (item: any) => {
+                return item + "%";
               }
             }
           }
         ]
       },
-      legend: {
-        display: false
-      },
       tooltips: {
         callbacks: {
           label: (item: any) => {
-            return item.yLabel.toFixed(2) + '%';
+            return item.yLabel.toFixed(2) + "%";
           }
         }
       }
@@ -55,12 +58,13 @@ export class OstenergebnisComponent implements OnInit, OnDestroy {
 
   wahlSubscription !: Subscription;
 
-  constructor(private readonly wahlService: WahlSelectionService) {}
+  constructor(private readonly wahlService: WahlSelectionService) {
+  }
 
   ngOnInit(): void {
     this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlService.getWahlNumber(selection);
-      this.ostenData = [];
+      this.ostWestData = [];
       this.populate();
     });
   }
@@ -72,24 +76,27 @@ export class OstenergebnisComponent implements OnInit, OnDestroy {
   populate() {
     REST_GET(`${this.wahl}/stat/ostenergebnis`)
       .then(response => response.json())
-      .then((data: Array<WahlkreisParteiErgebnis>) => {
-        data = data.sort(sortWithSonstige);
+      .then((data: Array<OstenParteiErgebnis>) => {
 
-        // Populate bar chart
-        const chartData = this.ostenConfig.data;
-        chartData.labels = data.map((result) => result.partei);
-        chartData.datasets[0].data = data.map((result) => 100 * result.rel_stimmen);
-        chartData.datasets[0].backgroundColor = data.map((result) => '#' +
+        const sorter = (a: ParteiErgebnis, b: ParteiErgebnis) => a.partei.localeCompare(b.partei);
+        const ostenFiltered = mergeCduCsu(data.filter(pe => pe.ist_osten)).sort(sorter);
+        const westenFiltered = mergeCduCsu(data.filter(pe => !pe.ist_osten)).sort(sorter);
+
+        const chartData = this.ostWestConfig.data;
+        chartData.labels = ostenFiltered.map((result) => result.partei);
+        chartData.datasets[0].data = ostenFiltered.map((result) => 100 * result.rel_stimmen);
+        chartData.datasets[0].backgroundColor = ostenFiltered.map((result) => "#" +
           result.partei_farbe);
-        // Make sure chart is refreshed when new data is available
-        this.ostenConfig.data = Object.assign({}, chartData);
+        chartData.datasets[1].data = westenFiltered.map((result) => 100 * result.rel_stimmen);
+        chartData.datasets[1].backgroundColor = westenFiltered.map((result) => "#" +
+          result.partei_farbe);
 
-        // Save for later
-        this.ostenData = data;
+        this.ostWestConfig.data = Object.assign({}, chartData);
+        this.ostWestData = data;
       });
   }
 
   ostenLoaded() {
-    return this.ostenData != null && this.ostenData.length > 0;
+    return this.ostWestData != null && this.ostWestData.length > 0;
   }
 }
