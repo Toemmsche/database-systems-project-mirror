@@ -12,7 +12,7 @@
     </mat-button-toggle-group>
   </div>
   <div id="svg-karte-container" [style.height]="karteHeight">
-    <app-svg-karte *ngIf="bDataLoaded()" [bData]="bData"></app-svg-karte>
+    <app-svg-karte *ngIf="bDataLoaded()" [bData]="bData" [getTooltipText]="partei == 'Gewinner' ? getTooltipTextSieger.bind(this) : getTooltipTextPartei.bind(this)"></app-svg-karte>
   </div>
 </div>
 <mat-spinner *ngIf="!wksLoaded()"></mat-spinner>
