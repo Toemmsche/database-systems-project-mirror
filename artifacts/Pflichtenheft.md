@@ -58,7 +58,7 @@
 ### Datenbankmanagementsystem
 - [PostgreSQL](https://www.postgresql.org/) zum Management aller persistenten 
   Daten
-- Für die zu berechnenden Daten werden (materialisierten) Views erstellt. Zur Abfrage werden dann lediglich Abfragen der Form ```SELECT * FROM view;``` benötigt.
+- Für die zu berechnenden Daten werden (z.T. materialisierte) Views erstellt. Zur Abfrage werden dann lediglich Abfragen der Form ```SELECT * FROM view;``` benötigt.
   - Wahlkreissieger
   - Überhangsmandate
   - Sitzverteilung
@@ -79,7 +79,7 @@
 - [Chart.js](https://www.chartjs.org/) Bibliothek zur Visualisierung mit Diagrammen
 
 ### Infrastruktur
-- [Heroku](https://www.nginx.com/) für Hosting
+- [Heroku](https://www.heroku.com/) für Hosting
   - Datenbank (PostgreSQL-Datenbanken können gratis erstellt werden)
   - Backend
   - Frontend

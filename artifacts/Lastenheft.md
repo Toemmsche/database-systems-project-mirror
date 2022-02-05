@@ -14,7 +14,7 @@ Zusätzlich zum Abfragen von wahlbezogenen Inhalten, bietet das Wahlinformations
 Diese Benutzerschnittstelle unterstützt die Durchführung einer digitalen Bundestagswahl unter Berücksichtigung von Sicherheitsaspekten.
 
 ## Funktionale Anforderungen
-Grundsätzlich wird die identische Funktionalität für die Bundestagswahl 2017 und die Bundestagswahl 2021 gefordert.
+Grundsätzlich wird die identische Funktionalität für die Bundestagswahl 2017 und die Bundestagswahl 2021 (soweit möglich) gefordert.
 ### Kernfunktionen
 Alle relevanten Daten für die Bundestagswahlen (Bundesländer, Wahlkreise, Landeslisten, Direktkandidaturen, Kandidaten, Einzelstimmen und Parteien) müssen persistiert werden.
 Dies ermöglicht einen Vergleich der Bundestagswahlen 2017 und 2021.
@@ -49,7 +49,7 @@ Wählerinnen und Wählern muss zudem ermöglicht werden ungültig zu wählen.
     - Anwendende können keine eigenen Datenbankabfragen von Wahlinformationen formulieren
 - **Performance**:
 	- geeignet für knapp 2*60Mio. Stimmeingaben innerhalb des Wahlzeitfensters
-	- (Neu-)Berechnung der genauen Sizverteilung im Bundestag innerhalb von 5s (Speichermedium: SSD)
+	- (Neu-)Berechnung der genauen Sizverteilung im Bundestag innerhalb von 1s (Speichermedium: SSD)
 	- effiziente Analysen auf universellen Datenbanksystemen und Consumer-Hardware ermöglichen
     - Möglichkeit pro Wahlkreis Einzelstimmen zu Wahlkreisergebnissen vorzuaggregieren (bewusste Einführung von Redundanz)
 - **Supportability**:

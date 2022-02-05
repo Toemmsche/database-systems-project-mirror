@@ -20,7 +20,7 @@ Das iterative Divisorverfahren kommt auch bei der [hier](https://www.bundeswahll
 Da dieses Verfahren während der Ermittlung der Sitzverteilung mehrfach zum Einsatz kommt, existiert für diese Berechnung eine SQL-Funktion mit dem Namen ```divisorverfahren```.
 Das iterative Divisorverfahren terminiert in der Regel nach wenigen Iterationen, da sich die Anzahl der Sitze mit jeder Iteration um eins der vorgegebenen Anzahl nähert.
 
-## Erkärung der CTEs
+## Erklärung der CTEs
 Die in SQL realisierte Berechnung der Sitzverteilung verwendet eine Vielzahl von (rekursiven) CTEs, 
 
 | CTE                                        | Spalten                                                                                 | Beschreibung                                                                                                                                                                                                            |
