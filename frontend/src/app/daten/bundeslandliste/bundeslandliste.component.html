@@ -1,0 +1,13 @@
+<div id="bundesland-selection" *ngIf="bundeslaenderLoaded()">
+  <h1>Bundeslaender</h1>
+  <mat-nav-list id="bundesland-list">
+    <div mat-list-item *ngFor="let bl of this.bundeslaender">
+      <a [href]="'Daten/Bundesland/' + bl.kuerzel">
+        <div class="bundesland-container">
+          <div class="bundesland-name"> {{ bl.kuerzel}} - {{bl.name}} </div>
+        </div>
+      </a>
+    </div>
+  </mat-nav-list>
+</div>
+<mat-spinner *ngIf="!bundeslaenderLoaded()"></mat-spinner>

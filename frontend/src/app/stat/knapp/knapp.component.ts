@@ -1,56 +1,59 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
-import { KnapperSiegOderNierderlage } from "../../../model/KnapperSiegOderNierderlage";
-import { REST_GET } from "../../../util/ApiService";
-import { MatTableDataSource } from "@angular/material/table";
-import { MatPaginator } from "@angular/material/paginator";
-import { FormControl } from "@angular/forms";
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {Subscription} from "rxjs";
+import {WahlSelectionService} from "src/app/service/wahl-selection.service";
+import {KnapperSiegOderNierderlage} from "../../../model/KnapperSiegOderNierderlage";
+import {REST_GET} from "../../../util/ApiService";
+import {MatTableDataSource} from "@angular/material/table";
+import {MatPaginator} from "@angular/material/paginator";
+import {FormControl} from "@angular/forms";
+import {MatSort} from "@angular/material/sort";
 
 @Component({
-  selector: 'app-knapp',
-  templateUrl: './knapp.component.html',
-  styleUrls: ['./knapp.component.scss']
+  selector   : "app-knapp",
+  templateUrl: "./knapp.component.html",
+  styleUrls  : ["./knapp.component.scss"]
 })
 export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
 
   wahl !: number;
   columnsToDisplay = [
-    'sieger-partei',
-    'verlierer-partei',
-    'wahlkreis',
-    'stimmen-sieger-partei',
-    'stimmen-verlierer-partei',
-    'differenz-stimmen',
-    'differenz-relativ'
+    "sieger_partei",
+    "verlierer_partei",
+    "wk_nummer",
+    "abs_stimmen_sieger",
+    "abs_stimmen_verlierer",
+    "differenz_stimmen",
+    "differenz_relativ"
   ];
 
   knappDataSource: MatTableDataSource<KnapperSiegOderNierderlage> = new MatTableDataSource();
 
-  @ViewChild('paginator')
-  kandidatenTablePaginator !: MatPaginator
+  @ViewChild("paginator")
+  knappTablePaginator !: MatPaginator;
+  @ViewChild(MatSort)
+  knappTableSort !: MatSort;
+
 
   typFilter = new FormControl("")
+
   siegerParteiFilter = new FormControl("")
-  siegerParteien !: Set<string>
   verliererParteiFilter = new FormControl("")
-  verliererParteien !: Set<string>
 
   filter = {
-    typ: "Beide",
-    siegerPartei: "Alle",
-    verliererPartei: "Alle"
+    typ            : "Beide",
+    siegerPartei   : "",
+    verliererPartei: ""
   }
 
   filterPredicate = (k: KnapperSiegOderNierderlage, filterJson: string) => {
     const all = "Alle"
     let filter = JSON.parse(filterJson);
-    return (filter.siegerPartei === all || (k.sieger_partei === filter.siegerPartei)) &&
-           (filter.verliererPartei === all || (k.verlierer_partei === filter.verliererPartei)) &&
-           (filter.typ ===
-            "Beide" ||
-            (filter.typ === "Sieg" && k.is_sieg) ||
-            (filter.typ === "Niederlage" && !k.is_sieg));
+    return (filter.siegerPartei === all || (k.sieger_partei.toLowerCase().indexOf(filter.siegerPartei) !== -1)) &&
+      (filter.verliererPartei === "" || (k.verlierer_partei.toLowerCase().indexOf(filter.verliererPartei) !== -1)) &&
+      (filter.typ ===
+        "Beide" ||
+        (filter.typ === "Sieg" && k.is_sieg) ||
+        (filter.typ === "Niederlage" && !k.is_sieg));
   }
 
   wahlSubscription !: Subscription;
@@ -70,8 +73,24 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit() {
     // Paginator
-    this.knappDataSource.paginator = this.kandidatenTablePaginator
+    this.knappDataSource.paginator = this.knappTablePaginator
+    this.knappDataSource.sort = this.knappTableSort;
+    this.knappDataSource.sortingDataAccessor = (k, property) => {
+      switch (property) {
+        case "differenz_relativ":
+          return 100 * k.differenz_stimmen / (k.is_sieg ? k.abs_stimmen_verlierer : k.abs_stimmen_sieger);
+        default:
+          // @ts-ignore
+          return k[property];
+      };
+    }
     this.populate();
+  }
+
+  resetFilters() {
+    this.typFilter.reset("Beide");
+    this.siegerParteiFilter.reset("");
+    this.verliererParteiFilter.reset("");
   }
 
   updateFilter(): void {
@@ -85,12 +104,12 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateFilter();
     });
     this.siegerParteiFilter.valueChanges.subscribe(value => {
-      this.filter.siegerPartei = value;
+      this.filter.siegerPartei = value.toLowerCase();
       // emulate user filter input
       this.updateFilter();
     });
     this.verliererParteiFilter.valueChanges.subscribe(value => {
-      this.filter.verliererPartei = value;
+      this.filter.verliererPartei = value.toLowerCase();
       // emulate user filter input
       this.updateFilter();
     });
@@ -107,8 +126,6 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
         data = data.sort((a, b) => {
           return a.differenz_stimmen - b.differenz_stimmen;
         })
-        this.siegerParteien = new Set(data.map(k => k.sieger_partei));
-        this.verliererParteien = new Set(data.map(k => k.verlierer_partei));
         this.knappDataSource.filterPredicate = this.filterPredicate;
         this.knappDataSource.data = data;
       })
@@ -118,5 +135,6 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
   knappLoaded(): boolean {
     return this.knappDataSource.data != null && this.knappDataSource.data.length > 0;
   }
+
 
 }

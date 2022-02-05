@@ -2,15 +2,17 @@ DROP VIEW IF EXISTS wahlkreisinformation CASCADE;
 DROP VIEW IF EXISTS stimmen_qpartei_wahlkreis CASCADE;
 
 CREATE VIEW wahlkreisinformation
-            (wahl, land, wk_nummer, wk_name, wk_begrenzung, sieger_vorname, sieger_nachname, sieger_partei, wahlbeteiligung_prozent) AS
+            (wahl, land, wk_nummer, wk_name, wk_begrenzung, sieger_vorname, sieger_nachname, sieger_partei,
+             wahlbeteiligung_prozent)
+AS
     SELECT wk.wahl,
            bl.name,
            wk.nummer,
            wk.name,
            wk.begrenzung,
-           k.vorname                                                AS sieger_vorname,
-           k.nachname                                               AS sieger_nachname,
-           p.kuerzel                                                AS sieger_partei,
+           k.vorname                                                                       AS sieger_vorname,
+           k.nachname                                                                      AS sieger_nachname,
+           p.kuerzel                                                                       AS sieger_partei,
            (SUM(ze.anzahlstimmen) + use.anzahlstimmen)::DECIMAL * 100 / wk.wahlberechtigte AS wahlbeteiligung_prozent
     FROM wahlkreis wk,
          mandat m
@@ -27,28 +29,19 @@ CREATE VIEW wahlkreisinformation
       AND use.stimmentyp = 2 --use zweitstimmen for wahlbeteiligung
       AND m.partei = p.parteiid
       AND wk.land = bl.landid
-    GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.wahlberechtigte, use.anzahlstimmen;
+    GROUP BY wk.wahl, wk.wkid, bl.name, wk.nummer, wk.name, k.vorname, k.nachname, p.kuerzel, wk.wahlberechtigte,
+             use.anzahlstimmen;
 
 CREATE VIEW stimmen_qpartei_wahlkreis
             (stimmentyp, wahl, wk_nummer, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
-    WITH erststimmen_wahlkreis(wahlkreis, abs_stimmen) AS
-             (SELECT dk.wahlkreis,
-                     SUM(dk.anzahlstimmen) AS abs_stimmen
-              FROM direktkandidatur dk
-              GROUP BY dk.wahlkreis),
-         zweitstimmen_wahlkreis(wahlkreis, abs_stimmen) AS
-             (SELECT ze.wahlkreis,
-                     SUM(ze.anzahlstimmen) AS abs_stimmen
-              FROM zweitstimmenergebnis ze
-              GROUP BY ze.wahlkreis),
-         qpartei(wahl, partei) AS
+    WITH qpartei(wahl, partei) AS
              (SELECT DISTINCT m.wahl, m.partei
               FROM mandat m),
          nicht_qpartei(wahl, partei) AS
              (SELECT btw.nummer, p.parteiid
               FROM bundestagswahl btw,
                    partei p
-              EXCEPT
+                  EXCEPT
               SELECT *
               FROM qpartei),
          erststimmen_partei_wahlkreis(wahlkreis, partei, abs_stimmen) AS
@@ -66,7 +59,15 @@ CREATE VIEW stimmen_qpartei_wahlkreis
                    landesliste ll,
                    zweitstimmenergebnis ze
               WHERE wk.wkid = ze.wahlkreis
-                AND ze.liste = ll.listenid)
+                AND ze.liste = ll.listenid),
+         erststimmen_wahlkreis(wahlkreis, abs_stimmen) AS
+             (SELECT epw.wahlkreis, SUM(epw.abs_stimmen)
+              FROM erststimmen_partei_wahlkreis epw
+              GROUP BY epw.wahlkreis),
+         zweitstimmen_wahlkreis(wahlkreis, abs_stimmen) AS
+             (SELECT zpw.wahlkreis, SUM(zpw.abs_stimmen)
+              FROM zweitstimmen_partei_wahlkreis zpw
+              GROUP BY zpw.wahlkreis)
     SELECT 1,
            wk.wahl,
            wk.nummer,

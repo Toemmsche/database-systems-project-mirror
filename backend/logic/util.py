@@ -99,6 +99,9 @@ def valid_wahl(wahl: str):
 def valid_wahlkreis(wknr: str):
     return models_nat(wknr) and 1 <= int(wknr) <= 299
 
+def valid_bundesland(land: str):
+    return len(land) == 2
+
 
 def valid_stimme(stimme):
     try:

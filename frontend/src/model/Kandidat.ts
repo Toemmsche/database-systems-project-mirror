@@ -11,9 +11,10 @@ export default class Kandidat {
   partei !: string;
   partei_lang !: string;
   partei_farbe !: string;
+  bl_kuerzel !: string;
   bundesland ?: string;
   listenplatz ?: number;
   wk_nummer ?: number;
   wk_name ?: string;
-  rel_erststimmen ?: number;
+  rel_stimmen ?: number;
 }

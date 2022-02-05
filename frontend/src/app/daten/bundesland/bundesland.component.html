@@ -1,0 +1,16 @@
+<mat-card id="bundesland-card" *ngIf="bundeslandLoaded()">
+  <div id="bundesland-card-header">
+    <mat-card-title>{{bundesland.name}}</mat-card-title>
+  </div>
+  <mat-card-content></mat-card-content>
+  <div id="bundesland-chart-container">
+    <div class="bundesland-chart-titled">
+      <mat-card-subtitle><h1>Zweitstimmenergebnisse der Parteien</h1></mat-card-subtitle>
+      <chart id="bundesland-zweitstimmen-chart"
+             [type]="zweitstimmenConfig.type"
+             [data]="zweitstimmenConfig.data"
+             [options]="zweitstimmenConfig.options"></chart>
+    </div>
+  </div>
+</mat-card>
+<mat-spinner *ngIf="!bundeslandLoaded()"></mat-spinner>

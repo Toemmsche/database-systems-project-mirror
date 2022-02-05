@@ -3,7 +3,7 @@ DROP VIEW IF EXISTS kandidaten_erweitert CASCADE;
 CREATE VIEW kandidaten_erweitert
             (wahl, ist_einzug, ist_direktmandat, titel, nachname, vorname, geburtsjahr, geschlecht, beruf,
              ist_einzelbewerbung, partei, partei_lang,
-             partei_farbe, bundesland, listenplatz, wk_nummer, wk_name, rel_stimmen)
+             partei_farbe, bl_kuerzel, bundesland, listenplatz, wk_nummer, wk_name, rel_stimmen)
 AS
     WITH erststimmen_wahlkreis(wahlkreis, abs_stimmen) AS
              (SELECT dk.wahlkreis,
@@ -30,6 +30,7 @@ AS
                     COALESCE(llp.kuerzel, dkp.kuerzel),
                     COALESCE(llp.name, dkp.name),
                     COALESCE(llp.farbe, dkp.farbe),
+                    bl.kuerzel,
                     bl.name,
                     lp.position,
                     wk.nummer,

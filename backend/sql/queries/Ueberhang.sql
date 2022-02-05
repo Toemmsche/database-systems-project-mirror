@@ -1,6 +1,6 @@
 DROP VIEW IF EXISTS ueberhang_qpartei_bundesland CASCADE;
 
-CREATE VIEW ueberhang_qpartei_bundesland(wahl, land, partei, partei_farbe, ueberhang) AS
+CREATE VIEW ueberhang_qpartei_bundesland(wahl, bundesland, partei, partei_farbe, ueberhang) AS
     SELECT DISTINCT m.wahl, bl.name, p.kuerzel, p.farbe, m.ueberhang_land
     FROM mandat m,
          partei p,

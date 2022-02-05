@@ -11,12 +11,14 @@ import {SitzverteilungComponent} from "./bundestag/sitzverteilung/sitzverteilung
 import {KarteComponent} from "./karte/karte.component";
 import {DatenComponent} from "./daten/daten.component";
 import {StimmabgabeComponent} from "./stimmabgabe/stimmabgabe.component";
+import {BundeslandComponent} from "./daten/bundesland/bundesland.component";
 
 const routes: Routes = [
   {path: 'Bundestag', component: SitzverteilungComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
   {path: 'Bundestag/Mitglieder', component: MitgliederComponent, pathMatch: 'full', data: { allowsWahlSelection: false }},
   {path: 'Daten', component: DatenComponent, pathMatch: 'full', data: { allowsWahlSelection: true }}, //TODO
   {path: 'Daten/Wahlkreis/:nummer', component: WahlkreisComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
+  {path: 'Daten/Bundesland/:bundesland', component: BundeslandComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
   {path: 'Karte', component: KarteComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
   {path: 'Statistiken', component: StatComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},
   {path: 'Statistiken/Ueberhang', component: UeberhangComponent, pathMatch: 'full', data: { allowsWahlSelection: true }},

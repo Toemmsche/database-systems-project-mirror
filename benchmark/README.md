@@ -67,9 +67,9 @@ Wartezeit t = 0.1, Anzahl Terminals n = 100
 
 ### 5. Messreihe
 
-Wartezeit t = 1, Anzahl Terminals n = 500
+Wartezeit t = 1, Anzahl Terminals n = 100
 
-Der Wahlkreis wird diesmal zufällig ausgewählt. Dadurch lassen sich jedoch keine Performanceunterschiede zur  3. Messreihe beobachten, weswegen bei vorherigen Messreihen ein fester Wahlkreis aus Gründen der Übersichtlichkeit gewählt wurde.
+Der Wahlkreis wird diesmal zufällig ausgewählt. Dadurch lassen sich jedoch keine Performanceunterschiede zur  2. Messreihe beobachten, weswegen bei vorherigen Messreihen ein fester Wahlkreis aus Gründen der Übersichtlichkeit gewählt wurde.
 
 
-[Report](https://toemmsche.github.io/DB-Project-Benchmark-Results/t=1_n=500_random_wk.html)
+[Report](https://toemmsche.github.io/DB-Project-Benchmark-Results/t=1_n=100_random_wk.html)

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { WahlSelectionService } from 'src/app/service/wahl-selection.service';
-import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
+import {WahlkreisParteiErgebnis} from "../../../model/WahlkreisParteiErgebnis";
 import {REST_GET} from "../../../util/ApiService";
 import {sortWithSonstige} from "../../../util/ArrayHelper";
 
@@ -13,7 +13,7 @@ import {sortWithSonstige} from "../../../util/ArrayHelper";
 export class OstenergebnisComponent implements OnInit, OnDestroy {
 
   wahl !: number;
-  ostenData !: Array<ParteiErgebnis>
+  ostenData !: Array<WahlkreisParteiErgebnis>
   ostenConfig = {
     type: 'bar',
     data: {
@@ -75,7 +75,7 @@ export class OstenergebnisComponent implements OnInit, OnDestroy {
   populate() {
     REST_GET(`${this.wahl}/stat/ostenergebnis`)
       .then(response => response.json())
-      .then((data: Array<ParteiErgebnis>) => {
+      .then((data: Array<WahlkreisParteiErgebnis>) => {
         data = data.sort(sortWithSonstige);
 
         // Populate bar chart

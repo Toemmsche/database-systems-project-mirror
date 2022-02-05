@@ -1,4 +1,4 @@
-import {ParteiErgebnis} from "../model/ParteiErgebnis";
+import {WahlkreisParteiErgebnis} from "../model/WahlkreisParteiErgebnis";
 import {ParteiErgebnisVergleich} from "../model/ParteiErgebnisVergleich";
 
 
@@ -27,7 +27,7 @@ export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K
   return map;
 }
 
-export function sortWithSonstige(a : ParteiErgebnis | ParteiErgebnisVergleich, b : ParteiErgebnis | ParteiErgebnisVergleich) {
+export function sortWithSonstige(a : WahlkreisParteiErgebnis | ParteiErgebnisVergleich, b : WahlkreisParteiErgebnis | ParteiErgebnisVergleich) {
   if (a.partei == 'Sonstige') {
     return 1;
   } else if (b.partei == 'Sonstige') {
@@ -36,8 +36,8 @@ export function sortWithSonstige(a : ParteiErgebnis | ParteiErgebnisVergleich, b
   return b.abs_stimmen - a.abs_stimmen;
 }
 
-export function sortWithSameSorting(sorting: Array<ParteiErgebnis | ParteiErgebnisVergleich>): (a: ParteiErgebnis | ParteiErgebnisVergleich, b: ParteiErgebnis | ParteiErgebnisVergleich) => number {
-  return (a: ParteiErgebnis | ParteiErgebnisVergleich, b: ParteiErgebnis | ParteiErgebnisVergleich) => {
+export function sortWithSameSorting(sorting: Array<WahlkreisParteiErgebnis | ParteiErgebnisVergleich>): (a: WahlkreisParteiErgebnis | ParteiErgebnisVergleich, b: WahlkreisParteiErgebnis | ParteiErgebnisVergleich) => number {
+  return (a: WahlkreisParteiErgebnis | ParteiErgebnisVergleich, b: WahlkreisParteiErgebnis | ParteiErgebnisVergleich) => {
     const indexA = sorting.findIndex(r => r.partei == a.partei);
     const indexB = sorting.findIndex(r => r.partei == b.partei);
     return indexA - indexB;

@@ -2,7 +2,7 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {REST_GET} from "../../../util/ApiService";
 import {Wahlkreis} from "../../../model/Walhkreis";
-import {ParteiErgebnis} from "../../../model/ParteiErgebnis";
+import {WahlkreisParteiErgebnis} from "../../../model/WahlkreisParteiErgebnis";
 import {WahlSelectionService} from "../../service/wahl-selection.service";
 import {sortWithSonstige, sortWithSameSorting} from "../../../util/ArrayHelper";
 import ServerError from "../../../util/ServerError";
@@ -21,8 +21,8 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
   useEinzelstimmen: boolean = false;
   wahlkreis !: Wahlkreis;
 
-  erststimmenergebnisse !: Array<ParteiErgebnis>;
-  erststimmenergebnissePrev !: Array<ParteiErgebnis>;
+  erststimmenergebnisse !: Array<WahlkreisParteiErgebnis>;
+  erststimmenergebnissePrev !: Array<WahlkreisParteiErgebnis>;
   erststimmenConfig = {
     type   : "bar",
     data   : {
@@ -74,8 +74,8 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
     }
   }
 
-  zweitstimmenergebnisse !: Array<ParteiErgebnis>;
-  zweitstimmenergebnissePrev !: Array<ParteiErgebnis>;
+  zweitstimmenergebnisse !: Array<WahlkreisParteiErgebnis>;
+  zweitstimmenergebnissePrev !: Array<WahlkreisParteiErgebnis>;
   zweitstimmenConfig = {
     type   : "bar",
     data   : {
@@ -169,7 +169,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
 
     REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
       .then(response => response.json())
-      .then(async (data: Array<ParteiErgebnis>) => {
+      .then(async (data: Array<WahlkreisParteiErgebnis>) => {
         data = data.sort(sortWithSonstige);
 
         // Populate bar chart
@@ -181,9 +181,9 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
         this.populateBarChartData(zsData, this.zweitstimmenConfig, 0);
 
         if (this.wahl > 19) {
-          await REST_GET(`${this.wahl - 1}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
+          await REST_GET(`${this.wahl - 1}/wahlkreis/${this.nummer}/stimmen`)
             .then(response => response.json())
-            .then((data: Array<ParteiErgebnis>) => {
+            .then((data: Array<WahlkreisParteiErgebnis>) => {
               // Populate bar chart
               let esDataPrev = data.filter(pe => pe.stimmentyp == 1);
               // Insert missing parties
@@ -220,7 +220,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
       });
   }
 
-  private populateBarChartData(data: Array<ParteiErgebnis>, config: any, index: number, alpha: number = 255): void {
+  private populateBarChartData(data: Array<WahlkreisParteiErgebnis>, config: any, index: number, alpha: number = 255): void {
     const alphaSuffix = (alpha < 16 ? '0' : '') + alpha.toString(16);
     // Populate bar chart
     const chartData = config.data;
@@ -231,7 +231,7 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
     chartData.datasets[index].hidden = false;
     config.options.legend.display = true;
 
-    data = Object.assign({}, chartData);
+    config.data = Object.assign({}, chartData);
   }
 
   private hideBarChartData(config: any, index: number): void {

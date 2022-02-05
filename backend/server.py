@@ -31,7 +31,7 @@ def get_mdb(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        return table_to_json(cursor, "mitglieder_bundestag", wahl=wahl)
+        return table_to_json(cursor, "kandidaten_erweitert", wahl=wahl, ist_einzug="TRUE")
 
 
 @app.route("/api/<wahl>/kandidaten", methods=['GET'])
@@ -70,6 +70,31 @@ def get_wahlkreisergebnis_stimmen(wahl: str, wknr: str):
     with conn_pool.connection() as conn, conn.cursor() as cursor:
         # only check for reset aggregates in wahlkreis_information
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis', wahl=wahl, wk_nummer=wknr)
+
+
+@app.route("/api/<wahl>/bundesland", methods=["GET"])
+def get_bundeslaender(wahl: str):
+    if not valid_wahl(wahl):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return table_to_json(cursor, 'bundesland')
+
+
+@app.route("/api/<wahl>/bundesland/<land>", methods=["GET"])
+def get_bundeslandinformation(wahl: str, land: str):
+    if not valid_wahl(wahl) or not valid_bundesland(land):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return table_to_json(cursor, 'bundesland',kuerzel=f"'{land}'", single=True)
+
+
+@app.route("/api/<wahl>/bundesland/<land>/stimmen", methods=["GET"])
+def get_bundesland_stimmen(wahl: str, land: str):
+    if not valid_wahl(wahl) or not valid_bundesland(land):
+        print(len(land) == 2)
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return table_to_json(cursor, 'stimmen_qpartei_bundesland', wahl=wahl, bl_kuerzel=f"'{land}'")
 
 
 @app.route("/api/<wahl>/zweitstimmen_aggregiert", methods=['POST'])
