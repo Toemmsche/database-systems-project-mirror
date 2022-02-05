@@ -1,5 +1,5 @@
 <div id="bundesland-selection" *ngIf="bundeslaenderLoaded()">
-  <h1>Bundeslaender</h1>
+  <h1>Bundesländer</h1>
   <mat-nav-list id="bundesland-list">
     <div mat-list-item *ngFor="let bl of this.bundeslaender">
       <a [href]="'Daten/Bundesland/' + bl.kuerzel">
