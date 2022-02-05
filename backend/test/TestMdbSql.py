@@ -28,10 +28,10 @@ class TestMdbSql(unittest.TestCase):
         # The bottom 4 candidates are 'nachrücker', we disregard them
         mdb_expected = mdb_expected[:-4]
 
-        res_list = table_to_dict_list(self.cursor, 'mitglieder_bundestag', wahl=20)
+        res_list = table_to_dict_list(self.cursor, 'kandidaten_erweitert', wahl=20, ist_einzug="TRUE")
 
         mdb_actual = set(
-            [(row['vorname'], row['nachname'], row['geburtsjahr'], row['partei'], row['grund'].startswith('Direktmandat')) for row in
+            [(row['vorname'], row['nachname'], row['geburtsjahr'], row['partei'], row['ist_direktmandat']) for row in
              res_list])
 
         self.assertEqual(len(mdb_expected), len(mdb_actual))
