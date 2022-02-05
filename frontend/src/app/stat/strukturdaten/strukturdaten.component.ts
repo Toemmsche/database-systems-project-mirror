@@ -6,7 +6,8 @@ import {Begrenzung} from 'src/model/Begrenzung';
 import {Metrik} from 'src/model/Metrik';
 import {Rangliste} from 'src/model/Rangliste';
 import {REST_GET, REST_POST} from 'src/util/ApiService';
-import {ParteiErgebnisVergleich} from "../../../model/ParteiErgebnisVergleich";
+import ParteiErgebnis from "../../../model/ParteiErgebnis";
+import {mergeCduCsu} from "../../../util/ArrayHelper";
 
 @Component({
   selector   : 'app-strukturdaten',
@@ -27,8 +28,8 @@ export class StrukturdatenComponent implements OnInit {
 
   @ViewChild(SvgKarteComponent) karte !: SvgKarteComponent;
 
-  ergebnisseNiedrig !: Array<ParteiErgebnisVergleich>;
-  ergebnisseHoch !: Array<ParteiErgebnisVergleich>;
+  ergebnisseNiedrig !: Array<ParteiErgebnis>;
+  ergebnisseHoch !: Array<ParteiErgebnis>;
   ergebnisseVergleichConfig = {
     type   : 'bar',
     data   : {
@@ -170,23 +171,10 @@ export class StrukturdatenComponent implements OnInit {
     const lowestBody = this.rangliste.filter(r => r.rank <= this.topNFormControl.value).map(r => r.nummer);
     const highestBody = this.rangliste.filter(r => r.rank > count - this.topNFormControl.value).map(r => r.nummer);
 
-    let lowestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen_aggregiert`, lowestBody)
+    let lowestData: Array<ParteiErgebnis> = await REST_POST(`${this.wahl}/zweitstimmen_aggregiert`, lowestBody)
       .then(response => response.json());
-    let highestData: Array<ParteiErgebnisVergleich> = await REST_POST(`${this.wahl}/zweitstimmen_aggregiert`, highestBody)
+    let highestData: Array<ParteiErgebnis> = await REST_POST(`${this.wahl}/zweitstimmen_aggregiert`, highestBody)
       .then(response => response.json());
-
-    const mergeCduCsu = (data: Array<ParteiErgebnisVergleich>) => {
-      const onlyCduCsu = data.filter(pe => pe.partei === 'CSU' || pe.partei === 'CDU');
-      const merged = new ParteiErgebnisVergleich(this.wahl, "UNION", '000000',
-        onlyCduCsu
-          .map(pe => pe.abs_stimmen)
-          .reduce((a, b) => a + b),
-        onlyCduCsu
-          .map(pe => pe.rel_stimmen)
-          .reduce((a, b) => a + b));
-      data.push(merged);
-      return data.filter(pe => pe.partei !== 'CSU' && pe.partei !== 'CDU');
-    }
 
     // Aggregate CSU / CDU
     lowestData = mergeCduCsu(lowestData);

@@ -1,41 +1,57 @@
-DROP VIEW IF EXISTS zweitstimmen_qpartei_osten CASCADE;
+DROP VIEW IF EXISTS zweitstimmen_partei_osten CASCADE;
 
-CREATE VIEW zweitstimmen_qpartei_osten(wahl, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
-    WITH zweitstimmen_partei_osten(wahl, partei, anzahlstimmen) AS
-             (SELECT ll.wahl, ll.partei, SUM(ze.anzahlstimmen)
+CREATE VIEW zweitstimmen_partei_osten(wahl, ist_osten, partei, partei_farbe, abs_stimmen, rel_stimmen) AS
+    WITH zweitstimmen_partei(wahl, ist_osten, partei, anzahlstimmen) AS
+             (SELECT ll.wahl, bl.osten, ll.partei, SUM(ze.anzahlstimmen)
               FROM bundesland bl,
                    zweitstimmenergebnis ze,
                    landesliste ll
               WHERE ze.liste = ll.listenid
                 AND bl.landid = ll.land
-                AND bl.osten
-              GROUP BY ll.wahl, ll.partei),
-         zweitstimmen_osten(wahl, anzahlstimmen) AS
-             (SELECT zpo.wahl, SUM(zpo.anzahlstimmen)
-              FROM zweitstimmen_partei_osten zpo
-              GROUP BY zpo.wahl),
-         zweitstimmen_partei_osten_rel(wahl, partei, abs_stimmen, rel_stimmen) AS
-             (SELECT zpo.*, zpo.anzahlstimmen::decimal / zo.anzahlstimmen
-              FROM zweitstimmen_partei_osten zpo,
+              GROUP BY ll.wahl, bl.osten, ll.partei),
+         zweitstimmen_osten(wahl, ist_osten, anzahlstimmen) AS
+             (SELECT zp.wahl, zp.ist_osten, SUM(zp.anzahlstimmen)
+              FROM zweitstimmen_partei zp
+              GROUP BY zp.wahl, zp.ist_osten),
+         zweitstimmen_partei_osten_rel(wahl, ist_osten, partei, abs_stimmen, rel_stimmen) AS
+             (SELECT zp.*, zp.anzahlstimmen::DECIMAL / zo.anzahlstimmen
+              FROM zweitstimmen_partei zp,
                    zweitstimmen_osten zo
-              WHERE zpo.wahl = zo.wahl)
+              WHERE zp.wahl = zo.wahl
+                AND zp.ist_osten = zo.ist_osten),
+         partei_filtered
+             (wahl, partei, ist_einzug)
+             AS
+             (SELECT zpo.wahl,
+                     zpo.partei,
+                     BOOL_OR(zpo.rel_stimmen >= 0.022) --Hürde ist niedriger als 5%, damit auch Randparteien erscheinen
+              FROM zweitstimmen_partei_osten_rel zpo
+              GROUP BY zpo.wahl, zpo.partei)
     SELECT zpo.wahl,
+           zpo.ist_osten,
            p.kuerzel,
            p.farbe,
            zpo.abs_stimmen,
            zpo.rel_stimmen
     FROM zweitstimmen_partei_osten_rel zpo,
+         partei_filtered pf,
          partei p
-    WHERE zpo.partei = p.parteiid
-      AND zpo.rel_stimmen >= 0.05
+    WHERE zpo.wahl = pf.wahl
+      AND zpo.partei = p.parteiid
+      AND zpo.partei = pf.partei
+      AND pf.ist_einzug
     UNION
     SELECT zpo.wahl,
+           zpo.ist_osten,
            'Sonstige',
            'DDDDDD',
            SUM(zpo.abs_stimmen),
            SUM(zpo.rel_stimmen)
     FROM zweitstimmen_partei_osten_rel zpo,
-         partei p
-    WHERE zpo.partei = p.parteiid
-      AND zpo.rel_stimmen < 0.05
-    GROUP BY zpo.wahl;
+         partei p,
+         partei_filtered pf
+    WHERE zpo.wahl = pf.wahl
+      AND zpo.partei = p.parteiid
+      AND zpo.partei = pf.partei
+      AND NOT pf.ist_einzug
+    GROUP BY zpo.wahl, zpo.ist_osten;

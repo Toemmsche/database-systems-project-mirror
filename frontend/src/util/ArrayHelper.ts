@@ -1,43 +1,16 @@
-import {WahlkreisParteiErgebnis} from "../model/WahlkreisParteiErgebnis";
-import {ParteiErgebnisVergleich} from "../model/ParteiErgebnisVergleich";
+import ParteiErgebnis from "../model/ParteiErgebnis";
 
-
-/**
- * @description
- * Takes an Array<V>, and a grouping function,
- * and returns a Map of the array grouped by the grouping function.
- *
- * @param list An array of type V.
- * @param keyGetter A Function that takes the the Array type V as an input, and returns a value of type K.
- *                  K is generally intended to be a property key of V.
- *
- * @returns Map of the array grouped by the grouping function.
- */
-export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> {
-   const map = new Map<K, Array<V>>();
-  list.forEach((item) => {
-       const key = keyGetter(item);
-       const collection = map.get(key);
-       if (!collection) {
-           map.set(key, [item]);
-       } else {
-           collection.push(item);
-       }
-  });
-  return map;
-}
-
-export function sortWithSonstige(a : WahlkreisParteiErgebnis | ParteiErgebnisVergleich, b : WahlkreisParteiErgebnis | ParteiErgebnisVergleich) {
-  if (a.partei == 'Sonstige') {
+export function sortWithSonstige(a: ParteiErgebnis, b: ParteiErgebnis) {
+  if (a.partei == "Sonstige") {
     return 1;
-  } else if (b.partei == 'Sonstige') {
+  } else if (b.partei == "Sonstige") {
     return -1;
   }
   return b.abs_stimmen - a.abs_stimmen;
 }
 
-export function sortWithSameSorting(sorting: Array<WahlkreisParteiErgebnis | ParteiErgebnisVergleich>): (a: WahlkreisParteiErgebnis | ParteiErgebnisVergleich, b: WahlkreisParteiErgebnis | ParteiErgebnisVergleich) => number {
-  return (a: WahlkreisParteiErgebnis | ParteiErgebnisVergleich, b: WahlkreisParteiErgebnis | ParteiErgebnisVergleich) => {
+export function sortWithSameSorting(sorting: Array<ParteiErgebnis>): (a: ParteiErgebnis, b: ParteiErgebnis) => number {
+  return (a: ParteiErgebnis, b: ParteiErgebnis) => {
     const indexA = sorting.findIndex(r => r.partei == a.partei);
     const indexB = sorting.findIndex(r => r.partei == b.partei);
     return indexA - indexB;
@@ -46,4 +19,26 @@ export function sortWithSameSorting(sorting: Array<WahlkreisParteiErgebnis | Par
 
 export function containsLowerCase(str: string, substr: string) {
   return str.toLowerCase().indexOf(substr.toLowerCase()) !== -1;
+}
+
+export function mergeCduCsu<T extends ParteiErgebnis>(data: Array<T>): Array<T> {
+  const onlyCduCsu = data.filter(pe => pe.partei === "CSU" || pe.partei === "CDU");
+  let merged = {
+    partei      : "UNION",
+    partei_farbe: "000000",
+    abs_stimmen : onlyCduCsu
+      .map(pe => pe.abs_stimmen)
+      .reduce((a, b) => a + b),
+    rel_stimmen : onlyCduCsu
+      .map(pe => pe.rel_stimmen)
+      .reduce((a, b) => a + b)
+  };
+  // fill up remaining attributes
+  merged = {
+    ...data[0],
+    ...merged // overwrite with new data
+  }
+  // @ts-ignore
+  data.push(merged);
+  return data.filter(pe => pe.partei !== "CSU" && pe.partei !== "CDU")
 }

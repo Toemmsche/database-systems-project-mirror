@@ -1,9 +1,12 @@
 <div id="osten-container" *ngIf="ostenLoaded()">
-  <chart id="osten-chart"
-    [type]="ostenConfig.type"
-    [data]="ostenConfig.data"
-    [options]="ostenConfig.options">
-  </chart>
+  <div class="chart-titled">
+    <h1>Ergebnis in Ost-/Westdeutschland</h1>
+    <chart id="westen-chart"
+           [type]="ostWestConfig.type"
+           [data]="ostWestConfig.data"
+           [options]="ostWestConfig.options">
+    </chart>
+  </div>
 </div>
 <mat-spinner *ngIf="!ostenLoaded()"></mat-spinner>
 

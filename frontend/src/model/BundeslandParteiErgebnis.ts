@@ -1,8 +1,5 @@
-export class BundeslandParteiErgebnis {
-  wahl !: number;
+import ParteiErgebnis from "./ParteiErgebnis";
+
+export class BundeslandParteiErgebnis  extends ParteiErgebnis{
   bl_kuerzel !: string;
-  partei !: string;
-  partei_farbe !: string;
-  rel_stimmen !: number;
-  abs_stimmen !: number;
 }
