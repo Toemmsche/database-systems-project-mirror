@@ -5,19 +5,26 @@
   align-items: center;
 }
 
+#filter-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 20px;
+}
+
 #kandidat-table {
-  width: 60vw !important;
+  width: 70vw !important;
 }
 
 .mat-column-vorname, .mat-column-nachname, .mat-column-titel, .mat-column-geburtsjahr, .mat-column-geschlecht,
-.mat-column-partei, .mat-column-bundesland, .mat-column-listenplatz, .mat-column-wk_nummer, .mat-column-rel_stimmen {
+.mat-column-partei, .mat-column-bundesland, .mat-column-listenplatz, .mat-column-wk_nummer {
   padding-left: 20px;
   padding-right: 20px;
 }
 
 .mat-column-rel_stimmen {
-  text-align: center;
-  flex-grow: 1;
+  padding-left: 20px;
+  text-align: end;
 }
 
 

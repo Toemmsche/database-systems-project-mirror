@@ -5,7 +5,7 @@ import Kandidat from "../../../model/Kandidat";
 import {REST_GET} from "../../../util/ApiService";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
-import {FormControl} from "@angular/forms";
+import {FormControl, FormGroup} from "@angular/forms";
 import {MatSort} from "@angular/material/sort";
 
 @Component({
@@ -41,7 +41,11 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   @ViewChild("paginator")
   kandidatenTablePaginator !: MatPaginator
 
-  @ViewChild(MatSort) sort !: MatSort;
+  @ViewChild(MatSort)
+  kandidatenTableSort !: MatSort;
+
+  @ViewChild('ngForm')
+  filterFormGroup !: FormGroup
 
   titelFilter = new FormControl("");
 
@@ -52,16 +56,16 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   geburtsjahrFilter = new FormControl("");
 
   geschlechter !: Set<string>
-  geschlechtFilter = new FormControl("");
+  geschlechtFilter = new FormControl("Alle");
 
   berufFilter = new FormControl("");
 
   parteiFilter = new FormControl("");
 
-  mandatFilter = new FormControl("")
+  mandatFilter = new FormControl("Alle")
 
   bundeslaender !: Set<string>
-  bundeslandFilter = new FormControl("");
+  bundeslandFilter = new FormControl("Alle");
 
   wahlkreisFilter = new FormControl("");
 
@@ -132,8 +136,24 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // Paginator
     this.kandidatenDataSource.paginator = this.kandidatenTablePaginator
-    this.kandidatenDataSource.sort = this.sort;
+    this.kandidatenDataSource.sort = this.kandidatenTableSort;
     this.populate();
+  }
+
+  resetFilters() {
+    this.mandatFilter.reset("Alle");
+    this.titelFilter.reset("");
+    this.vornameFilter.reset("");
+    this.nachnameFilter.reset("");
+    this.geburtsjahrFilter.reset("");
+    this.geschlechtFilter.reset("Alle");
+    this.berufFilter.reset("");
+    this.parteiFilter.reset("");
+    this.bundeslandFilter.reset("Alle");
+    this.wahlkreisFilter.reset("");
+    this.relStimmenVonFilter.reset("");
+    this.relStimmenBisFilter.reset("");
+    this.updateFilter();
   }
 
   updateFilter(): void {
@@ -158,7 +178,7 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
       this.updateFilter();
     });
     this.geburtsjahrFilter.valueChanges.subscribe(value => {
-      this.filter.geburtsjahr = value;
+      this.filter.geburtsjahr = value ?? "";
       this.updateFilter();
     });
     this.geschlechtFilter.valueChanges.subscribe(value => {
@@ -183,11 +203,11 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
       this.updateFilter();
     });
     this.relStimmenVonFilter.valueChanges.subscribe(value => {
-      this.filter.relStimmenVon = value;
+      this.filter.relStimmenVon = value ?? "";
       this.updateFilter();
     });
     this.relStimmenBisFilter.valueChanges.subscribe(value => {
-      this.filter.relStimmenBis = value;
+      this.filter.relStimmenBis = value ?? "";
       this.updateFilter();
     });
   }

@@ -1,70 +1,80 @@
 <div id="kandidaten-container" [hidden]="!kandidatenLoaded()">
   <h1>Kandidaten</h1>
-  <div class="filter-row" *ngIf="!hideFilter">
-    <mat-form-field appearance="fill">
-      <mat-label>Titel</mat-label>
-      <input matInput [formControl]="titelFilter">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Vorname</mat-label>
-      <input matInput [formControl]="vornameFilter">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Nachname</mat-label>
-      <input matInput [formControl]="nachnameFilter">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Geburtsjahr</mat-label>
-      <input matInput type="number" [formControl]="geburtsjahrFilter">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Geschlecht</mat-label>
-      <input matInput [formControl]="geschlechtFilter">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Beruf</mat-label>
-      <input matInput [formControl]="berufFilter">
-    </mat-form-field>
-  </div>
-  <div class="filter-row" *ngIf="!hideFilter">
-    <mat-form-field appearance="fill" *ngIf="!mdbOnly">
-      <mat-label>Mandatstyp</mat-label>
-      <mat-select [formControl]="mandatFilter" value="Alle">
-        <mat-option value="Alle">Alle</mat-option>
-        <mat-option value="MDB">MDB</mat-option>
-        <mat-option value="Direktmandat">Direktmandat</mat-option>
-        <mat-option value="Listenmandat">Listenmandat</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Partei</mat-label>
-      <input matInput [formControl]="parteiFilter">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Bundesland</mat-label>
-      <mat-select [formControl]="bundeslandFilter" value="Alle">
-        <mat-option value="Alle">Alle</mat-option>
-        <mat-option *ngFor="let bl of this.bundeslaender" [value]="bl">
-          {{bl}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Wahlkreis</mat-label>
-      <input matInput [formControl]="wahlkreisFilter">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Erststimmenanteil (von)</mat-label>
-      <input matInput type="number" [formControl]="relStimmenVonFilter">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Erststimmenanteil (bis)</mat-label>
-      <input matInput type="number" [formControl]="relStimmenBisFilter">
-    </mat-form-field>
-    <!--<button mat-icon-button color="primary" class="filter-reset-btn">
+  <div id="filter-container">
+    <div>
+      <div class="filter-row" *ngIf="!hideFilter">
+        <mat-form-field appearance="fill">
+          <mat-label>Titel</mat-label>
+          <input matInput [formControl]="titelFilter">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Vorname</mat-label>
+          <input matInput [formControl]="vornameFilter">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Nachname</mat-label>
+          <input matInput [formControl]="nachnameFilter">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Geburtsjahr</mat-label>
+          <input matInput type="number" [formControl]="geburtsjahrFilter">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Geschlecht</mat-label>
+          <mat-select [formControl]="geschlechtFilter" value="Alle">
+            <mat-option value="Alle">Alle</mat-option>
+            <mat-option *ngFor="let g of this.geschlechter" [value]="g">
+              {{g}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Beruf</mat-label>
+          <input matInput [formControl]="berufFilter">
+        </mat-form-field>
+      </div>
+      <div class="filter-row" *ngIf="!hideFilter">
+        <mat-form-field appearance="fill" *ngIf="!mdbOnly">
+          <mat-label>Mandatstyp</mat-label>
+          <mat-select [formControl]="mandatFilter" value="Alle">
+            <mat-option value="Alle">Alle</mat-option>
+            <mat-option value="MDB">MDB</mat-option>
+            <mat-option value="Direktmandat">Direktmandat</mat-option>
+            <mat-option value="Listenmandat">Listenmandat</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Partei</mat-label>
+          <input matInput [formControl]="parteiFilter">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Bundesland</mat-label>
+          <mat-select [formControl]="bundeslandFilter" value="Alle">
+            <mat-option value="Alle">Alle</mat-option>
+            <mat-option *ngFor="let bl of this.bundeslaender" [value]="bl">
+              {{bl}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Wahlkreis</mat-label>
+          <input matInput [formControl]="wahlkreisFilter">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Erststimmenanteil (von)</mat-label>
+          <input matInput type="number" [formControl]="relStimmenVonFilter">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Erststimmenanteil (bis)</mat-label>
+          <input matInput type="number" [formControl]="relStimmenBisFilter">
+        </mat-form-field>
+      </div>
+    </div>
+    <button mat-icon-button color="primary" (click)="resetFilters()" class="filter-reset-btn">
       <mat-icon style="transform: scale(2)">cached</mat-icon>
-    </button> -->
+    </button>
   </div>
+
 
   <table id="kandidat-table" mat-table [dataSource]="kandidatenDataSource" class="mat-elevation-z8" matSort>
     <ng-container matColumnDef="titel">
@@ -97,7 +107,7 @@
     </ng-container>
     <ng-container matColumnDef="bundesland">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Bundesland</th>
-      <td mat-cell *matCellDef="let kandidat" [routerLink]="'/Daten/Bundesland/' + kandidat.bl_kuerzel"
+      <td mat-cell *matCellDef="let kandidat"  class="clickable-cell" [routerLink]="'/Daten/Bundesland/' + kandidat.bl_kuerzel"
           [ngClass]="kandidat.ist_einzug && !kandidat.ist_direktmandat ? 'highlight-cell-right' : ''"> {{kandidat.bundesland}} </td>
     </ng-container>
     <ng-container matColumnDef="listenplatz">
@@ -107,7 +117,7 @@
     </ng-container>
     <ng-container matColumnDef="wk_nummer">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Wahlkreis</th>
-      <td mat-cell *matCellDef="let kandidat" [routerLink]="'/Daten/Wahlkreis/' + kandidat.wk_nummer"
+      <td mat-cell *matCellDef="let kandidat" class="clickable-cell" [routerLink]="'/Daten/Wahlkreis/' + kandidat.wk_nummer"
           [ngClass]="kandidat.ist_einzug && kandidat.ist_direktmandat ? 'highlight-cell-right' : ''"> {{ kandidat.wk_nummer != null
                                                                                                          ? kandidat.wk_nummer + " - " + kandidat.wk_name
                                                                                                          : ""}} </td>

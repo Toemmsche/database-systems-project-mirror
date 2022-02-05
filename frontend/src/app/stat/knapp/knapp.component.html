@@ -16,61 +16,54 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Siegerpartei</mat-label>
-      <mat-select [formControl]="siegerParteiFilter" value="Alle">
-        <mat-option value="Alle">Alle</mat-option>
-        <mat-option *ngFor="let sp of this.siegerParteien" [value]="sp">
-          {{sp}}
-        </mat-option>
-      </mat-select>
+      <input matInput [formControl]="siegerParteiFilter">
     </mat-form-field>
     <mat-form-field appearance="fill">
-      <mat-label>Verliererpartei</mat-label>
-      <mat-select [formControl]="verliererParteiFilter" value="Alle">
-        <mat-option value="Alle">Alle</mat-option>
-        <mat-option *ngFor="let vp of this.verliererParteien" [value]="vp">
-          {{vp}}
-        </mat-option>
-      </mat-select>
+      <mat-label>VerliererPartei</mat-label>
+      <input matInput [formControl]="verliererParteiFilter">
     </mat-form-field>
+    <button mat-icon-button color="primary" (click)="resetFilters()" class="filter-reset-btn">
+      <mat-icon style="transform: scale(2)">cached</mat-icon>
+    </button>
   </div>
 
 
-  <table mat-table [dataSource]="knappDataSource" class="stretch mat-elevation-z8">
-    <ng-container matColumnDef="sieger-partei">
-      <th mat-header-cell *matHeaderCellDef>Siegerpartei (SP)</th>
-      <td mat-cell *matCellDef="let row"> {{row.sieger_partei}} </td>
+  <table mat-table [dataSource]="knappDataSource" matSort class="stretch mat-elevation-z8">
+    <ng-container matColumnDef="sieger_partei">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Siegerpartei (SP)</th>
+      <td mat-cell *matCellDef="let knapp"> {{knapp.sieger_partei}} </td>
     </ng-container>
-    <ng-container matColumnDef="stimmen-sieger-partei">
-      <th mat-header-cell *matHeaderCellDef>Stimmen SP</th>
-      <td mat-cell *matCellDef="let row"> {{row.abs_stimmen_sieger}} </td>
+    <ng-container matColumnDef="abs_stimmen_sieger">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Stimmen SP</th>
+      <td mat-cell *matCellDef="let knapp"> {{knapp.abs_stimmen_sieger}} </td>
     </ng-container>
-    <ng-container matColumnDef="verlierer-partei">
-      <th mat-header-cell *matHeaderCellDef>Verliererpartei (VP)</th>
-      <td mat-cell *matCellDef="let row"> {{row.verlierer_partei}} </td>
+    <ng-container matColumnDef="verlierer_partei">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Verliererpartei (VP)</th>
+      <td mat-cell *matCellDef="let knapp"> {{knapp.verlierer_partei}} </td>
     </ng-container>
-    <ng-container matColumnDef="stimmen-verlierer-partei">
-      <th mat-header-cell *matHeaderCellDef>Stimmen VP</th>
-      <td mat-cell *matCellDef="let row"> {{row.abs_stimmen_verlierer}} </td>
+    <ng-container matColumnDef="abs_stimmen_verlierer">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Stimmen VP</th>
+      <td mat-cell *matCellDef="let knapp"> {{knapp.abs_stimmen_verlierer}} </td>
     </ng-container>
-    <ng-container matColumnDef="wahlkreis">
-      <th mat-header-cell *matHeaderCellDef>Wahlkreis</th>
-      <td mat-cell *matCellDef="let row">{{row.wk_name}} </td>
+    <ng-container matColumnDef="wk_nummer">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Wahlkreis</th>
+      <td mat-cell *matCellDef="let knapp"  class="clickable-cell" [routerLink]="'/Daten/Wahlkreis/' + knapp.wk_nummer">{{knapp.wk_nummer + " - " + knapp.wk_name}} </td>
     </ng-container>
-    <ng-container matColumnDef="differenz-stimmen">
-      <th mat-header-cell *matHeaderCellDef>Differenz (Stimmen)</th>
-      <td mat-cell *matCellDef="let row"> {{row.is_sieg ? '+' : '-'}}{{row.differenz_stimmen}} </td>
+    <ng-container matColumnDef="differenz_stimmen">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Differenz (Stimmen)</th>
+      <td mat-cell *matCellDef="let knapp"> {{knapp.is_sieg ? '+' : '-'}}{{knapp.differenz_stimmen}} </td>
     </ng-container>
-    <ng-container matColumnDef="differenz-relativ">
-      <th mat-header-cell *matHeaderCellDef>Differenz (relativ)</th>
+    <ng-container matColumnDef="differenz_relativ">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Differenz (relativ)</th>
       <td mat-cell
-          *matCellDef="let row"> {{100 * row.differenz_stimmen / (row.is_sieg ? row.abs_stimmen_verlierer : row.abs_stimmen_sieger) | number: '1.3-3'}}
+          *matCellDef="let knapp"> {{100 * knapp.differenz_stimmen / (knapp.is_sieg ? knapp.abs_stimmen_verlierer : knapp.abs_stimmen_sieger) | number: '1.3-3'}}
         %
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-    <tr mat-row class="row-hover" *matRowDef="let row; columns: columnsToDisplay"
-        [routerLink]="'/Daten/Wahlkreis/' + row.wk_nummer"
-        [ngClass]="row.is_sieg ? 'winner-row' : 'loser-row'"></tr>
+    <tr mat-row class="row-hover" *matRowDef="let knapp; columns: columnsToDisplay"
+        [routerLink]="'/Daten/Wahlkreis/' + knapp.wk_nummer"
+        [ngClass]="knapp.is_sieg ? 'winner-row' : 'loser-row'"></tr>
   </table>
   <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" #paginator></mat-paginator>
 </div>
