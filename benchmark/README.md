@@ -17,7 +17,7 @@
 
 ## Weitere Anmerkungen
 
-Aus Performancegründen werden die Ergebnisse der "Bundestags-Query" in einer materialisierten Sicht gehalten. Beim Einfügen von neuen Stimmen wird diese Sicht jeweils neu berechnet, sodass stets das aktuellste Ergebnis sichtbar ist.
+Aus Performancegründen werden die Ergebnisse der "Bundestags-Query" in einer materialisierten Sicht gehalten. Beim Einfügen von neuen Stimmen wird diese Sicht jeweils neu berechnet, sodass stets das aktuellste Ergebnis sichtbar ist. Die Neuberechnung der Mandate beansprucht ~85ms (4ms Planning time) unter Verwendung Aggregaten für die Erst- und Zweitstimmen.
 
 ## Reproduktion
 
