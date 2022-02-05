@@ -16,17 +16,14 @@ export class UeberhangComponent implements OnInit, OnDestroy {
   ueberhangData !: Array<Ueberhang>;
   wahlSubscription !: Subscription;
 
-  constructor(private readonly wahlService: WahlSelectionService) {
-    this.wahl = this.wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
+  constructor(private readonly wahlService: WahlSelectionService) {}
+
+  ngOnInit(): void {
     this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
       this.wahl = this.wahlService.getWahlNumber(selection);
       this.ueberhangData = [];
-      this.ngOnInit();
+      this.populate();
     });
-  }
-
-  ngOnInit(): void {
-    this.populate();
   }
 
   ngOnDestroy(): void {

@@ -17,19 +17,18 @@ export class BundeslandlisteComponent implements OnInit {
 
   wahl !: number;
   bundeslaender !: Array<Bundesland>;
-  private wahlSubscription: Subscription;
+  private wahlSubscription !: Subscription;
 
   constructor(private readonly wahlservice: WahlSelectionService) {
     this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
-      this.wahl = this.wahlservice.getWahlNumber(selection);
-      this.bundeslaender= []
-      this.ngOnInit()
-    });
   }
 
   ngOnInit(): void {
-    this.populate()
+    this.wahlSubscription = this.wahlservice.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlservice.getWahlNumber(selection);
+      this.bundeslaender= []
+      this.populate();
+    });
   }
 
   ngOnDestroy(): void {

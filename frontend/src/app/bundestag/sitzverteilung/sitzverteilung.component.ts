@@ -36,17 +36,14 @@ export class SitzverteilungComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private readonly wahlservice: WahlSelectionService) {
-    this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
-      this.wahl = this.wahlservice.getWahlNumber(selection);
-      this.sitzverteilung = [];
-      this.ngOnInit()
-    });
-  }
+  constructor(private readonly wahlservice: WahlSelectionService) {}
 
   ngOnInit(): void {
-    this.populate();
+    this.wahlSubscription = this.wahlservice.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlservice.getWahlNumber(selection);
+      this.sitzverteilung = [];
+      this.populate();
+    });
   }
 
   ngOnDestroy(): void {

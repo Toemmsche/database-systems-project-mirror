@@ -120,24 +120,22 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
 
   constructor(
     private readonly wahlservice: WahlSelectionService
-  ) {
-    this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
-      this.wahl = this.wahlservice.getWahlNumber(selection);
-      this.kandidatenDataSource.data = [];
-      this.ngAfterViewInit();
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.initFilterListeners();
+
+    this.wahlSubscription = this.wahlservice.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlservice.getWahlNumber(selection);
+      this.kandidatenDataSource.data = [];
+      this.populate();
+    });
   }
 
   ngAfterViewInit() {
     // Paginator
     this.kandidatenDataSource.paginator = this.kandidatenTablePaginator
     this.kandidatenDataSource.sort = this.kandidatenTableSort;
-    this.populate();
   }
 
   resetFilters() {

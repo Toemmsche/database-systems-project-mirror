@@ -87,25 +87,22 @@ export class BundeslandComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private readonly wahlservice: WahlSelectionService
-  ) {
-    this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
-      this.wahl = this.wahlservice.getWahlNumber(selection);
-      this.zweitstimmenergebnisse = [];
-      this.ngOnInit()
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.bl_kuerzel = (<string>this.route.snapshot.paramMap.get("bundesland"));
-    this.populate();
+    this.wahlSubscription = this.wahlservice.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlservice.getWahlNumber(selection);
+      this.zweitstimmenergebnisse = [];
+      this.populate();
+    });
   }
 
   ngOnDestroy(): void {
     this.wahlSubscription.unsubscribe();
   }
 
-  async populate(): Promise<void> {
+  populate(): void  {
     REST_GET(`${this.wahl}/bundesland/${this.bl_kuerzel}`)
       .then(response => response.json())
       .then((data: Bundesland) => {

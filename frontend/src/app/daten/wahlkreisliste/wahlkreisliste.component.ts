@@ -22,17 +22,14 @@ export class WahlkreislisteComponent implements OnInit, OnDestroy {
   landFilter !: string;
   wahlSubscription !: Subscription;
 
-  constructor(private readonly wahlservice: WahlSelectionService) {
-    this.wahl = this.wahlservice.getWahlNumber(wahlservice.wahlSubject.getValue());
-    this.wahlSubscription = wahlservice.wahlSubject.subscribe((selection: number) => {
-      this.wahl = this.wahlservice.getWahlNumber(selection);
-      this.wahlkreise = []
-      this.ngOnInit()
-    });
-  }
+  constructor(private readonly wahlservice: WahlSelectionService) {}
 
   ngOnInit(): void {
-    this.populate()
+    this.wahlSubscription = this.wahlservice.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlservice.getWahlNumber(selection);
+      this.wahlkreise = []
+      this.populate();
+    });
   }
 
   ngOnDestroy(): void {

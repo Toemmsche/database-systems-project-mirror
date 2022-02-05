@@ -88,20 +88,16 @@ export class StrukturdatenComponent implements OnInit {
     }
   }
 
-  constructor(wahlService: WahlSelectionService) {
-    this.wahl = wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
-    wahlService.wahlSubject.subscribe((selection: number) => {
-      this.wahl = wahlService.getWahlNumber(selection);
+  constructor(private readonly wahlService: WahlSelectionService) {}
+
+  ngOnInit(): void {
+    this.wahlService.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlService.getWahlNumber(selection);
       this.metriken = [];
       this.rangliste = [];
       this.populateMetriken();
       this.populateBegrenzungen();
     });
-  }
-
-  ngOnInit(): void {
-    this.populateBegrenzungen();
-    this.populateMetriken();
   }
 
   populateBegrenzungen(): void {

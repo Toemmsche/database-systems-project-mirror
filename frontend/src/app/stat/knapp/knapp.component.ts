@@ -58,17 +58,15 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
 
   wahlSubscription !: Subscription;
 
-  constructor(private readonly wahlService: WahlSelectionService) {
-    this.wahl = this.wahlService.getWahlNumber(wahlService.wahlSubject.getValue());
-    this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
-      this.wahl = this.wahlService.getWahlNumber(selection);
-      this.knappDataSource.data = [];
-      this.ngAfterViewInit();
-    });
-  }
+  constructor(private readonly wahlService: WahlSelectionService) {}
 
   ngOnInit(): void {
     this.initFilterListeners();
+    this.wahlSubscription = this.wahlService.wahlSubject.subscribe((selection: number) => {
+      this.wahl = this.wahlService.getWahlNumber(selection);
+      this.knappDataSource.data = [];
+      this.populate();
+    });
   }
 
   ngAfterViewInit() {
@@ -84,7 +82,6 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
           return k[property];
       };
     }
-    this.populate();
   }
 
   resetFilters() {
