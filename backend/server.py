@@ -140,18 +140,7 @@ def get_osten_ergebnis(wahl: str):
     if not valid_wahl(wahl):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        return table_to_json(cursor, 'zweitstimmen_qpartei_osten', wahl=wahl)
-
-
-@app.route(
-    "/api/<wahl>/stat/aqvergleich"
-    "", methods=['GET']
-)
-def get_aq_vergleich(wahl: str):
-    if not valid_wahl(wahl):
-        abort(404)
-    with conn_pool.connection() as conn, conn.cursor() as cursor:
-        return table_to_json(cursor, 'zweitstimmen_qpartei_aq_hoch_vs_niedrig', wahl=wahl)
+        return table_to_json(cursor, 'zweitstimmen_partei_osten', wahl=wahl)
 
 
 @app.route("/api/<wahl>/karte", methods=['GET'])
