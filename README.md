@@ -9,7 +9,7 @@ Repository for the database projekt WS21/22.
 - [Vorgehen bei der Berechnung der Sitzverteilung](artifacts/Vorgehen_Sitzberechnung.md)
 - [Dokumentation der Stimmabgabe](artifacts/Stimmabgabe.md)
 - [Technologiestack](artifacts/TechStack.png)
-- [Benchmark-Ergebnisse](TODO)
+- [Benchmark-Ergebnisse](benchmark/README.md)
 - [Abschlusspräsentation](TODO)
 
 # Installation
