@@ -195,7 +195,6 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
     });
     this.bundeslandFilter.valueChanges.subscribe(value => {
       this.filter.bundesland = value;
-
       this.updateFilter();
     });
     this.wahlkreisFilter.valueChanges.subscribe(value => {
@@ -217,13 +216,10 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   }
 
   populate(): void {
-    REST_GET(`${this.wahl}/kandidaten`)
+    REST_GET(`${this.wahl}/${this.mdbOnly ? "mdb" : "kandidaten"}`)
       .then(response => response.json())
       .then((data: Array<Kandidat>) => {
         data = data.sort((a, b) => a.nachname.localeCompare(b.nachname));
-        if (this.mdbOnly) {
-          data = data.filter(k => k.ist_einzug);
-        }
         this.geschlechter = new Set(data.map(kandidat => kandidat.geschlecht));
         this.bundeslaender = new Set(data.filter(kandidat => kandidat.bundesland != null)
                                          .map(kandidat => kandidat.bundesland ?? ""));
