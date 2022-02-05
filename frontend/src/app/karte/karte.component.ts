@@ -136,4 +136,25 @@ export class KarteComponent implements OnInit, OnDestroy, AfterViewInit {
     this.karteHeight = `${windowHeight - headerHeight - footerHeight - karteHeaderHeight - karteHeaderMargin - toggleContainerHeight - contentMargin}px`;
     this.changeDetector.detectChanges();
   }
+
+  getTooltipTextSieger(b: Begrenzung): string {
+    const def = `${b.wk_nummer} - ${b.wk_name}`;
+    if (this.wksData && this.wksData.length > 0) {
+      const wahlkreis = this.wksData.find(wks => wks.wk_nummer == b.wk_nummer)!;
+      const sieger = this.siegerTyp == 1 ? wahlkreis.erststimme_sieger : wahlkreis.zweitstimme_sieger;
+      return `${def} mit Sieger ${sieger}`;
+    }
+    return def;
+  }
+
+  getTooltipTextPartei(b: Begrenzung): string {
+    const def = `${b.wk_nummer} - ${b.wk_name}`;
+    if (this.wkpData && this.wkpData.length > 0) {     
+      const wahlkreis = this.wkpData.find(wkp => wkp.wk_nummer == b.wk_nummer && wkp.stimmentyp == this.siegerTyp && wkp.partei === this.partei);
+      if (wahlkreis) {
+        return `${def} mit ${wahlkreis.abs_stimmen} Stimmen (${(100 * wahlkreis.rel_stimmen).toFixed(2)}%)`;
+      }
+    }
+    return def;
+  }
 }
