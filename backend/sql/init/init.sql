@@ -45,7 +45,7 @@ CREATE TABLE wahlkreis
 
 CREATE TABLE strukturdaten
 (
-    wahlkreis                                                      INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
+    wahlkreis                                                      INTEGER PRIMARY KEY REFERENCES wahlkreis (wkid) NOT NULL,
     auslaenderanteil                                               DECIMAL                             NOT NULL,
     bevoelkerungsdichte                                            DECIMAL                             NOT NULL,
     bevoelkerungsveraenderung_pro_1000_ew                          DECIMAL                             NOT NULL,
