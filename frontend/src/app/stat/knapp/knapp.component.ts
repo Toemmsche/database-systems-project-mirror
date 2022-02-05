@@ -7,6 +7,7 @@ import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
 import {FormControl} from "@angular/forms";
 import {MatSort} from "@angular/material/sort";
+import {containsLowerCase} from "../../../util/ArrayHelper";
 
 @Component({
   selector   : "app-knapp",
@@ -33,8 +34,7 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(MatSort)
   knappTableSort !: MatSort;
 
-
-  typFilter = new FormControl("")
+  typFilter = new FormControl("Beide")
 
   siegerParteiFilter = new FormControl("")
   verliererParteiFilter = new FormControl("")
@@ -48,8 +48,8 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
   filterPredicate = (k: KnapperSiegOderNierderlage, filterJson: string) => {
     const all = "Alle"
     let filter = JSON.parse(filterJson);
-    return (filter.siegerPartei === all || (k.sieger_partei.toLowerCase().indexOf(filter.siegerPartei) !== -1)) &&
-      (filter.verliererPartei === "" || (k.verlierer_partei.toLowerCase().indexOf(filter.verliererPartei) !== -1)) &&
+    return (filter.siegerPartei === all || containsLowerCase(k.sieger_partei, filter.siegerPartei)) &&
+      (filter.verliererPartei === "" || containsLowerCase(k.verlierer_partei, filter.verliererPartei)) &&
       (filter.typ ===
         "Beide" ||
         (filter.typ === "Sieg" && k.is_sieg) ||
@@ -97,17 +97,14 @@ export class KnappComponent implements OnInit, OnDestroy, AfterViewInit {
   initFilterListeners(): void {
     this.typFilter.valueChanges.subscribe(value => {
       this.filter.typ = value;
-      // emulate user filter input
       this.updateFilter();
     });
     this.siegerParteiFilter.valueChanges.subscribe(value => {
-      this.filter.siegerPartei = value.toLowerCase();
-      // emulate user filter input
+      this.filter.siegerPartei = value;
       this.updateFilter();
     });
     this.verliererParteiFilter.valueChanges.subscribe(value => {
-      this.filter.verliererPartei = value.toLowerCase();
-      // emulate user filter input
+      this.filter.verliererPartei = value;
       this.updateFilter();
     });
   }

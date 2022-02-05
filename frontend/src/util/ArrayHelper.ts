@@ -43,3 +43,7 @@ export function sortWithSameSorting(sorting: Array<WahlkreisParteiErgebnis | Par
     return indexA - indexB;
   }
 }
+
+export function containsLowerCase(str: string, substr: string) {
+  return str.toLowerCase().indexOf(substr.toLowerCase()) !== -1;
+}

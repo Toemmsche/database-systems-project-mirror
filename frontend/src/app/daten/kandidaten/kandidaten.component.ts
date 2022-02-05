@@ -7,6 +7,7 @@ import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
 import {FormControl, FormGroup} from "@angular/forms";
 import {MatSort} from "@angular/material/sort";
+import {containsLowerCase} from "../../../util/ArrayHelper";
 
 @Component({
   selector   : "app-kandidaten",
@@ -44,7 +45,7 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort)
   kandidatenTableSort !: MatSort;
 
-  @ViewChild('ngForm')
+  @ViewChild("ngForm")
   filterFormGroup !: FormGroup
 
   titelFilter = new FormControl("");
@@ -73,16 +74,16 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   relStimmenBisFilter = new FormControl("");
 
   filter = {
-    titel               : "",
-    vorname             : "",
-    nachname            : "",
-    geburtsjahr         : "",
-    geschlecht          : "Alle",
-    beruf               : "",
-    partei              : "",
-    mandat              : "Alle",
-    bundesland          : "Alle",
-    wahlkreis           : "",
+    titel        : "",
+    vorname      : "",
+    nachname     : "",
+    geburtsjahr  : "",
+    geschlecht   : "Alle",
+    beruf        : "",
+    partei       : "",
+    mandat       : "Alle",
+    bundesland   : "Alle",
+    wahlkreis    : "",
     relStimmenVon: "",
     relStimmenBis: "",
   }
@@ -90,8 +91,9 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
   filterPredicate = (k: Kandidat, filterJson: string) => {
     const all = "Alle"
     let filter = JSON.parse(filterJson);
-    return (filter.vorname === "" || k.vorname.indexOf(filter.vorname) !== -1) &&
-      (filter.nachname === "" || k.nachname.indexOf(filter.nachname) !== -1) &&
+    return (filter.titel === "" || containsLowerCase(k.titel, filter.titel)) &&
+      (filter.vorname === "" || containsLowerCase(k.vorname, filter.vorname)) &&
+      (filter.nachname === "" || containsLowerCase(k.nachname, filter.nachname)) &&
       (filter.geburtsjahr ===
         "" ||
         k.geburtsjahr !=
@@ -99,14 +101,13 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
         k.geburtsjahr.toString().indexOf(filter.geburtsjahr.toString()) !==
         -1) &&
       (filter.geschlecht === all || k.geschlecht === filter.geschlecht) &&
-      (filter.beruf === "" || k.beruf.toLowerCase().indexOf(filter.beruf) !== -1) &&
-      (filter.partei === "" || k.partei.toLowerCase().indexOf(filter.partei) !== -1) &&
+      (filter.beruf === "" || containsLowerCase(k.beruf, filter.beruf)) &&
+      (filter.partei === "" || containsLowerCase(k.partei, filter.partei)) &&
       (filter.mandat === all || (filter.mandat === "MDB" && k.ist_einzug) ||
         (filter.mandat === "Direktmandat" && k.ist_einzug && k.ist_direktmandat) ||
         (filter.mandat === "Listenmandat" && k.ist_einzug && !k.ist_direktmandat)) &&
       (filter.bundesland === all || k.bundesland === filter.bundesland) &&
-      (filter.titel === "" || k.titel.toLowerCase().indexOf(filter.titel) !== -1) &&
-      (filter.wahlkreis === "" || (k.wk_nummer + "-" + k.wk_name).toLowerCase().indexOf(filter.wahlkreis) !== -1) &&
+      (filter.wahlkreis === "" || containsLowerCase(k.wk_nummer + "-" + k.wk_name, filter.wahlkreis)) &&
       (filter.relStimmenVon ===
         "" ||
         (k.rel_stimmen != null && filter.relStimmenVon <= k.rel_stimmen * 100)) &&
@@ -120,7 +121,8 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
 
   constructor(
     private readonly wahlservice: WahlSelectionService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.initFilterListeners();
@@ -164,15 +166,15 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
       this.updateFilter();
     });
     this.titelFilter.valueChanges.subscribe(value => {
-      this.filter.titel = value.toLowerCase();
+      this.filter.titel = value;
       this.updateFilter();
     });
     this.vornameFilter.valueChanges.subscribe(value => {
-      this.filter.vorname = value.toLowerCase();
+      this.filter.vorname = value;
       this.updateFilter();
     });
     this.nachnameFilter.valueChanges.subscribe(value => {
-      this.filter.nachname = value.toLowerCase();
+      this.filter.nachname = value;
       this.updateFilter();
     });
     this.geburtsjahrFilter.valueChanges.subscribe(value => {
@@ -184,11 +186,11 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
       this.updateFilter();
     });
     this.berufFilter.valueChanges.subscribe(value => {
-      this.filter.beruf = value.toLowerCase()
+      this.filter.beruf = value
       this.updateFilter();
     });
     this.parteiFilter.valueChanges.subscribe(value => {
-      this.filter.partei = value.toLowerCase();
+      this.filter.partei = value;
       this.updateFilter();
     });
     this.bundeslandFilter.valueChanges.subscribe(value => {
@@ -196,7 +198,7 @@ export class KandidatenComponent implements OnInit, AfterViewInit {
       this.updateFilter();
     });
     this.wahlkreisFilter.valueChanges.subscribe(value => {
-      this.filter.wahlkreis = value.toLowerCase();
+      this.filter.wahlkreis = value;
       this.updateFilter();
     });
     this.relStimmenVonFilter.valueChanges.subscribe(value => {

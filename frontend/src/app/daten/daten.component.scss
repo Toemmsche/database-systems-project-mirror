@@ -4,6 +4,9 @@
   @extend .host-container
 }
 
+#daten-accordion {
+  width: 75vw;
+}
 mat-panel-title {
   font-size: larger;
 }
