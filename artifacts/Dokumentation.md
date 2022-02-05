@@ -1,5 +1,3 @@
-# Dokumentation
-
 # Datenbankmanagementsystem
 Der Einsatz eines Datenbankmanagementsystems für ein Wahlinformationssystem ist mit verschiedenen Vor- und Nachteilen verbunden.
 
@@ -19,26 +17,26 @@ Der Einsatz eines Datenbankmanagementsystems für ein Wahlinformationssystem ist
 - Falls Datenbankmanagementsystem nicht verteilt: Single Point of Failure
 - Abhängigkeit von Entwicklern des Datenbankmanagementsystems
 
-## Relevante Daten
+# Relevante Daten
 Für den Entwurf des Wahlinformationssystem ist im ersten Schritt eine Auseinandersetzung mit der Domäne erforderlich.
 Die Identifikation der Daten, welche vom System verwaltet werden müssen unter Beachtung von Datenschutzrichtlinien erfolgt mit der Beantwortung von W-Fragen.
 
-### Wie wird gewählt?
+## Wie wird gewählt?
 - jeder/jede Wahlberechtigte gibt in genau einem **Wahlkreis** eine oder keine Stimme ab
 - Stimmzettel bestehend aus **Erst**- und **Zweitstimme**
 - **Erst**- und/oder **Zweitstimme** können potentiell ungültig sein
 
-### Wer darf wählen?
+## Wer darf wählen?
 - wahlberichtigte deutsche Staatsbürger/innen
 - Wahlberechtigte werden aus Datenschutzgründen nicht einzeln in der Datenbank modelliert.
 
-### Wo wird gewählt?
+## Wo wird gewählt?
 - in 299 **Wahlkreisen** aufgeteilt auf 16 **Bundesländer**
 - **Wahlkreise** bestehen aus Gemeinden
 - jede Gemeinde ist in genau einem **Wahlkreis**
 - Aufteilung von Gemeinden auf **Wahlkreise** kann sich von **Wahl** zu **Wahl** ändern
 
-### Was wird gewählt?
+## Was wird gewählt?
 - Bundestag wird gewählt mit vorgesehener Größe von 598 Mandaten
 - Aufteilung der Mandate auf die **Bundesländer** entsprechend der **Bevölkerung**
 - mit **Erststimme**: Wahl eines **Direktkandidierenden** aus dem **Wahlkreis**, der einer **Partei** angehören kann oder nicht
@@ -51,14 +49,9 @@ Die Identifikation der Daten, welche vom System verwaltet werden müssen unter B
 - **Kandidierende** können bei verschiedenen **Wahlen** für verschiedene **Parteien** kandidieren
 - **Direktkandidaturen** und Position auf **Landeslisten** unabhängig
 
-### Wann wird gewählt?
+## Wann wird gewählt?
 - alle vier Jahre
 
-## UML-Modell
+# UML-Modell
 Das Datenmodell basiert auf den identifizierten Entitäten, die im Datenbankmanagementsystem verwaltet werden müssen. 
 ![Datenmodell](datenmodell.png)
-
-## Ablauf der Stimmabgabe
-
-- TODO
-- Trigger beschreiben

@@ -8,9 +8,9 @@ auf Bedarf gültige (Wahl-)tokens für den Wahlkreis generieren lassen
 ## Durchführung im Wahllokal
 - wahlberechtigte Person besucht Wahllokal
 - Identifikation mit Personalausweis (Wahlhelfer im Wahllokal führt Liste mit Personen, die schon eine Stimme abgegeben haben)
-- Wahlhelfer generiert neues Wahltoken, druckt es aus, und übergibt es dem Wahlberechtigten
+- Wahlhelfer generiert neues Wahltoken, druckt es aus, und übergibt es dem Wahlberechtigten (Wahlhelfer kann auch Tokens auf Vorrat erzeugen, um den Vorgang am Wahltag zu beschleunigen)
 - Wähler betritt sichtgeschützten Bereich, der die Weboberfläche zur Stimmabgabe zeigt (/Stimmabgabe/{Wahlkreisnummer}), die bereits auf den entsprechenden Wahlkreis voreingestellt ist und einen gültigen Stimmzettel anzeigt
-- Wähler setzt Kreuze (wahlweise auch Enthaltung)
+- Wähler setzt Kreuze (wahlweise auch ungültige Stimmen)
 - Eingabe des Tokens durch Eingabefeld in Weboberfläche
 - Feedback, ob Stimmabgabe erfolgreich/fehlgeschlagen
   - bei erfolgreicher Stimmabgabe:
@@ -21,13 +21,11 @@ auf Bedarf gültige (Wahl-)tokens für den Wahlkreis generieren lassen
 - bei falscher Eingabe des Tokens ist die erneute Stimmabgabe mit einem neuen Wahlzettel möglich
 - nach einer erfolgreichen/fehlgeschlagenen Stimmabgabe wird nach einer festgelegten Zeitspanne (Default: 10s) ein neuer Stimmzettel geladen
 
-
 ## Datenschutz
 
-Im Aspekt des Datenschutzes unterscheidet sich das vorgeschlagene Verfahren nicht ausschlaggebend vom bisherigen Wahlverfahren (insbesondere Briefwahl).
-Anstatt die Wahlunterlagen per Post zu erhalten, wird ein Code verschickt.
-Dieser ist **NICHT** mit der wahlberechtigten Person verknüpft, sondern wird zufällig aus dem Pool der verfügbaren Tokens für den Wahlkreis ausgewählt.
-Die Kontrolle des Personalausweises im Wahllokal unterscheidet sich in keiner Weise vom derzeitigen Vorgehen bei Bundestagswahlen.
+Im Aspekt des Datenschutzes unterscheidet sich das vorgeschlagene Verfahren nicht ausschlaggebend vom bisherigen Wahlverfahren.
+Zusätzlich zur Kontrolle des Personalausweises im Wahllokal erfordert das vorgeschlagene Verfahren die Generierung eines Tokens.
+Dieser ist **NICHT** mit der wahlberechtigten Person verknüpft, sondern wird zufällig generiert.
 Durch das Wählen in einem sichtgeschützten Bereich und das automatische Laden eines neuen Stimmzettels ist zudem das Wahlgeheimnis geschützt.
 
 ## Schutz vor Wahlbetrug
@@ -35,8 +33,8 @@ Durch das Wählen in einem sichtgeschützten Bereich und das automatische Laden 
 ### Mehrfache Stimmabgabe
 
 Ein Token ist nur für eine einzige erfolgreiche Stimmabgabe gültig. 
-Durch Kontrolle des Peronalausweises wird die Einlösung mehrer Tokens durch diesselbe Person verhindert.
-Da jedes Token nur auf Bedarf generiert wird, ist es zudem ausgeschlossen, das eine Person bereits mit mehreren Tokens die Wahlkabine betritt.
+Durch Kontrolle des Peronalausweises kann eine Person auch nicht mehrere Tokens erhalten, da dokumentiert wird, welche Personen schon gewählt haben.
+Da jedes Token nur auf Bedarf generiert wird, ist es zudem ausgeschlossen, dass eine Person bereits mit mehreren Tokens die Wahlkabine betritt.
 
 ### Stimmabgabe durch nicht autorisierte Personen
 
@@ -48,5 +46,3 @@ Dies wird wiederum bei der Kontrolle des Personalausweises verifiziert.
 
 Sämtliche Nutzereingaben (auch in der URL der Weboberfläche) werden validiert (valid_... Funktionen in [util.py](../backend/logic/util.py))
 bevor sie als Parameter in SQL queries/statements dienen.
-
-
