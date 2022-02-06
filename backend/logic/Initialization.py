@@ -67,8 +67,7 @@ def init_data(cursor: psycopg.Cursor) -> None:
 
     logger.info("Loaded data for 2017")
 
-    if heroku or load_all_einzelstimmen:
-
+    if load_all_einzelstimmen:
         load_einzelstimmen(cursor)
     else:
         load_einzelstimmen(cursor, wahlkreise=[217, 218, 219, 220, 221])
