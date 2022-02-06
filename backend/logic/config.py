@@ -6,6 +6,11 @@ if 'DYNO' in os.environ:
     heroku = True
     print("Detected heroku deployment")
 
+load_all_einzelstimmen = False
+if 'EINZELSTIMMEN' in os.environ:
+    load_all_einzelstimmen = True
+    print("Will load all Einzelstimmen")
+
 
 # Parse database URI
 result = urlparse(os.environ.get('DATABASE_URL'))

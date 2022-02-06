@@ -6,6 +6,8 @@ from logic.ETL_2021 import *
 from logic.ETL_general import *
 from logic.config import conn_string, heroku
 
+from logic.config import load_all_einzelstimmen
+
 
 def init_tables(cursor: psycopg.Cursor) -> None:
     # reset first
@@ -65,11 +67,11 @@ def init_data(cursor: psycopg.Cursor) -> None:
 
     logger.info("Loaded data for 2017")
 
-    if not heroku:
-        load_einzelstimmen(cursor, wahlkreise=[217, 218, 219, 220, 221])
-    else:
-        # heroku has the space
+    if heroku or load_all_einzelstimmen:
+
         load_einzelstimmen(cursor)
+    else:
+        load_einzelstimmen(cursor, wahlkreise=[217, 218, 219, 220, 221])
 
     logger.info("Generated Einzelstimmen ")
 
@@ -84,7 +86,7 @@ def init_data(cursor: psycopg.Cursor) -> None:
 
 def load_einzelstimmen(cursor: psycopg.cursor, **kwargs):
     dk_query = f"""
-        SELECT wk.wkid as wahlkreis, dk.direktid, dk.anzahlstimmen
+        SELECT wk.wkid AS wahlkreis, dk.direktid, dk.anzahlstimmen
         FROM direktkandidatur dk, wahlkreis wk
         WHERE wk.wkid = dk.wahlkreis
     """
@@ -93,7 +95,8 @@ def load_einzelstimmen(cursor: psycopg.cursor, **kwargs):
     zweitstimmenergebnisse = table_to_dict_list(cursor, 'zweitstimmenergebnis')
     ungueltige_stimmen_ergebnisse = table_to_dict_list(cursor, 'ungueltige_stimmen_ergebnis')
 
-    cursor.execute("SET session_replication_role = 'replica';")
+    if not heroku:
+        cursor.execute("SET session_replication_role = 'replica';")
 
     limit_wahlkreise = False
     if 'wahlkreise' in kwargs:
@@ -125,7 +128,6 @@ def load_einzelstimmen(cursor: psycopg.cursor, **kwargs):
     del zweitstimmen
     logger.info("Loaded einzelne Zweitstimmen")
 
-
     ungueltige_stimmen = []
     for use in ungueltige_stimmen_ergebnisse:
         stimmentyp = use['stimmentyp']
@@ -138,14 +140,15 @@ def load_einzelstimmen(cursor: psycopg.cursor, **kwargs):
     del ungueltige_stimmen
     logger.info("Loaded einzelne ungueltige Stimmen")
 
-    cursor.execute("SET session_replication_role = 'origin';")
+    if not heroku:
+        cursor.execute("SET session_replication_role = 'origin';")
 
 
 def exec_util_queries(cursor: psycopg.Cursor):
-    exec_sql_statement_from_file(cursor, 'sql/core/DivisorVerfahren.sql')
-    exec_sql_statement_from_file(cursor, 'sql/core/Bundestag.sql')
+    exec_sql_statement_from_file(cursor, 'sql/bundestag/DivisorVerfahren.sql')
+    exec_sql_statement_from_file(cursor, 'sql/bundestag/Bundestag.sql')
     exec_sql_statement_from_file(cursor, 'sql/init/Triggers.sql')
-    exec_sql_statement_from_file(cursor, 'sql/core/BundestagTriggers.sql')
+    exec_sql_statement_from_file(cursor, 'sql/bundestag/BundestagTriggers.sql')
     logger.info("Loaded utility views and triggers")
 
 

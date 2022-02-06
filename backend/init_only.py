@@ -1,4 +1,4 @@
-from logic.DatabaseInitialization import init_backend
+from logic.Initialization import init_backend
 
 # Database initialization
 init_backend()
