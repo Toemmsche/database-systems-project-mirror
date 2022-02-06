@@ -13,7 +13,7 @@ Eine [interaktive Übersicht](https://switcherlapp97.github.io/) ist ebenfalls v
 - [Dokumentation der Stimmabgabe](artifacts/Stimmabgabe.md)
 - [Technologiestack](artifacts/TechStack.png)
 - [Benchmark-Ergebnisse](benchmark/README.md)
-- [Abschlusspräsentation](TODO)
+- [Abschlusspräsentation](artifacts/abschlusspraesentation.pdf)
 
 
 # Projektübersicht

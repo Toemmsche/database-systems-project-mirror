@@ -14,8 +14,8 @@ conn_pool = ConnectionPool(conn_string)
 
 
 @app.route("/api/", methods=['GET'])
-def sayHello():
-    return "Hello World"
+def say_hello():
+    return "Hyper Hyper"
 
 
 @app.route("/api/<wahl>/sitzverteilung", methods=['GET'])
