@@ -5,7 +5,7 @@ from logic.util import *
 
 
 def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
-    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
+    ergebnisse = local_csv(ergebnisse_2017_local, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
 
     # TODO
@@ -93,7 +93,7 @@ def load_direktkandidaten_2017(cursor: psycopg.cursor) -> None:
 
 
 def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
-    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
+    ergebnisse = local_csv(ergebnisse_2017_local, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
 
     # TODO
@@ -120,7 +120,7 @@ def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
 
 
 def load_zweitstimmen_2017(cursor: psycopg.cursor) -> None:
-    ergebnisse = download_csv(ergebnisse_2017, delimiter=';', skip=9)
+    ergebnisse = local_csv(ergebnisse_2017_local, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
 
     # TODO
@@ -165,7 +165,7 @@ def load_zweitstimmen_2017(cursor: psycopg.cursor) -> None:
 
 
 def load_ungueltige_stimmen_2017(cursor: psycopg.Cursor):
-    records = download_csv(ergebnisse_2017, delimiter=';', skip=9)
+    records = local_csv(ergebnisse_2017_local, delimiter=';', skip=9)
 
     wahlkreis_mapping = key_dict(
         cursor,

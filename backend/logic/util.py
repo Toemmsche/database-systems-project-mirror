@@ -4,8 +4,8 @@ import logging
 import math
 from uuid import *
 
-
 import requests
+
 from logic.SQL_util import *
 
 # adjust logger config
@@ -25,6 +25,7 @@ def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int) -> bool:
     if success:
         logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
     return success
+
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
     lines = string.split('\n')
@@ -99,6 +100,7 @@ def valid_wahl(wahl: str):
 def valid_wahlkreis(wknr: str):
     return models_nat(wknr) and 1 <= int(wknr) <= 299
 
+
 def valid_bundesland(land: str):
     return len(land) == 2
 
@@ -143,10 +145,3 @@ def valid_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
 def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
     statement = f"UPDATE wahl_token SET gueltig = FALSE WHERE token = '{token}'"
     exec_sql_statement(cursor, statement, "MakeWahlTokenInvalid.sql")
-
-
-if __name__ == '__main__':
-    download_csv(
-        'https://raw.githubusercontent.com/sumtxt/ags/master/data-raw'
-        '/bundeslaender.csv'
-    )

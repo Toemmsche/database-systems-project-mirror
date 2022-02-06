@@ -33,7 +33,7 @@ def init_data(cursor: psycopg.Cursor) -> None:
         begrenzungen_dict[i] = i - 1
 
     load_wahlkreise(
-        wahlkreise_2021,
+        strukturdaten_2021_local,
         20,
         'Bevölkerung am 31.12.2019 - Deutsche (in 1000)',
         begrenzungen_2021,
@@ -51,7 +51,7 @@ def init_data(cursor: psycopg.Cursor) -> None:
 
     # 2017
     load_wahlkreise(
-        wahlkreise_2017,
+        strukturdaten_2017_local,
         19,
         'Bevölkerung am 31.12.2015 - Deutsche (in 1000)',
         begrenzungen_2021,
