@@ -45,7 +45,8 @@ export class StimmzettelComponent implements OnInit {
       .then(response => response.json())
       .then((data: Array<StimmzettelEintrag>) => {
         this.stimmzettel = data;
-        this.stimmzettel.splice(0,0, new StimmzettelEintrag(this.nummer, -1, -1, "", "Ungültig", -1, "Ungültig", ""));
+        this.stimmzettel.splice(0,0,
+          new StimmzettelEintrag(this.nummer, -1, false,-1, "", "Ungültig", -1, "Ungültig", "", ""));
       })
   }
 

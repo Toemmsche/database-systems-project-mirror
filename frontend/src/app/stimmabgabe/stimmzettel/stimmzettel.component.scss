@@ -4,6 +4,15 @@
   @extend .host-container
 }
 
+.einzelbewerber-cell {
+  display: flex;
+  flex-direction: column;
+}
+.einzelbewerber-partei {
+  color: darkgray;
+  font-style: italic;
+}
+
 .mat-column-erststimme, .mat-column-zweitstimme {
   padding-left: 20px;
   padding-right: 20px;

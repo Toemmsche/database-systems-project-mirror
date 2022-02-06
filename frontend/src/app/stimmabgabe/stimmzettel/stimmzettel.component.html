@@ -11,19 +11,32 @@
     <ng-container matColumnDef="erststimme">
       <th mat-header-cell *matHeaderCellDef>ERSTSTIMME</th>
       <td mat-cell *matCellDef="let row">
-        <div *ngIf="row.dk_nachname">
+        <div *ngIf="row.dk_nachname && !row.ist_einzelbewerbung">
           {{row.dk_vorname}} {{row.dk_nachname}}
+        </div>
+        <!-- Einzelbewerber -->
+        <div *ngIf="row.dk_nachname && row.ist_einzelbewerbung" class="einzelbewerber-cell">
+          <div>
+            {{row.dk_vorname}} {{row.dk_nachname}}
+          </div>
+          <div class="einzelbewerber-partei">
+            {{row.partei_lang}}
+          </div>
         </div>
       </td>
     </ng-container>
     <ng-container matColumnDef="zweitstimme">
       <th mat-header-cell *matHeaderCellDef>ZWEITSTIMME</th>
-      <td mat-cell *matCellDef="let row"> {{row.partei}} </td>
+      <td mat-cell *matCellDef="let row">
+        <div *ngIf="!row.ist_einzelbewerbung">
+          {{row.partei}}
+        </div>
+      </td>
     </ng-container>
     <ng-container matColumnDef="zweitstimme_selection">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
-        <mat-radio-button name=zweitstimme_selection (change)="zweitstimmeChanged($event)"
+        <mat-radio-button *ngIf="!row.ist_einzelbewerbung" name=zweitstimme_selection (change)="zweitstimmeChanged($event)"
                           id="{{'zweitstimme_' + row.liste}}}"></mat-radio-button>
       </td>
     </ng-container>
