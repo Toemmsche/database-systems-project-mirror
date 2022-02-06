@@ -4,8 +4,8 @@ import logging
 import math
 from uuid import *
 
-
 import requests
+
 from logic.SQL_util import *
 
 # adjust logger config
@@ -25,6 +25,7 @@ def reset_aggregates(cursor: psycopg.cursor, wahl: int, wknr: int) -> bool:
     if success:
         logger.info(f"Reset aggregates for wahlkreis {wknr} and wahl {wahl}")
     return success
+
 
 def parse_csv(string: str, delimiter, skip) -> list[dict]:
     lines = string.split('\n')
@@ -99,6 +100,7 @@ def valid_wahl(wahl: str):
 def valid_wahlkreis(wknr: str):
     return models_nat(wknr) and 1 <= int(wknr) <= 299
 
+
 def valid_bundesland(land: str):
     return len(land) == 2
 
@@ -125,28 +127,34 @@ def valid_admin_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
     return len(res) == 1
 
 
-def generate_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int) -> UUID:
+def generate_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int) -> dict:
     wahlkreis_dict = key_dict(cursor, 'wahlkreis', ('wahl', 'nummer'), 'wkid')
     wkid = wahlkreis_dict[(wahl, wknr)]
     token = uuid4()
-    statement = f"INSERT INTO wahl_token(wahlkreis, token, gueltig) VALUES ({wkid},'{token}',TRUE)"
+    statement = f"INSERT INTO wahl_token(wahlkreis, token, ablaufdatum, gueltig) VALUES ({wkid},'{token}', NOW() + '15 minutes'::interval,TRUE)"
     exec_sql_statement(cursor, statement, "GenerateWahlToken.sql")
-    return token
+
+    query = f"SELECT token, ablaufdatum FROM wahl_token WHERE token = {token !r}"
+    res = query_to_dict_list(cursor, query)
+    return res[0]
 
 
-def valid_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
-    query = f"SELECT * FROM wahl_token t, wahlkreis wk WHERE t.token = '{token}' AND t.wahlkreis = wk.wkid AND wk.wahl = {wahl} AND wk.nummer = {wknr} AND t.gueltig"
+def valid_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str) -> bool:
+    query = f"""
+    SELECT * 
+    FROM wahl_token t, wahlkreis wk
+    WHERE t.token = '{token}'
+     AND t.wahlkreis = wk.wkid
+     AND wk.wahl = {wahl}
+     AND wk.nummer = {wknr}
+     AND t.gueltig
+     AND t.ablaufdatum >= NOW()
+    """
     res = cursor.execute(query).fetchall()
     return len(res) == 1
+
 
 
 def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
     statement = f"UPDATE wahl_token SET gueltig = FALSE WHERE token = '{token}'"
     exec_sql_statement(cursor, statement, "MakeWahlTokenInvalid.sql")
-
-
-if __name__ == '__main__':
-    download_csv(
-        'https://raw.githubusercontent.com/sumtxt/ags/master/data-raw'
-        '/bundeslaender.csv'
-    )

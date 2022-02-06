@@ -6,7 +6,7 @@ from logic.util import *
 
 def load_parteihenreinfolge_2021(cursor: psycopg.cursor) -> None:
     # skip system rows
-    parteireihenfolge = download_csv(parteireihenfolge_2021, delimiter=';')[4:]
+    parteireihenfolge = local_csv(parteireihenfolge_2021_local, delimiter=';')[4:]
 
     parteien_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
     parteien_mapping = {(kuerzel[0].upper(),): parteiId for
@@ -39,7 +39,7 @@ def load_parteihenreinfolge_2021(cursor: psycopg.cursor) -> None:
 
 
 def load_landeslisten_2021(cursor: psycopg.cursor) -> None:
-    ergebnisse = download_csv(ergebnisse_2021, delimiter=';', skip=9)
+    ergebnisse = local_csv(ergebnisse_2021_local, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
 
     landeslisten = list(
@@ -149,7 +149,7 @@ def load_listenplaetze_2021(cursor: psycopg.cursor) -> None:
 
 def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = False) -> None:
     records = local_csv(kandidaten_2021, delimiter=';')
-    ergebnisse = download_csv(ergebnisse_2021, delimiter=';', skip=9)
+    ergebnisse = local_csv(ergebnisse_2021_local, delimiter=';', skip=9)
 
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
     partei_mapping = {(x[0].upper(),): partei_mapping[x] for x in
@@ -278,7 +278,7 @@ def load_direktkandidaten_2021(cursor: psycopg.cursor, generate_stimmen: bool = 
 
 
 def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
-    records = download_csv(ergebnisse_2021, delimiter=';', skip=9)
+    records = local_csv(ergebnisse_2021_local, delimiter=';', skip=9)
     partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
     partei_mapping = {(x[0].upper(),): partei_mapping[x] for x in
                       partei_mapping}
@@ -322,7 +322,7 @@ def load_zweitstimmen_2021(cursor: psycopg.cursor) -> None:
 
 
 def load_ungueltige_stimmen_2021(cursor: psycopg.Cursor):
-    records = download_csv(ergebnisse_2021, delimiter=';', skip=9)
+    records = local_csv(ergebnisse_2021_local, delimiter=';', skip=9)
 
     wahlkreis_mapping = key_dict(
         cursor,

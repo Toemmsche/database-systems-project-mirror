@@ -127,7 +127,8 @@ CREATE TABLE direktkandidatur
     kandidat      INTEGER REFERENCES kandidat (kandid),
     wahlkreis     INTEGER REFERENCES wahlkreis (wkid)  NOT NULL,
     anzahlstimmen INTEGER,
-    direktid      SERIAL PRIMARY KEY
+    direktid      SERIAL PRIMARY KEY,
+    UNIQUE(wahlkreis, partei)
 );
 
 CREATE TABLE landesliste
@@ -139,7 +140,6 @@ CREATE TABLE landesliste
     UNIQUE (partei, wahl, land)
 );
 
--- Constraint damit kein Kandidat in zwei Landeslistenfür eine Wahl antritt
 CREATE TABLE listenplatz
 (
     position INTEGER                                   NOT NULL,
@@ -190,7 +190,8 @@ CREATE TABLE admin_token
 
 CREATE TABLE wahl_token
 (
-    wahlkreis INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
-    token     UUID PRIMARY KEY,
-    gueltig   BOOLEAN                             NOT NULL
+    wahlkreis   INTEGER REFERENCES wahlkreis (wkid) NOT NULL,
+    token       UUID PRIMARY KEY,
+    ablaufdatum TIMESTAMP                           NOT NULL,
+    gueltig     BOOLEAN                             NOT NULL
 );
