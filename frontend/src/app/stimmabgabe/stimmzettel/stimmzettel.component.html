@@ -82,6 +82,7 @@
         (automatisch in {{newStimmzettelCountdown}}s)
       </button>
     </div>
+    <mat-spinner *ngIf="voteStatus.isWaiting()"></mat-spinner>
   </div>
 </div>
 <mat-spinner *ngIf="!stimmzettelLoaded()"></mat-spinner>

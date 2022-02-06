@@ -4,5 +4,6 @@
 /logic/__pycache__/
 /__pycache__/
 
+admin_tokens.py
 TODO.md
 test.http
