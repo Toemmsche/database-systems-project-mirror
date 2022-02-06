@@ -127,19 +127,32 @@ def valid_admin_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
     return len(res) == 1
 
 
-def generate_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int) -> UUID:
+def generate_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int) -> dict:
     wahlkreis_dict = key_dict(cursor, 'wahlkreis', ('wahl', 'nummer'), 'wkid')
     wkid = wahlkreis_dict[(wahl, wknr)]
     token = uuid4()
-    statement = f"INSERT INTO wahl_token(wahlkreis, token, gueltig) VALUES ({wkid},'{token}',TRUE)"
+    statement = f"INSERT INTO wahl_token(wahlkreis, token, ablaufdatum, gueltig) VALUES ({wkid},'{token}', NOW() + '15 minutes'::interval,TRUE)"
     exec_sql_statement(cursor, statement, "GenerateWahlToken.sql")
-    return token
+
+    query = f"SELECT token, ablaufdatum FROM wahl_token WHERE token = {token !r}"
+    res = query_to_dict_list(cursor, query)
+    return res[0]
 
 
-def valid_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str):
-    query = f"SELECT * FROM wahl_token t, wahlkreis wk WHERE t.token = '{token}' AND t.wahlkreis = wk.wkid AND wk.wahl = {wahl} AND wk.nummer = {wknr} AND t.gueltig"
+def valid_wahl_token(cursor: psycopg.cursor, wahl: int, wknr: int, token: str) -> bool:
+    query = f"""
+    SELECT * 
+    FROM wahl_token t, wahlkreis wk
+    WHERE t.token = '{token}'
+     AND t.wahlkreis = wk.wkid
+     AND wk.wahl = {wahl}
+     AND wk.nummer = {wknr}
+     AND t.gueltig
+     AND t.ablaufdatum >= NOW()
+    """
     res = cursor.execute(query).fetchall()
     return len(res) == 1
+
 
 
 def make_wahl_token_invalid(cursor: psycopg.cursor, token: str):
