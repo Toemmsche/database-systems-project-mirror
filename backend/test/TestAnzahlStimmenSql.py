@@ -3,8 +3,8 @@ import unittest
 import psycopg
 
 from logic.config import conn_string
-from logic.links import ergebnisse_2021, ergebnisse_2017
-from logic.util import query_to_dict_list, download_csv
+from logic.links import ergebnisse_2021_local, ergebnisse_2017_local
+from logic.util import query_to_dict_list, local_csv
 
 
 class TestAnzahlStimmenSql(unittest.TestCase):
@@ -95,7 +95,7 @@ class TestAnzahlStimmenSql(unittest.TestCase):
 
     def test_row_by_row_erststimme(self):
         for wahl in (19, 20):
-            ergebnisse = download_csv(ergebnisse_2021 if wahl == 20 else ergebnisse_2017, delimiter=';', skip=9)
+            ergebnisse = local_csv(ergebnisse_2021_local if wahl == 20 else ergebnisse_2017_local, delimiter=';', skip=9)
             ergebnisse_wahlkreis = list(
                 filter(
                     lambda row: row['Gebietsart'] == 'Wahlkreis' and
@@ -173,7 +173,7 @@ class TestAnzahlStimmenSql(unittest.TestCase):
 
     def test_row_by_row_zweitstimme(self):
         for wahl in (19, 20):
-            ergebnisse = download_csv(ergebnisse_2021 if wahl == 20 else ergebnisse_2017, delimiter=';', skip=9)
+            ergebnisse = local_csv(ergebnisse_2021_local if wahl == 20 else ergebnisse_2017_local, delimiter=';', skip=9)
             ergebnisse_wahlkreis = list(
                 filter(
                     lambda row: row['Gebietsart'] == 'Wahlkreis' and

@@ -18,7 +18,7 @@ def load_bundestagswahl(cursor: psycopg.cursor):
 
 
 def load_bundeslaender(cursor: psycopg.cursor) -> None:
-    records = download_csv(bundeslaender)
+    records = local_csv(bundeslaender_local)
     osten_bundeslaender = ['BB', 'SN', 'MV', 'TH', 'ST']  # no berlin
     records = list(
         map(
@@ -42,9 +42,9 @@ def load_wahlkreise(
         cursor: psycopg.cursor,
         encoding: str = 'utf-8-sig'
 ) -> None:
-    records = download_csv(url, delimiter=';', skip=1, encoding=encoding)
+    records = local_csv(url, delimiter=';', skip=1, encoding=encoding)
     bundesland_mapping = key_dict(cursor, 'bundesland', ('name',), 'landId')
-    ergebnisse = download_csv(ergebnisse_2021 if wahl == 20 else ergebnisse_2017, delimiter=';', skip=9)
+    ergebnisse = local_csv(ergebnisse_2021_local if wahl == 20 else ergebnisse_2017_local, delimiter=';', skip=9)
     _, attributes, _ = svg2paths2(begrenzungen_url)
 
     filtered_wahlkreise = list(
