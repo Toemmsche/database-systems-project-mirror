@@ -92,3 +92,12 @@ ng serve
 ```
 Nach einer kurzen Wartezeit sollte die Benutzeroberfläche unter `http://localhost:4200` erreichbar sein.
 
+## Testen
+Zum Ausführen der Tests wird eine laufende Version der Datenbank benötigt.
+```
+cd backend
+pip install -r requirements.txt
+export $DATABASE_URL=(connection_string)
+python -m unittest test/*.py
+```
+

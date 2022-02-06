@@ -1,7 +1,7 @@
 import unittest
 
 import psycopg
-from logic.config import conn_string
+from logic.config import conn_string, load_all_einzelstimmen
 from logic.links import ergebnisse_2021_local, ergebnisse_2017_local
 from logic.util import query_to_dict_list, local_csv
 
@@ -52,14 +52,12 @@ class TestAnzahlStimmenSql(unittest.TestCase):
         self.assertEqual(actual_20_zweitstimme, expected_20_zweitstimme)
         self.assertEqual(actual_19_zweitstimme, expected_19_zweitstimme)
 
-        query = f"""
-                        SELECT COUNT(*) AS ungueltige_stimmen FROM ungueltige_stimme
-                        """
-        actual_ungueltige_stimmen = query_to_dict_list(self.cursor, query)[0]['ungueltige_stimmen']
-        self.assertEqual(
-            actual_ungueltige_stimmen,
-            expected_19_erststimme + expected_19_zweitstimme + expected_20_erststimme + expected_20_zweitstimme
-            )
+        if load_all_einzelstimmen:
+            query = f"""SELECT COUNT(*) AS ungueltige_stimmen FROM ungueltige_stimme"""
+            actual_ungueltige_stimmen = query_to_dict_list(self.cursor, query)[0]['ungueltige_stimmen']
+            self.assertEqual(
+                actual_ungueltige_stimmen,
+                expected_19_erststimme + expected_19_zweitstimme + expected_20_erststimme + expected_20_zweitstimme)
 
     def test_gesamt_erststimmen(self):
         # from kerg
@@ -81,11 +79,12 @@ class TestAnzahlStimmenSql(unittest.TestCase):
         self.assertEqual(actual_20, expected_20)
         self.assertEqual(actual_19, expected_19)
 
-        query = f"""
-                SELECT COUNT(*) AS erststimmen FROM erststimme
-                """
-        actual_erststimmen = query_to_dict_list(self.cursor, query)[0]['erststimmen']
-        self.assertEqual(actual_erststimmen, expected_19 + expected_20)
+        if load_all_einzelstimmen:
+            query = f"""
+                    SELECT COUNT(*) AS erststimmen FROM erststimme
+                    """
+            actual_erststimmen = query_to_dict_list(self.cursor, query)[0]['erststimmen']
+            self.assertEqual(actual_erststimmen, expected_19 + expected_20)
 
     def test_gesamt_zweitstimme(self):
         # from kerg
@@ -107,11 +106,12 @@ class TestAnzahlStimmenSql(unittest.TestCase):
         self.assertEqual(actual_20, expected_20)
         self.assertEqual(actual_19, expected_19)
 
-        query = f"""
-                 SELECT COUNT(*) AS zweitstimmen FROM zweitstimme
-        """
-        actual_zweitstimmen = query_to_dict_list(self.cursor, query)[0]['zweitstimmen']
-        self.assertEqual(actual_zweitstimmen, expected_19 + expected_20)
+        if load_all_einzelstimmen:
+            query = f"""
+                     SELECT COUNT(*) AS zweitstimmen FROM zweitstimme
+            """
+            actual_zweitstimmen = query_to_dict_list(self.cursor, query)[0]['zweitstimmen']
+            self.assertEqual(actual_zweitstimmen, expected_19 + expected_20)
 
     def test_row_by_row_erststimme(self):
         for wahl in (19, 20):
