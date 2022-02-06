@@ -6,6 +6,7 @@ import {MatRadioChange} from "@angular/material/radio";
 import {Stimmabgabe} from "../../../model/Stimmabgabe";
 import {FormControl, Validators} from "@angular/forms";
 import RS, {RequestStatus} from "../../../util/RequestStatus";
+import { Listenplatz } from 'src/model/Listenplatz';
 
 @Component({
   selector: 'app-stimmzettel',
@@ -21,8 +22,12 @@ export class StimmzettelComponent implements OnInit {
   // listenID
   zweitstimmeSelection !: number;
   stimmzettel !: Array<StimmzettelEintrag>;
+  landeslisten !: Array<Listenplatz>;
+  landeslistenFiltered !: Array<Listenplatz>;
+  landesliste? : string = undefined;
 
   columnsToDisplay = ['erststimme_selection', 'erststimme', 'zweitstimme', 'zweitstimme_selection']
+  landeslisteColumnsToDisplay = ['platz', 'nachname', 'vorname'];
 
   token = new FormControl('',
     [Validators.pattern('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')]);
@@ -48,10 +53,16 @@ export class StimmzettelComponent implements OnInit {
         this.stimmzettel.splice(0,0,
           new StimmzettelEintrag(this.nummer, -1, false,-1, "", "Ungültig", -1, "Ungültig", "", ""));
       })
+    
+    REST_GET(`20/wahlkreis/${this.nummer}/landeslisten`)
+      .then(response => response.json())
+      .then((data: Array<Listenplatz>) => {
+        this.landeslisten = data;
+      })
   }
 
   stimmzettelLoaded() {
-    return this.stimmzettel != null && this.stimmzettel.length > 0;
+    return this.stimmzettel != null && this.stimmzettel.length > 0 && this.landeslisten != null && this.landeslisten.length > 0;
   }
 
   stimmeAbgeben() {
@@ -90,5 +101,14 @@ export class StimmzettelComponent implements OnInit {
 
   zweitstimmeChanged(event: MatRadioChange) {
     this.zweitstimmeSelection = parseInt(event.source.id.split("_")[1])
+  }
+
+  zweitstimmeParteiMouseEnter(eintrag?: StimmzettelEintrag): void {
+    if (!eintrag || this.landesliste === eintrag?.partei || eintrag?.partei === 'Ungültig' || eintrag?.ist_einzelbewerbung) {
+      this.landesliste = undefined;
+    } else {
+      this.landesliste = eintrag.partei;
+      this.landeslistenFiltered = this.landeslisten.filter(lp => lp.partei === this.landesliste);
+    }
   }
 }

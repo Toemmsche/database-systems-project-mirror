@@ -47,7 +47,8 @@
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnsToDisplay" (mouseenter)="zweitstimmeParteiMouseEnter(row)"
+      [mtxPopoverTriggerFor]="popover" #popoverTrigger="mtxPopoverTrigger" mtxPopoverTriggerOn="hover"></tr>
     <!--[ngStyle]="{'background': '#' +  mdb.partei_farbe + '60'}" -->
   </table>
   <div id="after-stimmzettel">
@@ -85,4 +86,29 @@
 </div>
 <mat-spinner *ngIf="!stimmzettelLoaded()"></mat-spinner>
 
-
+<mtx-popover id="landesliste-popover" #popover="mtxPopover" [position]="['after', 'below']">
+  <div style="width: 25vw;">
+    <div *ngIf="landesliste" id="stimmzettel-landesliste" style="max-height: 500px; overflow: scroll;">
+      <h2>Landesliste</h2>
+      <table mat-table [dataSource]="landeslistenFiltered" class="mat-elevation-z8">
+        <ng-container matColumnDef="platz">
+          <th mat-header-cell *matHeaderCellDef>Position</th>
+          <td mat-cell *matCellDef="let row"> {{row.platz}} </td>
+        </ng-container>
+        <ng-container matColumnDef="nachname">
+          <th mat-header-cell *matHeaderCellDef>Nachname</th>
+          <td mat-cell *matCellDef="let row">{{row.nachname}} </td>
+        </ng-container>
+        <ng-container matColumnDef="vorname">
+          <th mat-header-cell *matHeaderCellDef>Vorname</th>
+          <td mat-cell *matCellDef="let row"> {{row.vorname}} </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="landeslisteColumnsToDisplay"></tr>
+        <tr mat-row *matRowDef="let row; columns: landeslisteColumnsToDisplay"></tr>
+      </table>
+    </div>
+    <div *ngIf="!landesliste">
+      Keine Landesliste zum Anzeigen.
+    </div>
+  </div>
+</mtx-popover>

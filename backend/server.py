@@ -168,6 +168,14 @@ def get_stimmzettel(wknr: str):
         return table_to_json(cursor, 'stimmzettel_2021', wk_nummer=wknr)
 
 
+@app.route("/api/20/wahlkreis/<wknr>/landeslisten", methods=['GET'])
+def get_landeslisten(wknr: str):
+    if not valid_wahlkreis(wknr):
+        abort(404)
+    with conn_pool.connection() as conn, conn.cursor() as cursor:
+        return table_to_json(cursor, f'landesliste_kandidaten({wknr}, 20)')
+
+
 @app.route("/api/20/wahlkreis/<wknr>/wahl_token", methods=['POST'])
 def get_wahl_token(wknr: str):
     if not valid_wahlkreis(wknr):

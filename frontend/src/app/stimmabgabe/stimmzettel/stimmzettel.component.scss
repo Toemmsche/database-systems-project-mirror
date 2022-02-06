@@ -9,9 +9,24 @@
   font-style: italic;
 }
 
+.mat-column-erststimme, .mat-column-zweitstimme, .mat-column-platz, .mat-column-nachname, .mat-column-vorname {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
 .mat-column-erststimme, .mat-column-zweitstimme {
   padding-left: 20px;
   padding-right: 20px;
+  width: 15vw;
+}
+
+.mat-column-platz, .mat-column-nachname, .mat-column-vorname {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.mat-column-platz {
+  text-align: right;
 }
 
 .mat-column-erststimme {
@@ -39,4 +54,18 @@
   color: green;
 }
 
+:host {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  column-gap: 20px;
+}
 
+#stimmzettel-landesliste table {
+  width: 100%;
+}
+
+#stimmzettel-landesliste table tr {
+  height: auto;
+}
