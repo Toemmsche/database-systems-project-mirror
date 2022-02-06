@@ -49,6 +49,7 @@ import { KandidatenComponent } from './daten/kandidaten/kandidaten.component';
 import { BundeslandComponent } from './daten/bundesland/bundesland.component';
 import { BundeslandlisteComponent } from './daten/bundeslandliste/bundeslandliste.component';
 import { MatSortModule} from "@angular/material/sort";
+import {MtxPopoverModule} from "@ng-matero/extensions/popover";
 
 @NgModule({
   declarations: [
@@ -103,7 +104,8 @@ import { MatSortModule} from "@angular/material/sort";
     MatInputModule,
     ReactiveFormsModule,
     MatIconModule,
-    MatSortModule
+    MatSortModule,
+    MtxPopoverModule
   ],
   providers: [
     WahlSelectionService

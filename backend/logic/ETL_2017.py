@@ -112,7 +112,6 @@ def load_landeslisten_2017(cursor: psycopg.cursor) -> None:
                 partei_mapping[(row['Gruppenname'],)],
                 19,
                 row['Gebietsnummer'],
-                -1
             )
         )
     )

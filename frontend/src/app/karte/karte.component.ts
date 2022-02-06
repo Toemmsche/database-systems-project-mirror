@@ -25,7 +25,7 @@ export class KarteComponent implements OnInit, OnDestroy, AfterViewInit {
   wkpData !: Array<Wahlkreisstimmen>
 
   siegerTyp: number = 1;
-  partei: string = "Gewinner";
+  partei: string = "Sieger";
   parteien !: Array<string>;
   wahlSubscription !: Subscription;
 
@@ -109,7 +109,7 @@ export class KarteComponent implements OnInit, OnDestroy, AfterViewInit {
 
   updateMap() {
     this.karte.resetColors();
-    if (this.partei === 'Gewinner') {
+    if (this.partei === 'Sieger') {
       this.updateWahlkreisColorsSieger();
     } else {
       this.updateWahlkreisColorsPartei();

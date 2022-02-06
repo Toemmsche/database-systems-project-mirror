@@ -40,6 +40,7 @@ def init_data(cursor: psycopg.Cursor) -> None:
     )
     load_parteien(cursor)
     load_landeslisten_2021(cursor)
+    load_parteihenreinfolge_2021(cursor)
     load_kandidaten_2021(cursor)
     load_listenplaetze_2021(cursor)
     load_direktkandidaten_2021(cursor)

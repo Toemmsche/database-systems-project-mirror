@@ -1,3 +1,23 @@
+@use '@angular/material' as mat;
+
+$my-primary: mat.define-palette(mat.$indigo-palette, 500);
+$my-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+
+$my-warn: mat.define-palette(mat.$red-palette);
+
+$my-theme: mat.define-light-theme((
+ color: (
+   primary: $my-primary,
+   accent: $my-accent,
+   warn: $my-warn,
+ )
+));
+
+@use '@ng-matero/extensions' as mtx;
+
+@include mtx.all-component-themes($my-theme);
+@include mtx.all-experimental-component-themes($my-theme);
+
 // More styles...
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
@@ -13,7 +33,7 @@ h3 {
 }
 
 .mat-row:hover {
-  background-color: lightgrey;
+  background-color: lightgrey !important;
 }
 
 .row-hover:hover {
@@ -44,15 +64,6 @@ h3 {
 
 .filter-reset-btn {
   height: 100%;
-}
-
-.host-container {
-  margin-top: 50px;
-  margin-bottom: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
 }
 
 .flex-row {

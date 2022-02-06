@@ -17,7 +17,7 @@ import {mergeCduCsu} from "../../../util/ArrayHelper";
 export class StrukturdatenComponent implements OnInit {
   wahl !: number;
   metriken !: Array<Metrik>;
-  topNFormControl = new FormControl(10, [Validators.min(1), Validators.max(20), Validators.required]);
+  topNFormControl = new FormControl(10, [Validators.min(1), Validators.max(100), Validators.required]);
   metrikFormControl = new FormControl(undefined, [Validators.required]);
   rangliste !: Array<Rangliste>;
   bData !: Array<Begrenzung>;

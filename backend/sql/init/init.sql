@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS wahlkreis CASCADE;
 DROP TABLE IF EXISTS strukturdaten CASCADE;
 DROP TABLE IF EXISTS gemeinde CASCADE;
 DROP TABLE IF EXISTS partei CASCADE;
+DROP TABLE IF EXISTS parteireihenfolge CASCADE;
 DROP TABLE IF EXISTS kandidat CASCADE;
 DROP TABLE IF EXISTS direktkandidatur CASCADE;
 DROP TABLE IF EXISTS landesliste CASCADE;
@@ -97,6 +98,14 @@ CREATE TABLE partei
     UNIQUE (name, kuerzel)
 );
 
+CREATE TABLE parteireihenfolge
+(
+    wahl     INTEGER REFERENCES bundestagswahl (nummer),
+    partei   INTEGER REFERENCES partei (parteiid),
+    land     INTEGER REFERENCES bundesland (landid),
+    position INTEGER NOT NULL
+);
+
 CREATE TABLE kandidat
 (
 
@@ -124,11 +133,10 @@ CREATE TABLE direktkandidatur
 
 CREATE TABLE landesliste
 (
-    partei              INTEGER REFERENCES partei (parteiid)       NOT NULL,
-    wahl                INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
-    land                INTEGER REFERENCES bundesland (landid)     NOT NULL,
-    stimmzettelposition INTEGER                                    NOT NULL,
-    listenid            SERIAL PRIMARY KEY,
+    partei   INTEGER REFERENCES partei (parteiid)       NOT NULL,
+    wahl     INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
+    land     INTEGER REFERENCES bundesland (landid)     NOT NULL,
+    listenid SERIAL PRIMARY KEY,
     UNIQUE (partei, wahl, land)
 );
 
