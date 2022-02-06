@@ -51,9 +51,9 @@ export class StimmzettelComponent implements OnInit {
       .then((data: Array<StimmzettelEintrag>) => {
         this.stimmzettel = data;
         this.stimmzettel.splice(0,0,
-          new StimmzettelEintrag(this.nummer, -1, false,-1, "", "Ungültig", -1, "Ungültig", "", ""));
+          new StimmzettelEintrag(this.nummer, -1, true,-1, "", "Ungültig", -1, "Ungültig", "", ""));
       })
-    
+
     REST_GET(`20/wahlkreis/${this.nummer}/landeslisten`)
       .then(response => response.json())
       .then((data: Array<Listenplatz>) => {
@@ -104,7 +104,7 @@ export class StimmzettelComponent implements OnInit {
   }
 
   zweitstimmeParteiMouseEnter(eintrag?: StimmzettelEintrag): void {
-    if (!eintrag || this.landesliste === eintrag?.partei || eintrag?.partei === 'Ungültig' || eintrag?.ist_einzelbewerbung) {
+    if (!eintrag || this.landesliste === eintrag?.partei || eintrag?.partei === 'Ungültig' || !eintrag?.hat_landesliste) {
       this.landesliste = undefined;
     } else {
       this.landesliste = eintrag.partei;

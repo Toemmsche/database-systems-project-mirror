@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS wahlkreis CASCADE;
 DROP TABLE IF EXISTS strukturdaten CASCADE;
 DROP TABLE IF EXISTS gemeinde CASCADE;
 DROP TABLE IF EXISTS partei CASCADE;
+DROP TABLE IF EXISTS parteireihenfolge CASCADE;
 DROP TABLE IF EXISTS kandidat CASCADE;
 DROP TABLE IF EXISTS direktkandidatur CASCADE;
 DROP TABLE IF EXISTS landesliste CASCADE;
@@ -46,43 +47,43 @@ CREATE TABLE wahlkreis
 CREATE TABLE strukturdaten
 (
     wahlkreis                                                      INTEGER PRIMARY KEY REFERENCES wahlkreis (wkid) NOT NULL,
-    auslaenderanteil                                               DECIMAL                             NOT NULL,
-    bevoelkerungsdichte                                            DECIMAL                             NOT NULL,
-    bevoelkerungsveraenderung_pro_1000_ew                          DECIMAL                             NOT NULL,
-    altersanteil_unter_18                                          DECIMAL                             NOT NULL,
-    altersanteil_18_bis_24                                         DECIMAL                             NOT NULL,
-    altersanteil_25_bis_34                                         DECIMAL                             NOT NULL,
-    altersanteil_35_bis_59                                         DECIMAL                             NOT NULL,
-    altersanteil_60_bis_74                                         DECIMAL                             NOT NULL,
-    altersanteil_ueber_74                                          DECIMAL                             NOT NULL,
+    auslaenderanteil                                               DECIMAL                                         NOT NULL,
+    bevoelkerungsdichte                                            DECIMAL                                         NOT NULL,
+    bevoelkerungsveraenderung_pro_1000_ew                          DECIMAL                                         NOT NULL,
+    altersanteil_unter_18                                          DECIMAL                                         NOT NULL,
+    altersanteil_18_bis_24                                         DECIMAL                                         NOT NULL,
+    altersanteil_25_bis_34                                         DECIMAL                                         NOT NULL,
+    altersanteil_35_bis_59                                         DECIMAL                                         NOT NULL,
+    altersanteil_60_bis_74                                         DECIMAL                                         NOT NULL,
+    altersanteil_ueber_74                                          DECIMAL                                         NOT NULL,
     bodenflaechenanteil_siedlung_verkehr                           DECIMAL,
     bodenflaechenanteil_vegation_gewaesser                         DECIMAL,
-    wohnungen_pro_1000_ew                                          DECIMAL                             NOT NULL,
+    wohnungen_pro_1000_ew                                          DECIMAL                                         NOT NULL,
     wohnflaeche_pro_wohnung                                        DECIMAL,
     wohnflaeche_pro_ew                                             DECIMAL,
-    pkw_bestand_pro_1000_ew                                        DECIMAL                             NOT NULL,
+    pkw_bestand_pro_1000_ew                                        DECIMAL                                         NOT NULL,
     pkw_anteil_elektro_hybrid                                      DECIMAL,
-    unternehmen_pro_1000_ew                                        DECIMAL                             NOT NULL,
-    handwerksunternehmen_pro_1000_ew                               DECIMAL                             NOT NULL,
+    unternehmen_pro_1000_ew                                        DECIMAL                                         NOT NULL,
+    handwerksunternehmen_pro_1000_ew                               DECIMAL                                         NOT NULL,
     schulabgaenger_beruflich_pro_1000_ew                           DECIMAL,
-    schulabgaenger_allgemeinbildend_pro_1000_ew                    DECIMAL                             NOT NULL,
-    schulabgaengeranteil_allgemeinbildend_ohne_hauptschulabschluss DECIMAL                             NOT NULL,
-    schulabgaengeranteil_allgemeinbildend_hauptschulabschluss      DECIMAL                             NOT NULL,
-    schulabgaengeranteil_allgemeinbildend_mittlerer_schulabschluss DECIMAL                             NOT NULL,
-    schulabgaengeranteil_allgemeinbildend_hochschulreife           DECIMAL                             NOT NULL,
-    einkommen_pro_ew                                               DECIMAL                             NOT NULL,
-    bip_pro_ew                                                     DECIMAL                             NOT NULL,
-    beschaeftigte_pro_1000_ew                                      DECIMAL                             NOT NULL,
+    schulabgaenger_allgemeinbildend_pro_1000_ew                    DECIMAL                                         NOT NULL,
+    schulabgaengeranteil_allgemeinbildend_ohne_hauptschulabschluss DECIMAL                                         NOT NULL,
+    schulabgaengeranteil_allgemeinbildend_hauptschulabschluss      DECIMAL                                         NOT NULL,
+    schulabgaengeranteil_allgemeinbildend_mittlerer_schulabschluss DECIMAL                                         NOT NULL,
+    schulabgaengeranteil_allgemeinbildend_hochschulreife           DECIMAL                                         NOT NULL,
+    einkommen_pro_ew                                               DECIMAL                                         NOT NULL,
+    bip_pro_ew                                                     DECIMAL                                         NOT NULL,
+    beschaeftigte_pro_1000_ew                                      DECIMAL                                         NOT NULL,
     beschaeftigtenanteil_landwirtschaft_forstwirtschaft_fischerei  DECIMAL,
     beschaeftigtenanteil_produzierendes_gewerbe                    DECIMAL,
     beschaeftigtenanteil_handel_gastgewerbe_verkehr                DECIMAL,
     beschaeftigtenanteil_dienstleister                             DECIMAL,
-    leistungsempfaenger_pro_1000_ew                                DECIMAL                             NOT NULL,
-    arbeitslosenquote                                              DECIMAL                             NOT NULL,
-    arbeitslosenquote_maenner                                      DECIMAL                             NOT NULL,
-    arbeitslosenquote_frauen                                       DECIMAL                             NOT NULL,
+    leistungsempfaenger_pro_1000_ew                                DECIMAL                                         NOT NULL,
+    arbeitslosenquote                                              DECIMAL                                         NOT NULL,
+    arbeitslosenquote_maenner                                      DECIMAL                                         NOT NULL,
+    arbeitslosenquote_frauen                                       DECIMAL                                         NOT NULL,
     arbeitslosenquote_15_bis_24                                    DECIMAL,
-    arbeitslosenquote_55_bis_64                                    DECIMAL                             NOT NULL
+    arbeitslosenquote_55_bis_64                                    DECIMAL                                         NOT NULL
 );
 
 CREATE TABLE partei
@@ -95,6 +96,14 @@ CREATE TABLE partei
     farbe               VARCHAR(6),
     parteiid            SERIAL PRIMARY KEY,
     UNIQUE (name, kuerzel)
+);
+
+CREATE TABLE parteireihenfolge
+(
+    wahl     INTEGER REFERENCES bundestagswahl (nummer),
+    partei   INTEGER REFERENCES partei (parteiid),
+    land     INTEGER REFERENCES bundesland (landid),
+    position INTEGER NOT NULL
 );
 
 CREATE TABLE kandidat
@@ -123,11 +132,10 @@ CREATE TABLE direktkandidatur
 
 CREATE TABLE landesliste
 (
-    partei              INTEGER REFERENCES partei (parteiid)       NOT NULL,
-    wahl                INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
-    land                INTEGER REFERENCES bundesland (landid)     NOT NULL,
-    stimmzettelposition INTEGER                                    NOT NULL,
-    listenid            SERIAL PRIMARY KEY,
+    partei   INTEGER REFERENCES partei (parteiid)       NOT NULL,
+    wahl     INTEGER REFERENCES bundestagswahl (nummer) NOT NULL,
+    land     INTEGER REFERENCES bundesland (landid)     NOT NULL,
+    listenid SERIAL PRIMARY KEY,
     UNIQUE (partei, wahl, land)
 );
 

@@ -4,29 +4,60 @@ from logic.links import *
 from logic.util import *
 
 
-def load_landeslisten_2021(cursor: psycopg.cursor) -> None:
+def load_parteihenreinfolge_2021(cursor: psycopg.cursor) -> None:
+    # skip system rows
     parteireihenfolge = download_csv(parteireihenfolge_2021, delimiter=';')[4:]
 
     parteien_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
     parteien_mapping = {(kuerzel[0].upper(),): parteiId for
                         kuerzel, parteiId in parteien_mapping.items()}
+
     bundesland_mapping = key_dict(cursor, 'Bundesland', ('kuerzel',), 'landId')
 
-    landeslisten = []
+    parteireihenfolge = list(
+        filter(
+            lambda row: row['Gruppenname_kurz'] != 'Übrige',
+            parteireihenfolge
+        )
+    )
+
+    parteieihenfolgen = []
     for partei in parteireihenfolge:
-        if partei['Gruppenname_kurz'] != 'Übrige':
-            for bl, pos in partei.items():
-                if bl != 'Gruppenname_kurz' and bl != 'BUND' and pos != '':
-                    landeslisten.append(
-                        (
-                            parteien_mapping[(
-                                partei['Gruppenname_kurz'].upper(),
-                            )],
-                            20,
-                            bundesland_mapping[(bl,)],
-                            pos,
-                        )
+        for bl, pos in partei.items():
+            if bl != 'Gruppenname_kurz' and bl != 'BUND' and pos != '':
+                parteieihenfolgen.append(
+                    (
+                        20,
+                        parteien_mapping[(
+                            partei['Gruppenname_kurz'].upper(),
+                        )],
+                        bundesland_mapping[(bl,)],
+                        pos,
                     )
+                )
+    load_into_db(cursor, parteieihenfolgen, 'parteireihenfolge')
+
+
+def load_landeslisten_2021(cursor: psycopg.cursor) -> None:
+    ergebnisse = download_csv(ergebnisse_2021, delimiter=';', skip=9)
+    partei_mapping = key_dict(cursor, 'partei', ('kuerzel',), 'parteiId')
+
+    landeslisten = list(
+        seq(ergebnisse)
+            .filter(
+            lambda row: row['Gebietsart'] == 'Land' and
+                        row['Gruppenart'] == 'Partei' and
+                        row['Stimme'] == '2' and
+                        row['Anzahl'] != ''
+        )
+            .map(
+            lambda row: (
+                partei_mapping[(row['Gruppenname'],)],
+                20,
+                row['Gebietsnummer'],
+            )
+        )
+    )
     load_into_db(cursor, landeslisten, 'Landesliste')
 
 
