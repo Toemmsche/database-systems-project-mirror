@@ -103,7 +103,8 @@ CREATE TABLE parteireihenfolge
     wahl     INTEGER REFERENCES bundestagswahl (nummer),
     partei   INTEGER REFERENCES partei (parteiid),
     land     INTEGER REFERENCES bundesland (landid),
-    position INTEGER NOT NULL
+    position INTEGER NOT NULL,
+    PRIMARY KEY(wahl, partei, land)
 );
 
 CREATE TABLE kandidat

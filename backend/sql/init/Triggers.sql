@@ -34,7 +34,7 @@ AS
 $$
 BEGIN
     --insert new zweitstimmenergebnis if missing
-    IF NOT EXISTS(SELECT * FROM zweitstimmenergebnis WHERE liste = new.liste AND wahlkreis = new.wahlkreis) THEN
+    IF NOT EXISTS(SELECT * FROM zweitstimmenergebnis ze WHERE ze.liste = new.liste AND ze.wahlkreis = new.wahlkreis) THEN
         INSERT INTO zweitstimmenergebnis VALUES (new.liste, new.wahlkreis, 0);
     END IF;
 
@@ -60,6 +60,11 @@ CREATE FUNCTION update_ungueltige_stimmen_aggregate()
 AS
 $$
 BEGIN
+    --insert new ungueltige stimmen_ergebnis if missing
+    IF NOT EXISTS(SELECT * FROM ungueltige_stimmen_ergebnis use WHERE use.stimmentyp = new.stimmentyp AND use.wahlkreis = new.wahlkreis) THEN
+        INSERT INTO ungueltige_stimmen_ergebnis VALUES (new.stimmentyp, new.wahlkreis, 0);
+    END IF;
+
     UPDATE ungueltige_stimmen_ergebnis
     SET anzahlstimmen = anzahlstimmen + 1
     WHERE stimmentyp = new.stimmentyp
