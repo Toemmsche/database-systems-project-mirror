@@ -53,6 +53,7 @@ class TestAnzahlStimmenSql(unittest.TestCase):
         self.assertEqual(actual_20_zweitstimme, expected_20_zweitstimme)
         self.assertEqual(actual_19_zweitstimme, expected_19_zweitstimme)
 
+
     def test_gesamt_erststimmen(self):
         # from kerg
         expected_19 = 46389615
@@ -72,6 +73,12 @@ class TestAnzahlStimmenSql(unittest.TestCase):
 
         self.assertEqual(actual_20, expected_20)
         self.assertEqual(actual_19, expected_19)
+
+        query = f"""
+                SELECT COUNT(*) AS erststimmen FROM erststimme
+                """
+        actual_erststimmen = query_to_dict_list(self.cursor, query)[0]['erststimmen']
+        self.assertEqual(actual_erststimmen, expected_19 + expected_20)
 
     def test_gesamt_zweitstimme(self):
         # from kerg

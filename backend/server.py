@@ -190,7 +190,7 @@ def get_wahl_token(wknr: str):
         if valid_uuid(token) and valid_admin_token(cursor, 20, int(wknr), token):
             # Generate new wahl token
             new_token = generate_wahl_token(cursor, 20, int(wknr))
-            return {'token': str(new_token)}
+            return new_token
         else:
             err_str = f"Invalid admin token for wahlkreis {wknr}: {token}"
             logger.error(err_str)
