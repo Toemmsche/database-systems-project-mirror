@@ -167,14 +167,6 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
       .then(response => response.json())
       .then((data: Wahlkreis) => {
         this.wahlkreis = data;
-      })
-      .catch((error) => {
-        if (error instanceof ServerError) {
-          window.alert("Einzelstimmen liegen nicht vor");
-          // Simulate toggle back
-          this.useEinzelstimmen = false;
-          this.onEinzelstimmenToggleChanged();
-        }
       });
 
     REST_GET(`${this.wahl}/wahlkreis/${this.nummer}/stimmen${this.useEinzelstimmen ? "?einzelstimmen=true" : ""}`)
@@ -243,6 +235,14 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
         // Save for later
         this.erststimmenergebnisse = esData;
         this.zweitstimmenergebnisse = zsData;
+      })
+      .catch((error) => {
+        if (error instanceof ServerError) {
+          window.alert("Einzelstimmen liegen nicht vor");
+          // Simulate toggle back
+          this.useEinzelstimmen = false;
+          this.onEinzelstimmenToggleChanged();
+        }
       });
   }
 

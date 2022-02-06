@@ -110,6 +110,7 @@ def load_einzelstimmen(cursor: psycopg.cursor, **kwargs):
 
     load_into_db(cursor, erststimmen, 'erststimme')
     del erststimmen
+    logger.info("Loaded einzelne Erststimmen")
 
     zweitstimmen = []
     for ze in zweitstimmenergebnisse:
@@ -121,6 +122,8 @@ def load_einzelstimmen(cursor: psycopg.cursor, **kwargs):
 
     load_into_db(cursor, zweitstimmen, 'zweitstimme')
     del zweitstimmen
+    logger.info("Loaded einzelne Zweitstimmen")
+
 
     ungueltige_stimmen = []
     for use in ungueltige_stimmen_ergebnisse:
@@ -132,6 +135,7 @@ def load_einzelstimmen(cursor: psycopg.cursor, **kwargs):
 
     load_into_db(cursor, ungueltige_stimmen, 'ungueltige_stimme')
     del ungueltige_stimmen
+    logger.info("Loaded einzelne ungueltige Stimmen")
 
     cursor.execute("SET session_replication_role = 'origin';")
 

@@ -55,11 +55,6 @@ def get_wahlkreisinformation(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:  # if specified, reset aggregates
-        if request.args.get('einzelstimmen') == 'true':
-            if not reset_aggregates(cursor, int(wahl), int(wknr)):
-                err_str = f"Could not reset aggregates for wahlkreis {wknr} in wahl {wahl}"
-                logger.error(err_str)
-                abort(409)  # conflict
         return table_to_json(cursor, 'wahlkreisinformation', wahl=wahl, wk_nummer=wknr, single=True)
 
 
@@ -68,7 +63,11 @@ def get_wahlkreisergebnis_stimmen(wahl: str, wknr: str):
     if not valid_wahl(wahl) or not valid_wahlkreis(wknr):
         abort(404)
     with conn_pool.connection() as conn, conn.cursor() as cursor:
-        # only check for reset aggregates in wahlkreis_information
+        if request.args.get('einzelstimmen') == 'true':
+            if not reset_aggregates(cursor, int(wahl), int(wknr)):
+                err_str = f"Could not reset aggregates for wahlkreis {wknr} in wahl {wahl}"
+                logger.error(err_str)
+                abort(409)  # conflict
         return table_to_json(cursor, 'stimmen_qpartei_wahlkreis', wahl=wahl, wk_nummer=wknr)
 
 
