@@ -200,6 +200,18 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
                   wk_nummer   : pe.wk_nummer
                 });
               });
+              // Insert missing parties
+              esDataPrev.filter(pePrev => esData.findIndex(pe => pe.partei == pePrev.partei) == -1).forEach(pe => {
+                esData.push({
+                  partei      : pe.partei,
+                  partei_farbe: pe.partei_farbe,
+                  abs_stimmen : 0,
+                  rel_stimmen : 0,
+                  stimmentyp  : 1,
+                  wahl        : this.wahl - 1,
+                  wk_nummer   : pe.wk_nummer
+                });
+              });
               esDataPrev = esDataPrev.sort(sortWithSameSorting(esData));
               this.populateBarChartData(esDataPrev, this.erststimmenConfig, 1, 99);
 
@@ -208,6 +220,18 @@ export class WahlkreisComponent implements OnInit, OnDestroy {
               // Insert missing parties
               zsData.filter(pe => zsDataPrev.findIndex(pePrev => pe.partei == pePrev.partei) == -1).forEach(pe => {
                 zsDataPrev.push({
+                  partei      : pe.partei,
+                  partei_farbe: pe.partei_farbe,
+                  abs_stimmen : 0,
+                  rel_stimmen : 0,
+                  stimmentyp  : 2,
+                  wahl        : this.wahl - 1,
+                  wk_nummer   : pe.wk_nummer
+                });
+              });
+              // Insert missing parties
+              zsDataPrev.filter(pePrev => zsData.findIndex(pe => pe.partei == pePrev.partei) == -1).forEach(pe => {
+                zsData.push({
                   partei      : pe.partei,
                   partei_farbe: pe.partei_farbe,
                   abs_stimmen : 0,
