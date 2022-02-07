@@ -134,6 +134,19 @@ export class BundeslandComponent implements OnInit {
                     bl_kuerzel  : pe.bl_kuerzel
                   });
                 });
+              // Insert missing parties
+              dataPrev
+                .filter(pePrev => data.findIndex(pe => pe.partei == pePrev.partei) == -1)
+                .forEach(pe => {
+                  data.push({
+                    partei      : pe.partei,
+                    partei_farbe: pe.partei_farbe,
+                    abs_stimmen : 0,
+                    rel_stimmen : 0,
+                    wahl        : this.wahl - 1,
+                    bl_kuerzel  : pe.bl_kuerzel
+                  });
+                });
               dataPrev = dataPrev.sort(sortWithSameSorting(data));
               this.populateBarChartData(dataPrev, this.zweitstimmenConfig, 1, 99);
 
