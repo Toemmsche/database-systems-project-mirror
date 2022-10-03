@@ -13,8 +13,7 @@ if 'EINZELSTIMMEN' in os.environ:
 
 
 # Parse database URI
-result = urlparse("postgres://ucwdnjnjifmwgg:430429ad92ce68ce1ac53a69a66a60ab65c391d44897014a90027d3978500415@ec2-99-81-16-126.eu-west-1.compute.amazonaws.com:5432/dcicjcv08mh5ib
-")
+result = urlparse(os.environ.get("DATABASE_URL"))
 username = result.username
 password = result.password
 database = result.path[1:]
