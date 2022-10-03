@@ -101,3 +101,5 @@ export $DATABASE_URL=(connection_string)
 python -m unittest test/*.py
 ```
 
+Made by Tom & Felix
+
